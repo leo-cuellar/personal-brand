@@ -1,0 +1,281 @@
+"use client";
+
+import { useState, useMemo } from "react";
+import { useStrongOpinions } from "@/hooks/useStrongOpinions";
+import { StrongOpinion, NewStrongOpinion } from "@/services/supabase/schemas";
+
+function formatDate(date: Date | string): string {
+    const d = typeof date === "string" ? new Date(date) : date;
+    if (isNaN(d.getTime())) {
+        return "Invalid date";
+    }
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+export function StrongOpinionsPage() {
+    const [showArchived, setShowArchived] = useState(false);
+    const params = useMemo(
+        () => ({ includeArchived: showArchived }),
+        [showArchived]
+    );
+    const { strongOpinions, loading, error, create, update, remove } =
+        useStrongOpinions(params);
+    const [isCreating, setIsCreating] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [formData, setFormData] = useState<NewStrongOpinion>({
+        opinion: "",
+        isArchived: false,
+    });
+
+    const handleCreate = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await create(formData);
+            setFormData({ opinion: "", isArchived: false });
+            setIsCreating(false);
+        } catch (err) {
+            console.error("Failed to create:", err);
+        }
+    };
+
+    const handleUpdate = async (id: string, updates: Partial<StrongOpinion>) => {
+        try {
+            await update(id, updates);
+            setEditingId(null);
+        } catch (err) {
+            console.error("Failed to update:", err);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (confirm("Are you sure you want to permanently delete this strong opinion? This action cannot be undone.")) {
+            try {
+                await remove(id);
+            } catch (err) {
+                console.error("Failed to delete:", err);
+            }
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center">
+                <div className="text-center">
+                    <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+                    <p className="text-lg text-gray-600">Loading strong opinions...</p>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="container mx-auto max-w-6xl p-8">
+            <div className="mb-8">
+                <h1 className="mb-2 text-4xl font-bold text-gray-900">
+                    Strong Opinions
+                </h1>
+                <p className="text-gray-600">
+                    Manage your strong opinions for content generation
+                </p>
+            </div>
+
+            {error && (
+                <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">
+                    <strong>Error:</strong> {error}
+                </div>
+            )}
+
+            <div className="mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked={showArchived}
+                            onChange={(e) => setShowArchived(e.target.checked)}
+                            className="h-4 w-4 rounded border-gray-300"
+                        />
+                        <span className="text-sm text-gray-700">Show archived</span>
+                    </label>
+                    <span className="text-sm text-gray-500">
+                        {strongOpinions.length} opinion{strongOpinions.length !== 1 ? "s" : ""}
+                    </span>
+                </div>
+                <button
+                    onClick={() => setIsCreating(!isCreating)}
+                    className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                    {isCreating ? "Cancel" : "+ Add New Opinion"}
+                </button>
+            </div>
+
+            {isCreating && (
+                <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                    <h2 className="mb-4 text-xl font-semibold text-gray-900">
+                        Create New Strong Opinion
+                    </h2>
+                    <form onSubmit={handleCreate} className="space-y-4">
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">
+                                Opinion *
+                            </label>
+                            <textarea
+                                value={formData.opinion}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, opinion: e.target.value })
+                                }
+                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                rows={4}
+                                placeholder="Enter your strong opinion..."
+                                required
+                            />
+                        </div>
+                        <div className="flex gap-3">
+                            <button
+                                type="submit"
+                                className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                            >
+                                Create
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsCreating(false);
+                                    setFormData({ opinion: "", isArchived: false });
+                                }}
+                                className="rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            <div className="space-y-4">
+                {strongOpinions.length === 0 ? (
+                    <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
+                        <p className="text-gray-500">
+                            {showArchived
+                                ? "No strong opinions found."
+                                : "No active strong opinions. Create one to get started!"}
+                        </p>
+                    </div>
+                ) : (
+                    strongOpinions.map((opinion) => (
+                        <div
+                            key={opinion.id}
+                            className={`rounded-lg border p-6 shadow-sm transition-shadow hover:shadow-md ${opinion.isArchived
+                                ? "border-gray-300 bg-gray-50"
+                                : "border-gray-200 bg-white"
+                                }`}
+                        >
+                            {editingId === opinion.id ? (
+                                <EditForm
+                                    opinion={opinion}
+                                    onSave={(updates) => handleUpdate(opinion.id, updates)}
+                                    onCancel={() => setEditingId(null)}
+                                />
+                            ) : (
+                                <>
+                                    <div className="mb-3 flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <div className="mb-1 flex items-center gap-2">
+                                                {opinion.isArchived && (
+                                                    <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700">
+                                                        Archived
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-gray-900">{opinion.opinion}</p>
+                                        </div>
+                                        <div className="ml-4 flex gap-2">
+                                            <button
+                                                onClick={() => setEditingId(opinion.id)}
+                                                className="rounded-lg bg-yellow-50 px-4 py-2 text-sm font-medium text-yellow-700 transition-colors hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleUpdate(opinion.id, {
+                                                        isArchived: !opinion.isArchived,
+                                                    })
+                                                }
+                                                className="rounded-lg bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                                            >
+                                                {opinion.isArchived ? "Unarchive" : "Archive"}
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(opinion.id)}
+                                                className="rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                        Created: {formatDate(opinion.createdAt)} •
+                                        Updated: {formatDate(opinion.updatedAt)}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    ))
+                )}
+            </div>
+        </div>
+    );
+}
+
+function EditForm({
+    opinion,
+    onSave,
+    onCancel,
+}: {
+    opinion: StrongOpinion;
+    onSave: (updates: Partial<StrongOpinion>) => void;
+    onCancel: () => void;
+}) {
+    const [opinionText, setOpinionText] = useState(opinion.opinion);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSave({ opinion: opinionText });
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Opinion *
+                </label>
+                <textarea
+                    value={opinionText}
+                    onChange={(e) => setOpinionText(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={4}
+                    required
+                />
+            </div>
+            <div className="flex gap-3">
+                <button
+                    type="submit"
+                    className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                >
+                    Save Changes
+                </button>
+                <button
+                    type="button"
+                    onClick={onCancel}
+                    className="rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                >
+                    Cancel
+                </button>
+            </div>
+        </form>
+    );
+}
+
