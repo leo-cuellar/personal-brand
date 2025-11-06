@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
     getPublicationTypes,
     createPublicationType,
@@ -9,6 +9,7 @@ import {
     GetPublicationTypesParams,
 } from "@/services/api-wrapper/publication-types";
 import { PublicationType, NewPublicationType } from "@/services/supabase/schemas";
+import { usePersonContext } from "@/contexts/PersonContext";
 
 interface UsePublicationTypesReturn {
     publicationTypes: PublicationType[];
@@ -23,22 +24,31 @@ interface UsePublicationTypesReturn {
 export function usePublicationTypes(
     params?: GetPublicationTypesParams
 ): UsePublicationTypesReturn {
+    const { selectedPersonId } = usePersonContext();
     const [publicationTypes, setPublicationTypes] = useState<PublicationType[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    // Merge personId from context with params
+    const mergedParams = useMemo(() => {
+        return {
+            ...params,
+            personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+        };
+    }, [params, selectedPersonId]);
 
     const fetchPublicationTypes = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
-            const data = await getPublicationTypes(params);
+            const data = await getPublicationTypes(mergedParams);
             setPublicationTypes(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An error occurred");
         } finally {
             setLoading(false);
         }
-    }, [params]);
+    }, [mergedParams]);
 
     useEffect(() => {
         fetchPublicationTypes();
@@ -48,7 +58,16 @@ export function usePublicationTypes(
         async (data: NewPublicationType): Promise<PublicationType> => {
             try {
                 setError(null);
-                const newPublicationType = await createPublicationType(data);
+                // Ensure personId is set from context if not provided
+                const personId = data.personId || selectedPersonId;
+                if (!personId) {
+                    throw new Error("Person ID is required. Please select a person first.");
+                }
+                const dataWithPersonId = {
+                    ...data,
+                    personId,
+                };
+                const newPublicationType = await createPublicationType(dataWithPersonId);
                 // Optimistic update: add to list immediately
                 setPublicationTypes((prev) => [newPublicationType, ...prev]);
                 return newPublicationType;
@@ -61,7 +80,7 @@ export function usePublicationTypes(
                 throw err;
             }
         },
-        [fetchPublicationTypes]
+        [fetchPublicationTypes, selectedPersonId]
     );
 
     const update = useCallback(

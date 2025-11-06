@@ -4,9 +4,9 @@ import {
     timestamp,
     uuid,
     boolean,
-    varchar,
     pgEnum,
 } from "drizzle-orm/pg-core";
+import { persons } from "./person";
 
 // Enum for idea source
 export const ideaSourceEnum = pgEnum("idea_source", ["ai", "manual"]);
@@ -14,6 +14,9 @@ export const ideaSourceEnum = pgEnum("idea_source", ["ai", "manual"]);
 // Publication ideas table
 export const publicationIdeas = pgTable("publication_ideas", {
     id: uuid("id").primaryKey().defaultRandom(),
+    personId: uuid("person_id")
+        .references(() => persons.id, { onDelete: "cascade" })
+        .notNull(),
     idea: text("idea").notNull(),
     description: text("description"),
     source: ideaSourceEnum("source").notNull().default("manual"),

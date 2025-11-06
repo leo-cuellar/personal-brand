@@ -25,11 +25,12 @@ async function seedPublications() {
         for (const publication of mockPublications) {
             await client`
                 INSERT INTO public.publications (
-                    id, title, content, status, platform, 
+                    id, person_id, title, content, status, platform, 
                     scheduled_at, published_at, 
                     created_at, updated_at, is_archived
                 ) VALUES (
                     ${publication.id}::uuid,
+                    ${publication.personId}::uuid,
                     ${publication.title || null},
                     ${publication.content},
                     ${publication.status}::publication_status,
@@ -65,9 +66,10 @@ async function seedStrongOpinions() {
         for (const opinion of mockStrongOpinions) {
             await client`
                 INSERT INTO public.strong_opinions (
-                    id, opinion, created_at, updated_at, is_archived
+                    id, person_id, opinion, created_at, updated_at, is_archived
                 ) VALUES (
                     ${opinion.id}::uuid,
+                    ${opinion.personId}::uuid,
                     ${opinion.opinion},
                     ${new Date(opinion.createdAt)},
                     ${new Date(opinion.updatedAt)},
@@ -98,16 +100,17 @@ async function seedPublicationTypes() {
         for (const publicationType of mockPublicationTypes) {
             await client`
                 INSERT INTO public.publication_types (
-                    id, name, description, created_at, updated_at, is_archived
+                    id, person_id, name, description, created_at, updated_at, is_archived
                 ) VALUES (
                     ${publicationType.id}::uuid,
+                    ${publicationType.personId}::uuid,
                     ${publicationType.name},
                     ${publicationType.description},
                     ${new Date(publicationType.createdAt)},
                     ${new Date(publicationType.updatedAt)},
                     ${publicationType.isArchived}
                 )
-                ON CONFLICT (name) DO NOTHING
+                ON CONFLICT (id) DO NOTHING
             `;
         }
 
@@ -132,16 +135,17 @@ async function seedPublicationTopics() {
         for (const publicationTopic of mockPublicationTopics) {
             await client`
                 INSERT INTO public.publication_topics (
-                    id, name, description, created_at, updated_at, is_archived
+                    id, person_id, name, description, created_at, updated_at, is_archived
                 ) VALUES (
                     ${publicationTopic.id}::uuid,
+                    ${publicationTopic.personId}::uuid,
                     ${publicationTopic.name},
                     ${publicationTopic.description},
                     ${new Date(publicationTopic.createdAt)},
                     ${new Date(publicationTopic.updatedAt)},
                     ${publicationTopic.isArchived}
                 )
-                ON CONFLICT (name) DO NOTHING
+                ON CONFLICT (id) DO NOTHING
             `;
         }
 
@@ -166,9 +170,10 @@ async function seedPublicationIdeas() {
         for (const publicationIdea of mockPublicationIdeas) {
             await client`
                 INSERT INTO public.publication_ideas (
-                    id, idea, description, source, created_at, updated_at, is_archived
+                    id, person_id, idea, description, source, created_at, updated_at, is_archived
                 ) VALUES (
                     ${publicationIdea.id}::uuid,
+                    ${publicationIdea.personId}::uuid,
                     ${publicationIdea.idea},
                     ${publicationIdea.description || null},
                     ${publicationIdea.source}::idea_source,

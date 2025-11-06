@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
     getPublicationTopics,
     createPublicationTopic,
@@ -9,6 +9,7 @@ import {
     GetPublicationTopicsParams,
 } from "@/services/api-wrapper/publication-topics";
 import { PublicationTopic, NewPublicationTopic } from "@/services/supabase/schemas";
+import { usePersonContext } from "@/contexts/PersonContext";
 
 interface UsePublicationTopicsReturn {
     publicationTopics: PublicationTopic[];
@@ -23,22 +24,31 @@ interface UsePublicationTopicsReturn {
 export function usePublicationTopics(
     params?: GetPublicationTopicsParams
 ): UsePublicationTopicsReturn {
+    const { selectedPersonId } = usePersonContext();
     const [publicationTopics, setPublicationTopics] = useState<PublicationTopic[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    // Merge personId from context with params
+    const mergedParams = useMemo(() => {
+        return {
+            ...params,
+            personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+        };
+    }, [params, selectedPersonId]);
 
     const fetchPublicationTopics = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
-            const data = await getPublicationTopics(params);
+            const data = await getPublicationTopics(mergedParams);
             setPublicationTopics(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An error occurred");
         } finally {
             setLoading(false);
         }
-    }, [params]);
+    }, [mergedParams]);
 
     useEffect(() => {
         fetchPublicationTopics();
@@ -48,7 +58,16 @@ export function usePublicationTopics(
         async (data: NewPublicationTopic): Promise<PublicationTopic> => {
             try {
                 setError(null);
-                const newPublicationTopic = await createPublicationTopic(data);
+                // Ensure personId is set from context if not provided
+                const personId = data.personId || selectedPersonId;
+                if (!personId) {
+                    throw new Error("Person ID is required. Please select a person first.");
+                }
+                const dataWithPersonId = {
+                    ...data,
+                    personId,
+                };
+                const newPublicationTopic = await createPublicationTopic(dataWithPersonId);
                 setPublicationTopics((prev) => [newPublicationTopic, ...prev]);
                 return newPublicationTopic;
             } catch (err) {
@@ -59,7 +78,7 @@ export function usePublicationTopics(
                 throw err;
             }
         },
-        [fetchPublicationTopics]
+        [fetchPublicationTopics, selectedPersonId]
     );
 
     const update = useCallback(

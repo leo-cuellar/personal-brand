@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
     getPublicationIdeas,
     createPublicationIdea,
@@ -9,6 +9,7 @@ import {
     GetPublicationIdeasParams,
 } from "@/services/api-wrapper/publication-ideas";
 import { PublicationIdea, NewPublicationIdea } from "@/services/supabase/schemas";
+import { usePersonContext } from "@/contexts/PersonContext";
 
 interface UsePublicationIdeasReturn {
     publicationIdeas: PublicationIdea[];
@@ -23,22 +24,31 @@ interface UsePublicationIdeasReturn {
 export function usePublicationIdeas(
     params?: GetPublicationIdeasParams
 ): UsePublicationIdeasReturn {
+    const { selectedPersonId } = usePersonContext();
     const [publicationIdeas, setPublicationIdeas] = useState<PublicationIdea[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    // Merge personId from context with params
+    const mergedParams = useMemo(() => {
+        return {
+            ...params,
+            personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+        };
+    }, [params, selectedPersonId]);
 
     const fetchPublicationIdeas = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
-            const data = await getPublicationIdeas(params);
+            const data = await getPublicationIdeas(mergedParams);
             setPublicationIdeas(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An error occurred");
         } finally {
             setLoading(false);
         }
-    }, [params]);
+    }, [mergedParams]);
 
     useEffect(() => {
         fetchPublicationIdeas();
@@ -48,7 +58,16 @@ export function usePublicationIdeas(
         async (data: NewPublicationIdea): Promise<PublicationIdea> => {
             try {
                 setError(null);
-                const newPublicationIdea = await createPublicationIdea(data);
+                // Ensure personId is set from context if not provided
+                const personId = data.personId || selectedPersonId;
+                if (!personId) {
+                    throw new Error("Person ID is required. Please select a person first.");
+                }
+                const dataWithPersonId = {
+                    ...data,
+                    personId,
+                };
+                const newPublicationIdea = await createPublicationIdea(dataWithPersonId);
                 setPublicationIdeas((prev) => [newPublicationIdea, ...prev]);
                 return newPublicationIdea;
             } catch (err) {
@@ -59,7 +78,7 @@ export function usePublicationIdeas(
                 throw err;
             }
         },
-        [fetchPublicationIdeas]
+        [fetchPublicationIdeas, selectedPersonId]
     );
 
     const update = useCallback(

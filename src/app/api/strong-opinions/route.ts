@@ -7,11 +7,16 @@ export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
         const includeArchived = searchParams.get("includeArchived") === "true";
+        const personId = searchParams.get("personId");
 
         let query = supabaseAdmin
             .from("strong_opinions")
             .select("*")
             .order("created_at", { ascending: false });
+
+        if (personId) {
+            query = query.eq("person_id", personId);
+        }
 
         if (!includeArchived) {
             query = query.eq("is_archived", false);
@@ -43,6 +48,7 @@ export async function POST(request: NextRequest) {
         const { data, error } = await supabaseAdmin
             .from("strong_opinions")
             .insert({
+                person_id: body.personId,
                 opinion: body.opinion,
                 is_archived: body.isArchived || false,
             })

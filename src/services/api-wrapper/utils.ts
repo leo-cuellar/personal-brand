@@ -10,6 +10,7 @@ import {
 // Supabase response types (snake_case)
 interface SupabasePublicationType {
     id: string;
+    person_id: string;
     name: string;
     description: string;
     created_at: string;
@@ -19,6 +20,7 @@ interface SupabasePublicationType {
 
 interface SupabasePublicationTopic {
     id: string;
+    person_id: string;
     name: string;
     description: string;
     created_at: string;
@@ -28,6 +30,7 @@ interface SupabasePublicationTopic {
 
 interface SupabaseStrongOpinion {
     id: string;
+    person_id: string;
     opinion: string;
     created_at: string;
     updated_at: string;
@@ -36,6 +39,7 @@ interface SupabaseStrongOpinion {
 
 interface SupabasePublicationIdea {
     id: string;
+    person_id: string;
     idea: string;
     description: string | null;
     source: string;
@@ -46,6 +50,7 @@ interface SupabasePublicationIdea {
 
 interface SupabasePublication {
     id: string;
+    person_id: string;
     title: string | null;
     content: string;
     status: string;
@@ -84,6 +89,7 @@ export function transformPublicationType(
 ): PublicationType {
     return {
         id: data.id,
+        personId: data.person_id,
         name: data.name,
         description: data.description,
         createdAt: new Date(data.created_at) as unknown as Date,
@@ -97,6 +103,7 @@ export function transformPublicationTopic(
 ): PublicationTopic {
     return {
         id: data.id,
+        personId: data.person_id,
         name: data.name,
         description: data.description,
         createdAt: new Date(data.created_at) as unknown as Date,
@@ -110,6 +117,7 @@ export function transformStrongOpinion(
 ): StrongOpinion {
     return {
         id: data.id,
+        personId: data.person_id,
         opinion: data.opinion,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
@@ -122,6 +130,7 @@ export function transformPublicationIdea(
 ): PublicationIdea {
     return {
         id: data.id,
+        personId: data.person_id,
         idea: data.idea,
         description: data.description,
         source: data.source as "ai" | "manual",
@@ -136,6 +145,7 @@ export function transformPublication(
 ): Publication {
     return {
         id: data.id,
+        personId: data.person_id,
         title: data.title,
         content: data.content,
         status: data.status as "draft" | "scheduled" | "published",

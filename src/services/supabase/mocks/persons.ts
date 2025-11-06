@@ -1,9 +1,11 @@
-import { randomUUID } from "crypto";
 import { Person } from "../schemas";
+
+// Export the first person's ID so we can use it in other mocks
+export const MOCK_PERSON_ID = "00000000-0000-0000-0000-000000000001";
 
 export const mockPersons: Person[] = [
     {
-        id: randomUUID(),
+        id: MOCK_PERSON_ID as unknown as string,
         name: "Leo Cuellar",
         linkedinProfile: "https://linkedin.com/in/leocuellardev",
         immediateCredibility:

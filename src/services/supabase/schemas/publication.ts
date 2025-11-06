@@ -7,6 +7,7 @@ import {
     varchar,
     pgEnum,
 } from "drizzle-orm/pg-core";
+import { persons } from "./person";
 
 // Enum para estado de publicación
 export const publicationStatusEnum = pgEnum("publication_status", [
@@ -23,6 +24,9 @@ export const publicationPlatformEnum = pgEnum("publication_platform", [
 // Publications table
 export const publications = pgTable("publications", {
     id: uuid("id").primaryKey().defaultRandom(),
+    personId: uuid("person_id")
+        .references(() => persons.id, { onDelete: "cascade" })
+        .notNull(),
     title: varchar("title", { length: 255 }),
     content: text("content").notNull(),
     status: publicationStatusEnum("status").notNull().default("draft"),

@@ -1,9 +1,13 @@
 import { pgTable, text, timestamp, uuid, boolean, varchar } from "drizzle-orm/pg-core";
+import { persons } from "./person";
 
 // Publication topics table
 export const publicationTopics = pgTable("publication_topics", {
     id: uuid("id").primaryKey().defaultRandom(),
-    name: varchar("name", { length: 100 }).notNull().unique(),
+    personId: uuid("person_id")
+        .references(() => persons.id, { onDelete: "cascade" })
+        .notNull(),
+    name: varchar("name", { length: 100 }).notNull(),
     description: text("description").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
         .notNull()

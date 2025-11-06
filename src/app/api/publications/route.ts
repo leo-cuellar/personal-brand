@@ -8,11 +8,16 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const includeArchived = searchParams.get("includeArchived") === "true";
         const status = searchParams.get("status");
+        const personId = searchParams.get("personId");
 
         let query = supabaseAdmin
             .from("publications")
             .select("*")
             .order("created_at", { ascending: false });
+
+        if (personId) {
+            query = query.eq("person_id", personId);
+        }
 
         if (!includeArchived) {
             query = query.eq("is_archived", false);
@@ -48,6 +53,7 @@ export async function POST(request: NextRequest) {
         const { data, error } = await supabaseAdmin
             .from("publications")
             .insert({
+                person_id: body.personId,
                 title: body.title || null,
                 content: body.content,
                 status: body.status || "draft",

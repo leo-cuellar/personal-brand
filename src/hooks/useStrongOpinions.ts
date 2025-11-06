@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
     getStrongOpinions,
     createStrongOpinion,
@@ -9,6 +9,7 @@ import {
     GetStrongOpinionsParams,
 } from "@/services/api-wrapper/strong-opinions";
 import { StrongOpinion, NewStrongOpinion } from "@/services/supabase/schemas";
+import { usePersonContext } from "@/contexts/PersonContext";
 
 interface UseStrongOpinionsReturn {
     strongOpinions: StrongOpinion[];
@@ -23,22 +24,31 @@ interface UseStrongOpinionsReturn {
 export function useStrongOpinions(
     params?: GetStrongOpinionsParams
 ): UseStrongOpinionsReturn {
+    const { selectedPersonId } = usePersonContext();
     const [strongOpinions, setStrongOpinions] = useState<StrongOpinion[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    // Merge personId from context with params
+    const mergedParams = useMemo(() => {
+        return {
+            ...params,
+            personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+        };
+    }, [params, selectedPersonId]);
 
     const fetchStrongOpinions = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
-            const data = await getStrongOpinions(params);
+            const data = await getStrongOpinions(mergedParams);
             setStrongOpinions(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An error occurred");
         } finally {
             setLoading(false);
         }
-    }, [params]);
+    }, [mergedParams]);
 
     useEffect(() => {
         fetchStrongOpinions();
@@ -48,7 +58,16 @@ export function useStrongOpinions(
         async (data: NewStrongOpinion): Promise<StrongOpinion> => {
             try {
                 setError(null);
-                const newStrongOpinion = await createStrongOpinion(data);
+                // Ensure personId is set from context if not provided
+                const personId = data.personId || selectedPersonId;
+                if (!personId) {
+                    throw new Error("Person ID is required. Please select a person first.");
+                }
+                const dataWithPersonId = {
+                    ...data,
+                    personId,
+                };
+                const newStrongOpinion = await createStrongOpinion(dataWithPersonId);
                 setStrongOpinions((prev) => [newStrongOpinion, ...prev]);
                 return newStrongOpinion;
             } catch (err) {
@@ -59,7 +78,7 @@ export function useStrongOpinions(
                 throw err;
             }
         },
-        [fetchStrongOpinions]
+        [fetchStrongOpinions, selectedPersonId]
     );
 
     const update = useCallback(

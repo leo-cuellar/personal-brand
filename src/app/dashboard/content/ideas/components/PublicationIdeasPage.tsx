@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
 import { PublicationIdea, NewPublicationIdea } from "@/services/supabase/schemas";
+import { usePersonContext } from "@/contexts/PersonContext";
 
 function formatDate(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
@@ -16,6 +17,7 @@ function formatDate(date: Date | string): string {
 }
 
 export function PublicationIdeasPage() {
+    const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
     const params = useMemo(
         () => ({ includeArchived: showArchived }),
@@ -25,7 +27,7 @@ export function PublicationIdeasPage() {
         usePublicationIdeas(params);
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
-    const [formData, setFormData] = useState<NewPublicationIdea>({
+    const [formData, setFormData] = useState<Partial<NewPublicationIdea>>({
         idea: "",
         description: null,
         source: "manual",
@@ -34,8 +36,21 @@ export function PublicationIdeasPage() {
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!selectedPersonId) {
+            alert("Please select a person first from the header");
+            return;
+        }
+        if (!formData.idea) {
+            alert("Idea is required");
+            return;
+        }
         try {
-            await create(formData);
+            await create({
+                idea: formData.idea,
+                description: formData.description || null,
+                source: formData.source || "manual",
+                isArchived: formData.isArchived || false,
+            } as NewPublicationIdea);
             setFormData({ idea: "", description: null, source: "manual", isArchived: false });
             setIsCreating(false);
         } catch (err) {
@@ -107,7 +122,9 @@ export function PublicationIdeasPage() {
                 </div>
                 <button
                     onClick={() => setIsCreating(!isCreating)}
-                    className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    disabled={!selectedPersonId}
+                    className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    title={!selectedPersonId ? "Please select a person first" : ""}
                 >
                     {isCreating ? "Cancel" : "+ Add New Idea"}
                 </button>
@@ -118,6 +135,11 @@ export function PublicationIdeasPage() {
                     <h2 className="mb-4 text-xl font-semibold text-gray-900">
                         Create New Publication Idea
                     </h2>
+                    {!selectedPersonId && (
+                        <div className="mb-4 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-yellow-800">
+                            <strong>⚠️ Warning:</strong> Please select a person from the header before creating an idea.
+                        </div>
+                    )}
                     <form onSubmit={handleCreate} className="space-y-4">
                         <div>
                             <label className="mb-2 block text-sm font-medium text-gray-700">

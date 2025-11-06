@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { usePublications } from "@/hooks/usePublications";
 import { Publication, NewPublication } from "@/services/supabase/schemas";
+import { usePersonContext } from "@/contexts/PersonContext";
 
 function formatDate(date: Date | string | null): string {
     if (!date) return "N/A";
@@ -16,16 +17,8 @@ function formatDate(date: Date | string | null): string {
     return `${year}-${month}-${day}`;
 }
 
-function formatDateTime(date: Date | string | null): string {
-    if (!date) return "N/A";
-    const d = typeof date === "string" ? new Date(date) : date;
-    if (isNaN(d.getTime())) {
-        return "Invalid date";
-    }
-    return d.toLocaleString();
-}
-
 export function PublicationsPage() {
+    const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
     const [statusFilter, setStatusFilter] = useState<"draft" | "scheduled" | "published" | "all">("all");
     const params = useMemo(() => {
@@ -38,7 +31,7 @@ export function PublicationsPage() {
         usePublications(params);
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
-    const [formData, setFormData] = useState<NewPublication>({
+    const [formData, setFormData] = useState<Partial<NewPublication>>({
         title: null,
         content: "",
         status: "draft",
@@ -50,8 +43,24 @@ export function PublicationsPage() {
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!selectedPersonId) {
+            alert("Please select a person first from the header");
+            return;
+        }
+        if (!formData.content) {
+            alert("Content is required");
+            return;
+        }
         try {
-            await create(formData);
+            await create({
+                content: formData.content,
+                title: formData.title || null,
+                status: formData.status || "draft",
+                platform: formData.platform || "linkedin",
+                scheduledAt: formData.scheduledAt || null,
+                publishedAt: formData.publishedAt || null,
+                isArchived: formData.isArchived || false,
+            } as NewPublication);
             setFormData({
                 title: null,
                 content: "",
@@ -141,7 +150,9 @@ export function PublicationsPage() {
                 </div>
                 <button
                     onClick={() => setIsCreating(!isCreating)}
-                    className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    disabled={!selectedPersonId}
+                    className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    title={!selectedPersonId ? "Please select a person first" : ""}
                 >
                     {isCreating ? "Cancel" : "+ Add New Publication"}
                 </button>
@@ -152,6 +163,11 @@ export function PublicationsPage() {
                     <h2 className="mb-4 text-xl font-semibold text-gray-900">
                         Create New Publication
                     </h2>
+                    {!selectedPersonId && (
+                        <div className="mb-4 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-yellow-800">
+                            <strong>⚠️ Warning:</strong> Please select a person from the header before creating a publication.
+                        </div>
+                    )}
                     <form onSubmit={handleCreate} className="space-y-4">
                         <div>
                             <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -278,13 +294,12 @@ export function PublicationsPage() {
                                                 <h3 className="text-xl font-semibold text-gray-900">
                                                     {publication.title || "Untitled Publication"}
                                                 </h3>
-                                                <span className={`rounded-full px-2 py-1 text-xs font-medium ${
-                                                    publication.status === "published"
-                                                        ? "bg-green-100 text-green-700"
-                                                        : publication.status === "scheduled"
+                                                <span className={`rounded-full px-2 py-1 text-xs font-medium ${publication.status === "published"
+                                                    ? "bg-green-100 text-green-700"
+                                                    : publication.status === "scheduled"
                                                         ? "bg-yellow-100 text-yellow-700"
                                                         : "bg-gray-100 text-gray-700"
-                                                }`}>
+                                                    }`}>
                                                     {publication.status}
                                                 </span>
                                                 {publication.isArchived && (
@@ -297,8 +312,8 @@ export function PublicationsPage() {
                                                 {publication.content}
                                             </p>
                                             <div className="text-xs text-gray-500">
-                                                Platform: {publication.platform} • 
-                                                Scheduled: {formatDate(publication.scheduledAt)} • 
+                                                Platform: {publication.platform} •
+                                                Scheduled: {formatDate(publication.scheduledAt)} •
                                                 Published: {formatDate(publication.publishedAt)}
                                             </div>
                                         </div>

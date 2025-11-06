@@ -1,9 +1,11 @@
 import { randomUUID } from "crypto";
 import { PublicationType } from "../schemas";
+import { MOCK_PERSON_ID } from "./persons";
 
 export const mockPublicationTypes: PublicationType[] = [
     {
         id: randomUUID(),
+        personId: MOCK_PERSON_ID as unknown as string,
         name: "Actionable",
         description: "How can people do something, step-by-step?",
         createdAt: new Date(),
@@ -12,6 +14,7 @@ export const mockPublicationTypes: PublicationType[] = [
     },
     {
         id: randomUUID(),
+        personId: MOCK_PERSON_ID as unknown as string,
         name: "Motivational",
         description: "Inspire people to take action through a story or anecdote.",
         createdAt: new Date(),
@@ -20,6 +23,7 @@ export const mockPublicationTypes: PublicationType[] = [
     },
     {
         id: randomUUID(),
+        personId: MOCK_PERSON_ID as unknown as string,
         name: "Analytical",
         description: "Do a tear down of a company, person, content style, etc.",
         createdAt: new Date(),
@@ -28,6 +32,7 @@ export const mockPublicationTypes: PublicationType[] = [
     },
     {
         id: randomUUID(),
+        personId: MOCK_PERSON_ID as unknown as string,
         name: "Contrarian",
         description: "Something you feel differently about vs. the status quo.",
         createdAt: new Date(),
@@ -36,6 +41,7 @@ export const mockPublicationTypes: PublicationType[] = [
     },
     {
         id: randomUUID(),
+        personId: MOCK_PERSON_ID as unknown as string,
         name: "Observation",
         description: "What's something you've observed that you can talk about?",
         createdAt: new Date(),
@@ -44,6 +50,7 @@ export const mockPublicationTypes: PublicationType[] = [
     },
     {
         id: randomUUID(),
+        personId: MOCK_PERSON_ID as unknown as string,
         name: "X vs. Y",
         description: "Compare two situations for an interesting takeaway",
         createdAt: new Date(),
@@ -52,6 +59,7 @@ export const mockPublicationTypes: PublicationType[] = [
     },
     {
         id: randomUUID(),
+        personId: MOCK_PERSON_ID as unknown as string,
         name: "Present / Future",
         description: "How things work today vs. how you think in the future?",
         createdAt: new Date(),
@@ -60,6 +68,7 @@ export const mockPublicationTypes: PublicationType[] = [
     },
     {
         id: randomUUID(),
+        personId: MOCK_PERSON_ID as unknown as string,
         name: "Listicle",
         description: "A list of things (top books, people, podcasts, etc.) PLEASE USE SPARINGLY.",
         createdAt: new Date(),
@@ -68,6 +77,7 @@ export const mockPublicationTypes: PublicationType[] = [
     },
     {
         id: randomUUID(),
+        personId: MOCK_PERSON_ID as unknown as string,
         name: "Industry Insight",
         description: "How the industry works. eg. Why companies pay less even if you are doing the same as a dev in EE.UU.?",
         createdAt: new Date(),
@@ -76,6 +86,7 @@ export const mockPublicationTypes: PublicationType[] = [
     },
     {
         id: randomUUID(),
+        personId: MOCK_PERSON_ID as unknown as string,
         name: "Mental model",
         description: "Share a way of thinking or take action. Eg. My framework to decide if I should change jobs.",
         createdAt: new Date(),
@@ -84,6 +95,7 @@ export const mockPublicationTypes: PublicationType[] = [
     },
     {
         id: randomUUID(),
+        personId: MOCK_PERSON_ID as unknown as string,
         name: "Upcoming Week",
         description: "What are you working on this week?",
         createdAt: new Date(),
@@ -92,6 +104,7 @@ export const mockPublicationTypes: PublicationType[] = [
     },
     {
         id: randomUUID(),
+        personId: MOCK_PERSON_ID as unknown as string,
         name: "Highs/Lows",
         description: "What went well and what went poorly. Usually good for a friday.",
         createdAt: new Date(),

@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { usePublicationTopics } from "@/hooks/usePublicationTopics";
 import { PublicationTopic, NewPublicationTopic } from "@/services/supabase/schemas";
+import { usePersonContext } from "@/contexts/PersonContext";
 
 function formatDate(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
@@ -16,6 +17,7 @@ function formatDate(date: Date | string): string {
 }
 
 export function PublicationTopicsPage() {
+    const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
     const params = useMemo(
         () => ({ includeArchived: showArchived }),
@@ -25,7 +27,7 @@ export function PublicationTopicsPage() {
         usePublicationTopics(params);
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
-    const [formData, setFormData] = useState<NewPublicationTopic>({
+    const [formData, setFormData] = useState<Partial<NewPublicationTopic>>({
         name: "",
         description: "",
         isArchived: false,
@@ -33,8 +35,20 @@ export function PublicationTopicsPage() {
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!selectedPersonId) {
+            alert("Please select a person first from the header");
+            return;
+        }
+        if (!formData.name || !formData.description) {
+            alert("Name and description are required");
+            return;
+        }
         try {
-            await create(formData);
+            await create({
+                name: formData.name,
+                description: formData.description,
+                isArchived: formData.isArchived || false,
+            } as NewPublicationTopic);
             setFormData({ name: "", description: "", isArchived: false });
             setIsCreating(false);
         } catch (err) {
@@ -106,7 +120,9 @@ export function PublicationTopicsPage() {
                 </div>
                 <button
                     onClick={() => setIsCreating(!isCreating)}
-                    className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    disabled={!selectedPersonId}
+                    className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    title={!selectedPersonId ? "Please select a person first" : ""}
                 >
                     {isCreating ? "Cancel" : "+ Add New Topic"}
                 </button>
@@ -117,6 +133,11 @@ export function PublicationTopicsPage() {
                     <h2 className="mb-4 text-xl font-semibold text-gray-900">
                         Create New Publication Topic
                     </h2>
+                    {!selectedPersonId && (
+                        <div className="mb-4 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-yellow-800">
+                            <strong>⚠️ Warning:</strong> Please select a person from the header before creating a topic.
+                        </div>
+                    )}
                     <form onSubmit={handleCreate} className="space-y-4">
                         <div>
                             <label className="mb-2 block text-sm font-medium text-gray-700">

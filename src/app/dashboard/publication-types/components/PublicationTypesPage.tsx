@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { usePublicationTypes } from "@/hooks/usePublicationTypes";
 import { PublicationType, NewPublicationType } from "@/services/supabase/schemas";
+import { usePersonContext } from "@/contexts/PersonContext";
 
 // Helper function to format dates consistently (avoiding hydration mismatch)
 function formatDate(date: Date | string): string {
@@ -18,6 +19,7 @@ function formatDate(date: Date | string): string {
 }
 
 export function PublicationTypesPage() {
+    const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
     // Memoize params to prevent infinite loops
     const params = useMemo(
@@ -28,7 +30,7 @@ export function PublicationTypesPage() {
         usePublicationTypes(params);
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
-    const [formData, setFormData] = useState<NewPublicationType>({
+    const [formData, setFormData] = useState<Partial<NewPublicationType>>({
         name: "",
         description: "",
         isArchived: false,
@@ -36,8 +38,20 @@ export function PublicationTypesPage() {
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!selectedPersonId) {
+            alert("Please select a person first");
+            return;
+        }
+        if (!formData.name || !formData.description) {
+            alert("Name and description are required");
+            return;
+        }
         try {
-            await create(formData);
+            await create({
+                name: formData.name,
+                description: formData.description,
+                isArchived: formData.isArchived || false,
+            } as NewPublicationType);
             setFormData({ name: "", description: "", isArchived: false });
             setIsCreating(false);
         } catch (err) {
@@ -112,7 +126,9 @@ export function PublicationTypesPage() {
                 </div>
                 <button
                     onClick={() => setIsCreating(!isCreating)}
-                    className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    disabled={!selectedPersonId}
+                    className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    title={!selectedPersonId ? "Please select a person first" : ""}
                 >
                     {isCreating ? "Cancel" : "+ Add New Type"}
                 </button>
@@ -123,6 +139,11 @@ export function PublicationTypesPage() {
                     <h2 className="mb-4 text-xl font-semibold text-gray-900">
                         Create New Publication Type
                     </h2>
+                    {!selectedPersonId && (
+                        <div className="mb-4 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-yellow-800">
+                            <strong>⚠️ Warning:</strong> Please select a person from the header before creating a type.
+                        </div>
+                    )}
                     <form onSubmit={handleCreate} className="space-y-4">
                         <div>
                             <label className="mb-2 block text-sm font-medium text-gray-700">
