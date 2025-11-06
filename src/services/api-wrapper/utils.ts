@@ -18,8 +18,9 @@ export function transformPublicationType(
         id: data.id,
         name: data.name,
         description: data.description,
-        createdAt: new Date(data.created_at),
-        updatedAt: new Date(data.updated_at),
+        // Keep dates as strings to avoid hydration issues, convert to Date when needed
+        createdAt: new Date(data.created_at) as unknown as Date,
+        updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,
     };
 }

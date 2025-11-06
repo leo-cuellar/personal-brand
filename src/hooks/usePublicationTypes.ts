@@ -49,12 +49,15 @@ export function usePublicationTypes(
             try {
                 setError(null);
                 const newPublicationType = await createPublicationType(data);
-                await fetchPublicationTypes();
+                // Optimistic update: add to list immediately
+                setPublicationTypes((prev) => [newPublicationType, ...prev]);
                 return newPublicationType;
             } catch (err) {
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to create publication type";
                 setError(errorMessage);
+                // Refetch on error to ensure consistency
+                await fetchPublicationTypes();
                 throw err;
             }
         },
@@ -69,12 +72,19 @@ export function usePublicationTypes(
             try {
                 setError(null);
                 const updatedPublicationType = await updatePublicationType(id, updates);
-                await fetchPublicationTypes();
+                // Optimistic update: update in list immediately
+                setPublicationTypes((prev) =>
+                    prev.map((type) =>
+                        type.id === id ? updatedPublicationType : type
+                    )
+                );
                 return updatedPublicationType;
             } catch (err) {
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to update publication type";
                 setError(errorMessage);
+                // Refetch on error to ensure consistency
+                await fetchPublicationTypes();
                 throw err;
             }
         },
@@ -85,12 +95,15 @@ export function usePublicationTypes(
         async (id: string): Promise<void> => {
             try {
                 setError(null);
+                // Optimistic update: remove from list immediately
+                setPublicationTypes((prev) => prev.filter((type) => type.id !== id));
                 await deletePublicationType(id);
-                await fetchPublicationTypes();
             } catch (err) {
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to delete publication type";
                 setError(errorMessage);
+                // Refetch on error to restore correct state
+                await fetchPublicationTypes();
                 throw err;
             }
         },
