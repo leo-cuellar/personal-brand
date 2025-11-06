@@ -12,7 +12,7 @@ export const mockPublications: Publication[] = [
         publishedAt: null,
         createdAt: new Date(),
         updatedAt: new Date(),
-        isDeleted: false,
+        isArchived: false,
     },
     {
         id: "660e8400-e29b-41d4-a716-446655440001",
@@ -25,7 +25,7 @@ export const mockPublications: Publication[] = [
         publishedAt: null,
         createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
         updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-        isDeleted: false,
+        isArchived: false,
     },
     {
         id: "770e8400-e29b-41d4-a716-446655440002",
@@ -38,7 +38,7 @@ export const mockPublications: Publication[] = [
         publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
         createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
         updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
-        isDeleted: false,
+        isArchived: false,
     },
     {
         id: "880e8400-e29b-41d4-a716-446655440003",
@@ -50,8 +50,8 @@ export const mockPublications: Publication[] = [
         scheduledAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 14 days ago
         publishedAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000), // 12 days ago
         createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000), // 15 days ago
-        updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago (when deleted)
-        isDeleted: true,
+        updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago (when archived)
+        isArchived: true,
     },
 ];
 

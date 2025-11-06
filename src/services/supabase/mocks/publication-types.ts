@@ -7,7 +7,7 @@ export const mockPublicationTypes: PublicationType[] = [
         description: "How can people do something, step-by-step?",
         createdAt: new Date(),
         updatedAt: new Date(),
-        isDeleted: false,
+        isArchived: false,
     },
     {
         id: "ff0e8400-e29b-41d4-a716-446655440001",
@@ -15,7 +15,7 @@ export const mockPublicationTypes: PublicationType[] = [
         description: "Inspire people to take action through a story or anecdote.",
         createdAt: new Date(),
         updatedAt: new Date(),
-        isDeleted: false,
+        isArchived: false,
     },
     {
         id: "ff0e8400-e29b-41d4-a716-446655440002",
@@ -23,7 +23,7 @@ export const mockPublicationTypes: PublicationType[] = [
         description: "Do a tear down of a company, person, content style, etc.",
         createdAt: new Date(),
         updatedAt: new Date(),
-        isDeleted: false,
+        isArchived: false,
     },
     {
         id: "ff0e8400-e29b-41d4-a716-446655440003",
@@ -31,7 +31,7 @@ export const mockPublicationTypes: PublicationType[] = [
         description: "Something you feel differently about vs. the status quo.",
         createdAt: new Date(),
         updatedAt: new Date(),
-        isDeleted: false,
+        isArchived: false,
     },
     {
         id: "ff0e8400-e29b-41d4-a716-446655440004",
@@ -39,7 +39,7 @@ export const mockPublicationTypes: PublicationType[] = [
         description: "What's something you've observed that you can talk about?",
         createdAt: new Date(),
         updatedAt: new Date(),
-        isDeleted: false,
+        isArchived: false,
     },
     {
         id: "ff0e8400-e29b-41d4-a716-446655440005",
@@ -47,7 +47,7 @@ export const mockPublicationTypes: PublicationType[] = [
         description: "Compare two situations for an interesting takeaway",
         createdAt: new Date(),
         updatedAt: new Date(),
-        isDeleted: false,
+        isArchived: false,
     },
     {
         id: "ff0e8400-e29b-41d4-a716-446655440006",
@@ -55,7 +55,7 @@ export const mockPublicationTypes: PublicationType[] = [
         description: "How things work today vs. how you think in the future?",
         createdAt: new Date(),
         updatedAt: new Date(),
-        isDeleted: false,
+        isArchived: false,
     },
     {
         id: "ff0e8400-e29b-41d4-a716-446655440007",
@@ -63,7 +63,7 @@ export const mockPublicationTypes: PublicationType[] = [
         description: "A list of things (top books, people, podcasts, etc.) PLEASE USE SPARINGLY.",
         createdAt: new Date(),
         updatedAt: new Date(),
-        isDeleted: false,
+        isArchived: false,
     },
     {
         id: "ff0e8400-e29b-41d4-a716-446655440008",
@@ -71,7 +71,7 @@ export const mockPublicationTypes: PublicationType[] = [
         description: "How the industry works. eg. Why companies pay less even if you are doing the same as a dev in EE.UU.?",
         createdAt: new Date(),
         updatedAt: new Date(),
-        isDeleted: false,
+        isArchived: false,
     },
     {
         id: "ff0e8400-e29b-41d4-a716-446655440009",
@@ -79,7 +79,7 @@ export const mockPublicationTypes: PublicationType[] = [
         description: "Share a way of thinking or take action. Eg. My framework to decide if I should change jobs.",
         createdAt: new Date(),
         updatedAt: new Date(),
-        isDeleted: false,
+        isArchived: false,
     },
     {
         id: "ff0e8400-e29b-41d4-a716-446655440010",
@@ -87,7 +87,7 @@ export const mockPublicationTypes: PublicationType[] = [
         description: "What are you working on this week?",
         createdAt: new Date(),
         updatedAt: new Date(),
-        isDeleted: false,
+        isArchived: false,
     },
     {
         id: "ff0e8400-e29b-41d4-a716-446655440011",
@@ -95,7 +95,7 @@ export const mockPublicationTypes: PublicationType[] = [
         description: "What went well and what went poorly. Usually good for a friday.",
         createdAt: new Date(),
         updatedAt: new Date(),
-        isDeleted: false,
+        isArchived: false,
     },
 ];
 

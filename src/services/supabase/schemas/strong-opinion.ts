@@ -10,7 +10,7 @@ export const strongOpinions = pgTable("strong_opinions", {
     updatedAt: timestamp("updated_at", { withTimezone: true })
         .notNull()
         .defaultNow(),
-    isDeleted: boolean("is_deleted").notNull().default(false),
+    isArchived: boolean("is_archived").notNull().default(false),
 });
 
 // TypeScript types derived from schema

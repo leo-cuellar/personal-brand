@@ -24,7 +24,7 @@ async function seedPublications() {
                 INSERT INTO public.publications (
                     id, title, content, status, platform, 
                     scheduled_at, published_at, 
-                    created_at, updated_at, is_deleted
+                    created_at, updated_at, is_archived
                 ) VALUES (
                     ${publication.id}::uuid,
                     ${publication.title || null},
@@ -35,7 +35,7 @@ async function seedPublications() {
                     ${publication.publishedAt ? new Date(publication.publishedAt) : null},
                     ${new Date(publication.createdAt)},
                     ${new Date(publication.updatedAt)},
-                    ${publication.isDeleted}
+                    ${publication.isArchived}
                 )
                 ON CONFLICT (id) DO NOTHING
             `;
@@ -62,13 +62,13 @@ async function seedStrongOpinions() {
         for (const opinion of mockStrongOpinions) {
             await client`
                 INSERT INTO public.strong_opinions (
-                    id, opinion, created_at, updated_at, is_deleted
+                    id, opinion, created_at, updated_at, is_archived
                 ) VALUES (
                     ${opinion.id}::uuid,
                     ${opinion.opinion},
                     ${new Date(opinion.createdAt)},
                     ${new Date(opinion.updatedAt)},
-                    ${opinion.isDeleted}
+                    ${opinion.isArchived}
                 )
                 ON CONFLICT (id) DO NOTHING
             `;
@@ -95,14 +95,14 @@ async function seedPublicationTypes() {
         for (const publicationType of mockPublicationTypes) {
             await client`
                 INSERT INTO public.publication_types (
-                    id, name, description, created_at, updated_at, is_deleted
+                    id, name, description, created_at, updated_at, is_archived
                 ) VALUES (
                     ${publicationType.id}::uuid,
                     ${publicationType.name},
                     ${publicationType.description},
                     ${new Date(publicationType.createdAt)},
                     ${new Date(publicationType.updatedAt)},
-                    ${publicationType.isDeleted}
+                    ${publicationType.isArchived}
                 )
                 ON CONFLICT (name) DO NOTHING
             `;
