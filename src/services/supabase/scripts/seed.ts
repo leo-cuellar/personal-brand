@@ -4,10 +4,11 @@ config({ path: ".env.local" });
 
 import { getPostgresClient } from "../index";
 import { mockPublications } from "../mocks/publications";
+import { mockStrongOpinions } from "../mocks/strong-opinions";
 
 const pg = () => getPostgresClient();
 
-// TODO: Configure Row Level Security (RLS) for publications table in the future
+// TODO: Configure Row Level Security (RLS) for all tables in the future
 // This should include policies for SELECT, INSERT, UPDATE, and DELETE operations
 
 async function seedPublications() {
@@ -50,10 +51,44 @@ async function seedPublications() {
     }
 }
 
+async function seedStrongOpinions() {
+    console.log("🌱 Seeding strong opinions...");
+
+    try {
+        const client = pg();
+
+        // Insert strong opinions one by one using direct SQL
+        for (const opinion of mockStrongOpinions) {
+            await client`
+                INSERT INTO public.strong_opinions (
+                    id, opinion, created_at, updated_at, is_deleted
+                ) VALUES (
+                    ${opinion.id}::uuid,
+                    ${opinion.opinion},
+                    ${new Date(opinion.createdAt)},
+                    ${new Date(opinion.updatedAt)},
+                    ${opinion.isDeleted}
+                )
+                ON CONFLICT (id) DO NOTHING
+            `;
+        }
+
+        await client.end();
+
+        console.log(
+            `✅ ${mockStrongOpinions.length} strong opinions inserted successfully`
+        );
+    } catch (error) {
+        console.error("❌ Error seeding strong opinions:", error);
+        throw error;
+    }
+}
+
 async function main() {
     console.log("🚀 Starting seed process...");
 
     try {
+        await seedStrongOpinions();
         await seedPublications();
         console.log("🎉 Seed completed successfully!");
     } catch (error) {
@@ -70,4 +105,4 @@ if (require.main === module) {
     main();
 }
 
-export { seedPublications };
+export { seedPublications, seedStrongOpinions };

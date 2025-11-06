@@ -19,6 +19,7 @@ async function resetDatabase() {
         console.log("🗑️ Dropping existing tables...");
 
         // Drop tables in correct order
+        await client`DROP TABLE IF EXISTS public.strong_opinions CASCADE`;
         await client`DROP TABLE IF EXISTS public.publications CASCADE`;
 
         // Drop enums if they exist
