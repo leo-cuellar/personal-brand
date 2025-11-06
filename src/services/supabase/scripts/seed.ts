@@ -8,6 +8,7 @@ import { mockStrongOpinions } from "../mocks/strong-opinions";
 import { mockPublicationTypes } from "../mocks/publication-types";
 import { mockPublicationTopics } from "../mocks/publication-topics";
 import { mockPublicationIdeas } from "../mocks/publication-ideas";
+import { mockPersonalStories } from "../mocks/personal-stories";
 
 const pg = () => getPostgresClient();
 
@@ -190,10 +191,60 @@ async function seedPublicationIdeas() {
     }
 }
 
+async function seedPersonalStories() {
+    console.log("🌱 Seeding personal stories...");
+
+    try {
+        const client = pg();
+
+        // Insert personal stories one by one using direct SQL
+        for (const personalStory of mockPersonalStories) {
+            await client`
+                INSERT INTO public.personal_stories (
+                    id, immediate_credibility, professional_problem_or_challenge,
+                    internal_struggles, external_context, key_microtransitions,
+                    insight_or_spark, process, result_or_transformation,
+                    shared_beliefs, current_vision_or_personal_mission,
+                    social_proof_or_validation, call_to_action,
+                    created_at, updated_at, is_archived
+                ) VALUES (
+                    ${personalStory.id}::uuid,
+                    ${personalStory.immediateCredibility},
+                    ${personalStory.professionalProblemOrChallenge},
+                    ${personalStory.internalStruggles},
+                    ${personalStory.externalContext},
+                    ${personalStory.keyMicrotransitions},
+                    ${personalStory.insightOrSpark},
+                    ${personalStory.process},
+                    ${personalStory.resultOrTransformation},
+                    ${personalStory.sharedBeliefs},
+                    ${personalStory.currentVisionOrPersonalMission},
+                    ${personalStory.socialProofOrValidation},
+                    ${personalStory.callToAction},
+                    ${new Date(personalStory.createdAt)},
+                    ${new Date(personalStory.updatedAt)},
+                    ${personalStory.isArchived}
+                )
+                ON CONFLICT (id) DO NOTHING
+            `;
+        }
+
+        await client.end();
+
+        console.log(
+            `✅ ${mockPersonalStories.length} personal stories inserted successfully`
+        );
+    } catch (error) {
+        console.error("❌ Error seeding personal stories:", error);
+        throw error;
+    }
+}
+
 async function main() {
     console.log("🚀 Starting seed process...");
 
     try {
+        await seedPersonalStories();
         await seedPublicationIdeas();
         await seedPublicationTopics();
         await seedPublicationTypes();
@@ -220,4 +271,5 @@ export {
     seedPublicationTypes,
     seedPublicationTopics,
     seedPublicationIdeas,
+    seedPersonalStories,
 };
