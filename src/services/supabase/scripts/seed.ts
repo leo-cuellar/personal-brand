@@ -7,6 +7,7 @@ import { mockPublications } from "../mocks/publications";
 import { mockStrongOpinions } from "../mocks/strong-opinions";
 import { mockPublicationTypes } from "../mocks/publication-types";
 import { mockPublicationTopics } from "../mocks/publication-topics";
+import { mockPublicationIdeas } from "../mocks/publication-ideas";
 
 const pg = () => getPostgresClient();
 
@@ -154,10 +155,46 @@ async function seedPublicationTopics() {
     }
 }
 
+async function seedPublicationIdeas() {
+    console.log("🌱 Seeding publication ideas...");
+
+    try {
+        const client = pg();
+
+        // Insert publication ideas one by one using direct SQL
+        for (const publicationIdea of mockPublicationIdeas) {
+            await client`
+                INSERT INTO public.publication_ideas (
+                    id, idea, description, source, created_at, updated_at, is_archived
+                ) VALUES (
+                    ${publicationIdea.id}::uuid,
+                    ${publicationIdea.idea},
+                    ${publicationIdea.description || null},
+                    ${publicationIdea.source}::idea_source,
+                    ${new Date(publicationIdea.createdAt)},
+                    ${new Date(publicationIdea.updatedAt)},
+                    ${publicationIdea.isArchived}
+                )
+                ON CONFLICT (id) DO NOTHING
+            `;
+        }
+
+        await client.end();
+
+        console.log(
+            `✅ ${mockPublicationIdeas.length} publication ideas inserted successfully`
+        );
+    } catch (error) {
+        console.error("❌ Error seeding publication ideas:", error);
+        throw error;
+    }
+}
+
 async function main() {
     console.log("🚀 Starting seed process...");
 
     try {
+        await seedPublicationIdeas();
         await seedPublicationTopics();
         await seedPublicationTypes();
         await seedStrongOpinions();
@@ -177,4 +214,10 @@ if (require.main === module) {
     main();
 }
 
-export { seedPublications, seedStrongOpinions, seedPublicationTypes, seedPublicationTopics };
+export {
+    seedPublications,
+    seedStrongOpinions,
+    seedPublicationTypes,
+    seedPublicationTopics,
+    seedPublicationIdeas,
+};
