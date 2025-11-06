@@ -1,8 +1,9 @@
+import { randomUUID } from "crypto";
 import { PublicationTopic } from "../schemas";
 
 export const mockPublicationTopics: PublicationTopic[] = [
     {
-        id: "gg0e8400-e29b-41d4-a716-446655440000",
+        id: randomUUID(),
         name: "Technology",
         description: "Posts about technology, software development, AI, and tech trends",
         createdAt: new Date(),
@@ -10,7 +11,7 @@ export const mockPublicationTopics: PublicationTopic[] = [
         isArchived: false,
     },
     {
-        id: "gg0e8400-e29b-41d4-a716-446655440001",
+        id: randomUUID(),
         name: "Career Development",
         description: "Content about career growth, job searching, professional skills, and workplace advice",
         createdAt: new Date(),
@@ -18,7 +19,7 @@ export const mockPublicationTopics: PublicationTopic[] = [
         isArchived: false,
     },
     {
-        id: "gg0e8400-e29b-41d4-a716-446655440002",
+        id: randomUUID(),
         name: "Leadership",
         description: "Thoughts on leadership, management, team building, and organizational culture",
         createdAt: new Date(),
@@ -26,7 +27,7 @@ export const mockPublicationTopics: PublicationTopic[] = [
         isArchived: false,
     },
     {
-        id: "gg0e8400-e29b-41d4-a716-446655440003",
+        id: randomUUID(),
         name: "Productivity",
         description: "Tips and strategies for improving productivity, time management, and work-life balance",
         createdAt: new Date(),
@@ -34,7 +35,7 @@ export const mockPublicationTopics: PublicationTopic[] = [
         isArchived: false,
     },
     {
-        id: "gg0e8400-e29b-41d4-a716-446655440004",
+        id: randomUUID(),
         name: "Entrepreneurship",
         description: "Content about starting businesses, entrepreneurship, startups, and innovation",
         createdAt: new Date(),

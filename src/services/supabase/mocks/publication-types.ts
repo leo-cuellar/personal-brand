@@ -1,8 +1,9 @@
+import { randomUUID } from "crypto";
 import { PublicationType } from "../schemas";
 
 export const mockPublicationTypes: PublicationType[] = [
     {
-        id: "ff0e8400-e29b-41d4-a716-446655440000",
+        id: randomUUID(),
         name: "Actionable",
         description: "How can people do something, step-by-step?",
         createdAt: new Date(),
@@ -10,7 +11,7 @@ export const mockPublicationTypes: PublicationType[] = [
         isArchived: false,
     },
     {
-        id: "ff0e8400-e29b-41d4-a716-446655440001",
+        id: randomUUID(),
         name: "Motivational",
         description: "Inspire people to take action through a story or anecdote.",
         createdAt: new Date(),
@@ -18,7 +19,7 @@ export const mockPublicationTypes: PublicationType[] = [
         isArchived: false,
     },
     {
-        id: "ff0e8400-e29b-41d4-a716-446655440002",
+        id: randomUUID(),
         name: "Analytical",
         description: "Do a tear down of a company, person, content style, etc.",
         createdAt: new Date(),
@@ -26,7 +27,7 @@ export const mockPublicationTypes: PublicationType[] = [
         isArchived: false,
     },
     {
-        id: "ff0e8400-e29b-41d4-a716-446655440003",
+        id: randomUUID(),
         name: "Contrarian",
         description: "Something you feel differently about vs. the status quo.",
         createdAt: new Date(),
@@ -34,7 +35,7 @@ export const mockPublicationTypes: PublicationType[] = [
         isArchived: false,
     },
     {
-        id: "ff0e8400-e29b-41d4-a716-446655440004",
+        id: randomUUID(),
         name: "Observation",
         description: "What's something you've observed that you can talk about?",
         createdAt: new Date(),
@@ -42,7 +43,7 @@ export const mockPublicationTypes: PublicationType[] = [
         isArchived: false,
     },
     {
-        id: "ff0e8400-e29b-41d4-a716-446655440005",
+        id: randomUUID(),
         name: "X vs. Y",
         description: "Compare two situations for an interesting takeaway",
         createdAt: new Date(),
@@ -50,7 +51,7 @@ export const mockPublicationTypes: PublicationType[] = [
         isArchived: false,
     },
     {
-        id: "ff0e8400-e29b-41d4-a716-446655440006",
+        id: randomUUID(),
         name: "Present / Future",
         description: "How things work today vs. how you think in the future?",
         createdAt: new Date(),
@@ -58,7 +59,7 @@ export const mockPublicationTypes: PublicationType[] = [
         isArchived: false,
     },
     {
-        id: "ff0e8400-e29b-41d4-a716-446655440007",
+        id: randomUUID(),
         name: "Listicle",
         description: "A list of things (top books, people, podcasts, etc.) PLEASE USE SPARINGLY.",
         createdAt: new Date(),
@@ -66,7 +67,7 @@ export const mockPublicationTypes: PublicationType[] = [
         isArchived: false,
     },
     {
-        id: "ff0e8400-e29b-41d4-a716-446655440008",
+        id: randomUUID(),
         name: "Industry Insight",
         description: "How the industry works. eg. Why companies pay less even if you are doing the same as a dev in EE.UU.?",
         createdAt: new Date(),
@@ -74,7 +75,7 @@ export const mockPublicationTypes: PublicationType[] = [
         isArchived: false,
     },
     {
-        id: "ff0e8400-e29b-41d4-a716-446655440009",
+        id: randomUUID(),
         name: "Mental model",
         description: "Share a way of thinking or take action. Eg. My framework to decide if I should change jobs.",
         createdAt: new Date(),
@@ -82,7 +83,7 @@ export const mockPublicationTypes: PublicationType[] = [
         isArchived: false,
     },
     {
-        id: "ff0e8400-e29b-41d4-a716-446655440010",
+        id: randomUUID(),
         name: "Upcoming Week",
         description: "What are you working on this week?",
         createdAt: new Date(),
@@ -90,7 +91,7 @@ export const mockPublicationTypes: PublicationType[] = [
         isArchived: false,
     },
     {
-        id: "ff0e8400-e29b-41d4-a716-446655440011",
+        id: randomUUID(),
         name: "Highs/Lows",
         description: "What went well and what went poorly. Usually good for a friday.",
         createdAt: new Date(),
