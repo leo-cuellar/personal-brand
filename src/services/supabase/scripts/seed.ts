@@ -1,0 +1,73 @@
+import { config } from "dotenv";
+
+config({ path: ".env.local" });
+
+import { getPostgresClient } from "../index";
+import { mockPublications } from "../mocks/publications";
+
+const pg = () => getPostgresClient();
+
+// TODO: Configure Row Level Security (RLS) for publications table in the future
+// This should include policies for SELECT, INSERT, UPDATE, and DELETE operations
+
+async function seedPublications() {
+    console.log("🌱 Seeding publications...");
+
+    try {
+        const client = pg();
+
+        // Insert publications one by one using direct SQL
+        for (const publication of mockPublications) {
+            await client`
+                INSERT INTO public.publications (
+                    id, title, content, status, platform, 
+                    scheduled_at, published_at, 
+                    created_at, updated_at, is_deleted
+                ) VALUES (
+                    ${publication.id}::uuid,
+                    ${publication.title || null},
+                    ${publication.content},
+                    ${publication.status}::publication_status,
+                    ${publication.platform}::publication_platform,
+                    ${publication.scheduledAt ? new Date(publication.scheduledAt) : null},
+                    ${publication.publishedAt ? new Date(publication.publishedAt) : null},
+                    ${new Date(publication.createdAt)},
+                    ${new Date(publication.updatedAt)},
+                    ${publication.isDeleted}
+                )
+                ON CONFLICT (id) DO NOTHING
+            `;
+        }
+
+        await client.end();
+
+        console.log(
+            `✅ ${mockPublications.length} publications inserted successfully`
+        );
+    } catch (error) {
+        console.error("❌ Error seeding publications:", error);
+        throw error;
+    }
+}
+
+async function main() {
+    console.log("🚀 Starting seed process...");
+
+    try {
+        await seedPublications();
+        console.log("🎉 Seed completed successfully!");
+    } catch (error) {
+        console.error("💥 Error in seed process:", error);
+        process.exit(1);
+    } finally {
+        // Force process exit
+        process.exit(0);
+    }
+}
+
+// Execute if called directly
+if (require.main === module) {
+    main();
+}
+
+export { seedPublications };
