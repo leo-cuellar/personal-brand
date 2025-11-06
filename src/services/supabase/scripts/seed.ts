@@ -5,6 +5,7 @@ config({ path: ".env.local" });
 import { getPostgresClient } from "../index";
 import { mockPublications } from "../mocks/publications";
 import { mockStrongOpinions } from "../mocks/strong-opinions";
+import { mockPublicationTypes } from "../mocks/publication-types";
 
 const pg = () => getPostgresClient();
 
@@ -84,10 +85,45 @@ async function seedStrongOpinions() {
     }
 }
 
+async function seedPublicationTypes() {
+    console.log("🌱 Seeding publication types...");
+
+    try {
+        const client = pg();
+
+        // Insert publication types one by one using direct SQL
+        for (const publicationType of mockPublicationTypes) {
+            await client`
+                INSERT INTO public.publication_types (
+                    id, name, description, created_at, updated_at, is_deleted
+                ) VALUES (
+                    ${publicationType.id}::uuid,
+                    ${publicationType.name},
+                    ${publicationType.description},
+                    ${new Date(publicationType.createdAt)},
+                    ${new Date(publicationType.updatedAt)},
+                    ${publicationType.isDeleted}
+                )
+                ON CONFLICT (name) DO NOTHING
+            `;
+        }
+
+        await client.end();
+
+        console.log(
+            `✅ ${mockPublicationTypes.length} publication types inserted successfully`
+        );
+    } catch (error) {
+        console.error("❌ Error seeding publication types:", error);
+        throw error;
+    }
+}
+
 async function main() {
     console.log("🚀 Starting seed process...");
 
     try {
+        await seedPublicationTypes();
         await seedStrongOpinions();
         await seedPublications();
         console.log("🎉 Seed completed successfully!");
@@ -105,4 +141,4 @@ if (require.main === module) {
     main();
 }
 
-export { seedPublications, seedStrongOpinions };
+export { seedPublications, seedStrongOpinions, seedPublicationTypes };
