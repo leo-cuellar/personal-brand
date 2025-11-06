@@ -8,7 +8,7 @@ import { mockStrongOpinions } from "../mocks/strong-opinions";
 import { mockPublicationTypes } from "../mocks/publication-types";
 import { mockPublicationTopics } from "../mocks/publication-topics";
 import { mockPublicationIdeas } from "../mocks/publication-ideas";
-import { mockPersonalStories } from "../mocks/personal-stories";
+import { mockPersons } from "../mocks/persons";
 
 const pg = () => getPostgresClient();
 
@@ -191,39 +191,42 @@ async function seedPublicationIdeas() {
     }
 }
 
-async function seedPersonalStories() {
-    console.log("🌱 Seeding personal stories...");
+async function seedPersons() {
+    console.log("🌱 Seeding persons...");
 
     try {
         const client = pg();
 
-        // Insert personal stories one by one using direct SQL
-        for (const personalStory of mockPersonalStories) {
+        // Insert persons one by one using direct SQL
+        for (const person of mockPersons) {
             await client`
-                INSERT INTO public.personal_stories (
-                    id, immediate_credibility, professional_problem_or_challenge,
+                INSERT INTO public.persons (
+                    id, name, linkedin_profile,
+                    immediate_credibility, professional_problem_or_challenge,
                     internal_struggles, external_context, key_microtransitions,
                     insight_or_spark, process, result_or_transformation,
                     shared_beliefs, current_vision_or_personal_mission,
                     social_proof_or_validation, call_to_action,
                     created_at, updated_at, is_archived
                 ) VALUES (
-                    ${personalStory.id}::uuid,
-                    ${personalStory.immediateCredibility},
-                    ${personalStory.professionalProblemOrChallenge},
-                    ${personalStory.internalStruggles},
-                    ${personalStory.externalContext},
-                    ${personalStory.keyMicrotransitions},
-                    ${personalStory.insightOrSpark},
-                    ${personalStory.process},
-                    ${personalStory.resultOrTransformation},
-                    ${personalStory.sharedBeliefs},
-                    ${personalStory.currentVisionOrPersonalMission},
-                    ${personalStory.socialProofOrValidation},
-                    ${personalStory.callToAction},
-                    ${new Date(personalStory.createdAt)},
-                    ${new Date(personalStory.updatedAt)},
-                    ${personalStory.isArchived}
+                    ${person.id}::uuid,
+                    ${person.name},
+                    ${person.linkedinProfile || null},
+                    ${person.immediateCredibility},
+                    ${person.professionalProblemOrChallenge},
+                    ${person.internalStruggles},
+                    ${person.externalContext},
+                    ${person.keyMicrotransitions},
+                    ${person.insightOrSpark},
+                    ${person.process},
+                    ${person.resultOrTransformation},
+                    ${person.sharedBeliefs},
+                    ${person.currentVisionOrPersonalMission},
+                    ${person.socialProofOrValidation},
+                    ${person.callToAction},
+                    ${new Date(person.createdAt)},
+                    ${new Date(person.updatedAt)},
+                    ${person.isArchived}
                 )
                 ON CONFLICT (id) DO NOTHING
             `;
@@ -232,10 +235,10 @@ async function seedPersonalStories() {
         await client.end();
 
         console.log(
-            `✅ ${mockPersonalStories.length} personal stories inserted successfully`
+            `✅ ${mockPersons.length} persons inserted successfully`
         );
     } catch (error) {
-        console.error("❌ Error seeding personal stories:", error);
+        console.error("❌ Error seeding persons:", error);
         throw error;
     }
 }
@@ -244,7 +247,7 @@ async function main() {
     console.log("🚀 Starting seed process...");
 
     try {
-        await seedPersonalStories();
+        await seedPersons();
         await seedPublicationIdeas();
         await seedPublicationTopics();
         await seedPublicationTypes();
@@ -271,5 +274,5 @@ export {
     seedPublicationTypes,
     seedPublicationTopics,
     seedPublicationIdeas,
-    seedPersonalStories,
+    seedPersons,
 };

@@ -1,9 +1,11 @@
 import { randomUUID } from "crypto";
-import { PersonalStory } from "../schemas";
+import { Person } from "../schemas";
 
-export const mockPersonalStories: PersonalStory[] = [
+export const mockPersons: Person[] = [
     {
         id: randomUUID(),
+        name: "Leo Cuellar",
+        linkedinProfile: "https://linkedin.com/in/leocuellardev",
         immediateCredibility:
             "He trabajado en empresas de tecnología que operan a nivel internacional, formando parte de equipos de alto rendimiento y liderando iniciativas clave. Llevo más de una década construyendo productos desde el front-end, explorando también tecnologías como IA, blockchain y herramientas financieras. Mis roles han tenido impacto directo en negocio, estrategia y crecimiento. También he generado ingresos de seis cifras anuales en tech, construyendo todo esto desde un camino no tradicional, pero deliberado.",
         professionalProblemOrChallenge:

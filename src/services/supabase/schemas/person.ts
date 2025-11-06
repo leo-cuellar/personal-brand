@@ -1,9 +1,16 @@
-import { pgTable, text, timestamp, uuid, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, boolean, varchar } from "drizzle-orm/pg-core";
 
-// Personal stories table
-// This table stores personal stories used for content generation, following a structured narrative framework
-export const personalStories = pgTable("personal_stories", {
+// Persons table
+// This table stores persons (personal brands) used for content generation, following a structured narrative framework
+// Designed to support multiple personal brands in the future
+export const persons = pgTable("persons", {
     id: uuid("id").primaryKey().defaultRandom(),
+
+    // Basic information
+    name: varchar("name", { length: 255 }).notNull(),
+    linkedinProfile: varchar("linkedin_profile", { length: 500 }),
+
+    // Personal story fields
 
     // Immediate credibility: Establishes authority and expertise upfront
     // Example: "He trabajado en empresas de tecnología que operan a nivel internacional..."
@@ -63,6 +70,6 @@ export const personalStories = pgTable("personal_stories", {
 });
 
 // TypeScript types derived from schema
-export type PersonalStory = typeof personalStories.$inferSelect;
-export type NewPersonalStory = typeof personalStories.$inferInsert;
+export type Person = typeof persons.$inferSelect;
+export type NewPerson = typeof persons.$inferInsert;
 

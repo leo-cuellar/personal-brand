@@ -4,6 +4,7 @@ import {
     StrongOpinion,
     PublicationIdea,
     Publication,
+    Person,
 } from "@/services/supabase/schemas";
 
 // Supabase response types (snake_case)
@@ -51,6 +52,27 @@ interface SupabasePublication {
     platform: string;
     scheduled_at: string | null;
     published_at: string | null;
+    created_at: string;
+    updated_at: string;
+    is_archived: boolean;
+}
+
+interface SupabasePerson {
+    id: string;
+    name: string;
+    linkedin_profile: string | null;
+    immediate_credibility: string;
+    professional_problem_or_challenge: string;
+    internal_struggles: string;
+    external_context: string;
+    key_microtransitions: string;
+    insight_or_spark: string;
+    process: string;
+    result_or_transformation: string;
+    shared_beliefs: string;
+    current_vision_or_personal_mission: string;
+    social_proof_or_validation: string;
+    call_to_action: string;
     created_at: string;
     updated_at: string;
     is_archived: boolean;
@@ -124,6 +146,31 @@ export function transformPublication(
         publishedAt: data.published_at
             ? (new Date(data.published_at) as unknown as Date)
             : null,
+        createdAt: new Date(data.created_at) as unknown as Date,
+        updatedAt: new Date(data.updated_at) as unknown as Date,
+        isArchived: data.is_archived,
+    };
+}
+
+export function transformPerson(
+    data: SupabasePerson
+): Person {
+    return {
+        id: data.id,
+        name: data.name,
+        linkedinProfile: data.linkedin_profile,
+        immediateCredibility: data.immediate_credibility,
+        professionalProblemOrChallenge: data.professional_problem_or_challenge,
+        internalStruggles: data.internal_struggles,
+        externalContext: data.external_context,
+        keyMicrotransitions: data.key_microtransitions,
+        insightOrSpark: data.insight_or_spark,
+        process: data.process,
+        resultOrTransformation: data.result_or_transformation,
+        sharedBeliefs: data.shared_beliefs,
+        currentVisionOrPersonalMission: data.current_vision_or_personal_mission,
+        socialProofOrValidation: data.social_proof_or_validation,
+        callToAction: data.call_to_action,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,

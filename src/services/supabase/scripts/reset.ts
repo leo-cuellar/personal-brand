@@ -19,7 +19,7 @@ async function resetDatabase() {
         console.log("🗑️ Dropping existing tables...");
 
         // Drop tables in correct order
-        await client`DROP TABLE IF EXISTS public.personal_stories CASCADE`;
+        await client`DROP TABLE IF EXISTS public.persons CASCADE`;
         await client`DROP TABLE IF EXISTS public.publication_ideas CASCADE`;
         await client`DROP TABLE IF EXISTS public.publication_topics CASCADE`;
         await client`DROP TABLE IF EXISTS public.publication_types CASCADE`;
