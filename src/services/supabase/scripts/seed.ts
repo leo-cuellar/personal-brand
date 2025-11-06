@@ -6,6 +6,7 @@ import { getPostgresClient } from "../index";
 import { mockPublications } from "../mocks/publications";
 import { mockStrongOpinions } from "../mocks/strong-opinions";
 import { mockPublicationTypes } from "../mocks/publication-types";
+import { mockPublicationTopics } from "../mocks/publication-topics";
 
 const pg = () => getPostgresClient();
 
@@ -119,10 +120,45 @@ async function seedPublicationTypes() {
     }
 }
 
+async function seedPublicationTopics() {
+    console.log("🌱 Seeding publication topics...");
+
+    try {
+        const client = pg();
+
+        // Insert publication topics one by one using direct SQL
+        for (const publicationTopic of mockPublicationTopics) {
+            await client`
+                INSERT INTO public.publication_topics (
+                    id, name, description, created_at, updated_at, is_archived
+                ) VALUES (
+                    ${publicationTopic.id}::uuid,
+                    ${publicationTopic.name},
+                    ${publicationTopic.description},
+                    ${new Date(publicationTopic.createdAt)},
+                    ${new Date(publicationTopic.updatedAt)},
+                    ${publicationTopic.isArchived}
+                )
+                ON CONFLICT (name) DO NOTHING
+            `;
+        }
+
+        await client.end();
+
+        console.log(
+            `✅ ${mockPublicationTopics.length} publication topics inserted successfully`
+        );
+    } catch (error) {
+        console.error("❌ Error seeding publication topics:", error);
+        throw error;
+    }
+}
+
 async function main() {
     console.log("🚀 Starting seed process...");
 
     try {
+        await seedPublicationTopics();
         await seedPublicationTypes();
         await seedStrongOpinions();
         await seedPublications();
@@ -141,4 +177,4 @@ if (require.main === module) {
     main();
 }
 
-export { seedPublications, seedStrongOpinions, seedPublicationTypes };
+export { seedPublications, seedStrongOpinions, seedPublicationTypes, seedPublicationTopics };
