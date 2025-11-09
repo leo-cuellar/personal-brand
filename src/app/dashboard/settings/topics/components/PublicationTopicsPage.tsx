@@ -90,10 +90,10 @@ export function PublicationTopicsPage() {
         <div className="container mx-auto max-w-6xl p-8">
             <div className="mb-8">
                 <h1 className="mb-2 text-4xl font-bold text-gray-900">
-                    Publication Topics
+                    Publication Categories
                 </h1>
                 <p className="text-gray-600">
-                    Manage your publication topics for content generation
+                    Manage your publication categories for content generation
                 </p>
             </div>
 

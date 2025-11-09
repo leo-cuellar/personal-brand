@@ -32,10 +32,10 @@ export default function DashboardPage() {
                             className="block rounded-lg border border-gray-300 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50"
                         >
                             <div className="font-medium text-gray-900">
-                                Publication Topics
+                                Publication Categories
                             </div>
                             <div className="text-sm text-gray-500">
-                                Manage topics for your publications
+                                Manage categories for your publications
                             </div>
                         </Link>
                         <Link
