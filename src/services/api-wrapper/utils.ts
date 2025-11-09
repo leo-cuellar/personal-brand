@@ -194,6 +194,7 @@ interface SupabaseInspiration {
     id: string;
     person_id: string;
     text: string;
+    link: string | null;
     created_at: string;
     updated_at: string;
     is_archived: boolean;
@@ -206,6 +207,7 @@ export function transformInspiration(
         id: data.id,
         personId: data.person_id,
         text: data.text,
+        link: data.link || null,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,

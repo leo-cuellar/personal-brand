@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, boolean, varchar } from "drizzle-orm/pg-core";
 import { persons } from "./person";
 
 // Inspirations table
@@ -9,6 +9,7 @@ export const inspirations = pgTable("inspirations", {
         .references(() => persons.id, { onDelete: "cascade" })
         .notNull(),
     text: text("text").notNull(),
+    link: varchar("link", { length: 500 }),
     createdAt: timestamp("created_at", { withTimezone: true })
         .notNull()
         .defaultNow(),
