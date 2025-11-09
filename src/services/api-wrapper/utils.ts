@@ -44,6 +44,7 @@ interface SupabasePublicationIdea {
     person_id: string;
     idea: string;
     description: string | null;
+    link: string | null;
     status: string;
     created_at: string;
     updated_at: string;
@@ -136,6 +137,7 @@ export function transformPublicationIdea(
         personId: data.person_id,
         idea: data.idea,
         description: data.description,
+        link: data.link || null,
         status: data.status as "in_review" | "accepted" | "rejected" | "used",
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,

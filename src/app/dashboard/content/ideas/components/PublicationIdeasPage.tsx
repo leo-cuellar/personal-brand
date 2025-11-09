@@ -167,6 +167,18 @@ export function PublicationIdeasPage() {
                                     {idea.description && (
                                         <p className="text-gray-600">{idea.description}</p>
                                     )}
+                                    {idea.link && (
+                                        <div className="mt-2">
+                                            <a
+                                                href={idea.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                            >
+                                                {idea.link}
+                                            </a>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             {idea.status === "in_review" && (

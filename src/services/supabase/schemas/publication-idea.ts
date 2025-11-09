@@ -5,6 +5,7 @@ import {
     uuid,
     boolean,
     pgEnum,
+    varchar,
 } from "drizzle-orm/pg-core";
 import { persons } from "./person";
 
@@ -19,6 +20,7 @@ export const publicationIdeas = pgTable("publication_ideas", {
         .notNull(),
     idea: text("idea").notNull(),
     description: text("description"),
+    link: varchar("link", { length: 500 }),
     status: ideaStatusEnum("status").notNull().default("in_review"),
     createdAt: timestamp("created_at", { withTimezone: true })
         .notNull()

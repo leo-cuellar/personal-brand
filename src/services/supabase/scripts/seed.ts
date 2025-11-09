@@ -172,12 +172,13 @@ async function seedPublicationIdeas() {
         for (const publicationIdea of mockPublicationIdeas) {
             await client`
                 INSERT INTO public.publication_ideas (
-                    id, person_id, idea, description, status, created_at, updated_at, is_archived
+                    id, person_id, idea, description, link, status, created_at, updated_at, is_archived
                 ) VALUES (
                     ${publicationIdea.id}::uuid,
                     ${publicationIdea.personId}::uuid,
                     ${publicationIdea.idea},
                     ${publicationIdea.description || null},
+                    ${publicationIdea.link || null},
                     ${publicationIdea.status}::idea_status,
                     ${new Date(publicationIdea.createdAt)},
                     ${new Date(publicationIdea.updatedAt)},

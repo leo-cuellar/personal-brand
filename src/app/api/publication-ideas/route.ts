@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
                 person_id: body.personId,
                 idea: body.idea,
                 description: body.description || null,
+                link: body.link || null,
                 status: body.status || "in_review",
                 is_archived: body.isArchived || false,
             })
@@ -94,6 +95,7 @@ export async function PUT(request: NextRequest) {
         const updateData: {
             idea?: string;
             description?: string | null;
+            link?: string | null;
             status?: string;
             is_archived?: boolean;
             updated_at: string;
@@ -104,6 +106,7 @@ export async function PUT(request: NextRequest) {
         if (body.idea !== undefined) updateData.idea = body.idea;
         if (body.description !== undefined)
             updateData.description = body.description || null;
+        if (body.link !== undefined) updateData.link = body.link || null;
         if (body.status !== undefined) updateData.status = body.status;
         if (body.isArchived !== undefined)
             updateData.is_archived = body.isArchived;
