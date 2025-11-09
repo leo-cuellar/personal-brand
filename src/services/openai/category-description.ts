@@ -55,7 +55,21 @@ Personal Brand Information:
             },
             {
                 role: "user",
-                content: `Generate a brief, descriptive text (2-3 sentences) for a publication category. DO NOT include the category name/title in the description. 
+                content: `Generate a brief, descriptive text (2-3 sentences) for a publication category. 
+
+CRITICAL: Start directly with the topic/content. DO NOT use introductory phrases like:
+- "Content explores..."
+- "This category covers..."
+- "Content within this category focuses on..."
+- "Discussions include..."
+- "This category delves into..."
+
+Instead, start directly with the subject matter. Examples:
+BAD: "Content explores the principles and best practices of front-end development..."
+GOOD: "Principles and best practices of front-end development, emphasizing user experience..."
+
+BAD: "This category covers strategies for navigating career transitions..."
+GOOD: "Strategies for navigating career transitions, focusing on skill development..."
 
 Category name: "${categoryName}"
 
@@ -63,11 +77,12 @@ Personal brand context:
 ${personContext}${strongOpinionsContext}
 
 Requirements:
+- Start directly with the topic/subject matter (no introductory phrases)
 - Write in third person, impersonal style
 - Do NOT mention any person's name
 - Do NOT use possessive pronouns (my, their, his, her, etc.)
+- Do NOT reference "this category", "content", "discussions", etc.
 - Focus on the topics, themes, and content areas covered
-- Describe what kind of content and discussions this category encompasses
 - Make it descriptive and suitable for trend analysis/search
 - Keep it professional and clear
 - 2-3 sentences maximum`,
