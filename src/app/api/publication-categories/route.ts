@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
                 name: body.name,
                 description: body.description,
                 is_archived: body.isArchived || false,
+                use_for_search: body.useForSearch || false,
             })
             .select()
             .single();
@@ -89,6 +90,7 @@ export async function PUT(request: NextRequest) {
             name?: string;
             description?: string;
             is_archived?: boolean;
+            use_for_search?: boolean;
             updated_at: string;
         } = {
             updated_at: new Date().toISOString(),
@@ -99,6 +101,8 @@ export async function PUT(request: NextRequest) {
             updateData.description = body.description;
         if (body.isArchived !== undefined)
             updateData.is_archived = body.isArchived;
+        if (body.useForSearch !== undefined)
+            updateData.use_for_search = body.useForSearch;
 
         const { data, error } = await supabaseAdmin
             .from("publication_categories")

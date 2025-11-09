@@ -31,6 +31,7 @@ export function PublicationCategoriesPage() {
         name: "",
         description: "",
         isArchived: false,
+        useForSearch: false,
     });
 
     const handleCreate = async (e: React.FormEvent) => {
@@ -48,8 +49,9 @@ export function PublicationCategoriesPage() {
                 name: formData.name,
                 description: formData.description,
                 isArchived: formData.isArchived || false,
+                useForSearch: formData.useForSearch || false,
             } as NewPublicationCategory);
-            setFormData({ name: "", description: "", isArchived: false });
+            setFormData({ name: "", description: "", isArchived: false, useForSearch: false });
             setIsCreating(false);
         } catch (err) {
             console.error("Failed to create:", err);
@@ -169,6 +171,21 @@ export function PublicationCategoriesPage() {
                                 required
                             />
                         </div>
+                        <div>
+                            <label className="mb-2 flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.useForSearch || false}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, useForSearch: e.target.checked })
+                                    }
+                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
+                                />
+                                <span className="text-sm font-medium text-gray-700">
+                                    Use for search
+                                </span>
+                            </label>
+                        </div>
                         <div className="flex gap-3">
                             <button
                                 type="submit"
@@ -180,7 +197,7 @@ export function PublicationCategoriesPage() {
                                 type="button"
                                 onClick={() => {
                                     setIsCreating(false);
-                                    setFormData({ name: "", description: "", isArchived: false });
+                                    setFormData({ name: "", description: "", isArchived: false, useForSearch: false });
                                 }}
                                 className="rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                             >
@@ -230,6 +247,23 @@ export function PublicationCategoriesPage() {
                                                 )}
                                             </div>
                                             <p className="text-gray-600">{category.description}</p>
+                                            <div className="mt-3 flex items-center gap-2">
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={category.useForSearch}
+                                                        onChange={(e) =>
+                                                            handleUpdate(category.id, {
+                                                                useForSearch: e.target.checked,
+                                                            })
+                                                        }
+                                                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
+                                                    />
+                                                    <span className="text-sm font-medium text-gray-700">
+                                                        Use for search
+                                                    </span>
+                                                </label>
+                                            </div>
                                         </div>
                                         <div className="ml-4 flex gap-2">
                                             <button
@@ -281,10 +315,11 @@ function EditForm({
 }) {
     const [name, setName] = useState(category.name);
     const [description, setDescription] = useState(category.description);
+    const [useForSearch, setUseForSearch] = useState(category.useForSearch);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSave({ name, description });
+        onSave({ name, description, useForSearch });
     };
 
     return (
@@ -312,6 +347,19 @@ function EditForm({
                     rows={3}
                     required
                 />
+            </div>
+            <div>
+                <label className="mb-2 flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        checked={useForSearch}
+                        onChange={(e) => setUseForSearch(e.target.checked)}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                        Use for search
+                    </span>
+                </label>
             </div>
             <div className="flex gap-3">
                 <button

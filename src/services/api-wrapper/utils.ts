@@ -27,6 +27,7 @@ interface SupabasePublicationCategory {
     created_at: string;
     updated_at: string;
     is_archived: boolean;
+    use_for_search: boolean;
 }
 
 interface SupabaseStrongOpinion {
@@ -110,6 +111,7 @@ export function transformPublicationCategory(
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,
+        useForSearch: data.use_for_search,
     };
 }
 
