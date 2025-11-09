@@ -6,7 +6,7 @@ const API_BASE_URL = "/api/publication-ideas";
 export interface GetPublicationIdeasParams {
     includeArchived?: boolean;
     personId?: string | null;
-    status?: "in_review" | "accepted" | "rejected";
+    status?: "in_review" | "accepted" | "rejected" | "used";
 }
 
 export async function getPublicationIdeas(

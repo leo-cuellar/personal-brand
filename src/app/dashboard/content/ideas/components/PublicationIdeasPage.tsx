@@ -2,8 +2,6 @@
 
 import { useState, useMemo } from "react";
 import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
-import { PublicationIdea } from "@/services/supabase/schemas";
-import { usePersonContext } from "@/contexts/PersonContext";
 
 function formatDate(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
@@ -17,11 +15,10 @@ function formatDate(date: Date | string): string {
 }
 
 export function PublicationIdeasPage() {
-    const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
-    const [statusFilter, setStatusFilter] = useState<"in_review" | "accepted" | "rejected" | "all">("in_review");
+    const [statusFilter, setStatusFilter] = useState<"in_review" | "accepted" | "rejected" | "used" | "all">("in_review");
     const params = useMemo(() => {
-        const p: { includeArchived?: boolean; status?: "in_review" | "accepted" | "rejected" } = {};
+        const p: { includeArchived?: boolean; status?: "in_review" | "accepted" | "rejected" | "used" } = {};
         if (showArchived) p.includeArchived = true;
         if (statusFilter !== "all") p.status = statusFilter;
         return p;
@@ -56,6 +53,8 @@ export function PublicationIdeasPage() {
                 return "bg-red-100 text-red-700";
             case "in_review":
                 return "bg-yellow-100 text-yellow-700";
+            case "used":
+                return "bg-blue-100 text-blue-700";
             default:
                 return "bg-gray-100 text-gray-700";
         }
@@ -69,6 +68,8 @@ export function PublicationIdeasPage() {
                 return "Rejected";
             case "in_review":
                 return "In Review";
+            case "used":
+                return "Used";
             default:
                 return status;
         }
@@ -115,13 +116,14 @@ export function PublicationIdeasPage() {
                     </label>
                     <select
                         value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value as "in_review" | "accepted" | "rejected" | "all")}
+                        onChange={(e) => setStatusFilter(e.target.value as "in_review" | "accepted" | "rejected" | "used" | "all")}
                         className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="all">All Status</option>
                         <option value="in_review">In Review</option>
                         <option value="accepted">Accepted</option>
                         <option value="rejected">Rejected</option>
+                        <option value="used">Used</option>
                     </select>
                     <span className="text-sm text-gray-500">
                         {publicationIdeas.length} idea{publicationIdeas.length !== 1 ? "s" : ""}

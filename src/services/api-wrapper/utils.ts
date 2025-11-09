@@ -134,7 +134,7 @@ export function transformPublicationIdea(
         personId: data.person_id,
         idea: data.idea,
         description: data.description,
-        status: data.status as "in_review" | "accepted" | "rejected",
+        status: data.status as "in_review" | "accepted" | "rejected" | "used",
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,

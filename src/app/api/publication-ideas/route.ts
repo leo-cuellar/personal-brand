@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
             query = query.eq("person_id", personId);
         }
 
-        if (status && ["in_review", "accepted", "rejected"].includes(status)) {
+        if (status && ["in_review", "accepted", "rejected", "used"].includes(status)) {
             query = query.eq("status", status);
         }
 

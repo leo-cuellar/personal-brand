@@ -9,7 +9,7 @@ import {
 import { persons } from "./person";
 
 // Enum for idea status
-export const ideaStatusEnum = pgEnum("idea_status", ["in_review", "accepted", "rejected"]);
+export const ideaStatusEnum = pgEnum("idea_status", ["in_review", "accepted", "rejected", "used"]);
 
 // Publication ideas table
 export const publicationIdeas = pgTable("publication_ideas", {
