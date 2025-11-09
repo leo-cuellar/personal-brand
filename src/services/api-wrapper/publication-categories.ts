@@ -1,16 +1,16 @@
-import { PublicationTopic, NewPublicationTopic } from "@/services/supabase/schemas";
-import { transformPublicationTopic } from "./utils";
+import { PublicationCategory, NewPublicationCategory } from "@/services/supabase/schemas";
+import { transformPublicationCategory } from "./utils";
 
-const API_BASE_URL = "/api/publication-topics";
+const API_BASE_URL = "/api/publication-categories";
 
-export interface GetPublicationTopicsParams {
+export interface GetPublicationCategoriesParams {
     includeArchived?: boolean;
     personId?: string | null;
 }
 
-export async function getPublicationTopics(
-    params?: GetPublicationTopicsParams
-): Promise<PublicationTopic[]> {
+export async function getPublicationCategories(
+    params?: GetPublicationCategoriesParams
+): Promise<PublicationCategory[]> {
     const queryParams = new URLSearchParams();
     if (params?.includeArchived) {
         queryParams.append("includeArchived", "true");
@@ -30,37 +30,37 @@ export async function getPublicationTopics(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to fetch publication topics");
+        throw new Error(error.error || "Failed to fetch publication categories");
     }
 
     const { data } = await response.json();
-    return Array.isArray(data) ? data.map(transformPublicationTopic) : [];
+    return Array.isArray(data) ? data.map(transformPublicationCategory) : [];
 }
 
-export async function createPublicationTopic(
-    publicationTopic: NewPublicationTopic
-): Promise<PublicationTopic> {
+export async function createPublicationCategory(
+    publicationCategory: NewPublicationCategory
+): Promise<PublicationCategory> {
     const response = await fetch(API_BASE_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(publicationTopic),
+        body: JSON.stringify(publicationCategory),
     });
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to create publication topic");
+        throw new Error(error.error || "Failed to create publication category");
     }
 
     const { data } = await response.json();
-    return transformPublicationTopic(data);
+    return transformPublicationCategory(data);
 }
 
-export async function updatePublicationTopic(
+export async function updatePublicationCategory(
     id: string,
-    updates: Partial<PublicationTopic>
-): Promise<PublicationTopic> {
+    updates: Partial<PublicationCategory>
+): Promise<PublicationCategory> {
     const response = await fetch(API_BASE_URL, {
         method: "PUT",
         headers: {
@@ -71,14 +71,14 @@ export async function updatePublicationTopic(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to update publication topic");
+        throw new Error(error.error || "Failed to update publication category");
     }
 
     const { data } = await response.json();
-    return transformPublicationTopic(data);
+    return transformPublicationCategory(data);
 }
 
-export async function deletePublicationTopic(id: string): Promise<void> {
+export async function deletePublicationCategory(id: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}?id=${id}`, {
         method: "DELETE",
         headers: {
@@ -88,7 +88,7 @@ export async function deletePublicationTopic(id: string): Promise<void> {
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to delete publication topic");
+        throw new Error(error.error || "Failed to delete publication category");
     }
 }
 

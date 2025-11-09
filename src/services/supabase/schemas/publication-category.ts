@@ -1,8 +1,8 @@
 import { pgTable, text, timestamp, uuid, boolean, varchar } from "drizzle-orm/pg-core";
 import { persons } from "./person";
 
-// Publication topics table
-export const publicationTopics = pgTable("publication_topics", {
+// Publication categories table
+export const publicationCategories = pgTable("publication_categories", {
     id: uuid("id").primaryKey().defaultRandom(),
     personId: uuid("person_id")
         .references(() => persons.id, { onDelete: "cascade" })
@@ -19,6 +19,6 @@ export const publicationTopics = pgTable("publication_topics", {
 });
 
 // TypeScript types derived from schema
-export type PublicationTopic = typeof publicationTopics.$inferSelect;
-export type NewPublicationTopic = typeof publicationTopics.$inferInsert;
+export type PublicationCategory = typeof publicationCategories.$inferSelect;
+export type NewPublicationCategory = typeof publicationCategories.$inferInsert;
 

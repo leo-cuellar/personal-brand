@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { usePublicationTopics } from "@/hooks/usePublicationTopics";
-import { PublicationTopic, NewPublicationTopic } from "@/services/supabase/schemas";
+import { usePublicationCategories } from "@/hooks/usePublicationCategories";
+import { PublicationCategory, NewPublicationCategory } from "@/services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
 
 function formatDate(date: Date | string): string {
@@ -16,18 +16,18 @@ function formatDate(date: Date | string): string {
     return `${year}-${month}-${day}`;
 }
 
-export function PublicationTopicsPage() {
+export function PublicationCategoriesPage() {
     const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
     const params = useMemo(
         () => ({ includeArchived: showArchived }),
         [showArchived]
     );
-    const { publicationTopics, loading, error, create, update, remove } =
-        usePublicationTopics(params);
+    const { publicationCategories, loading, error, create, update, remove } =
+        usePublicationCategories(params);
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
-    const [formData, setFormData] = useState<Partial<NewPublicationTopic>>({
+    const [formData, setFormData] = useState<Partial<NewPublicationCategory>>({
         name: "",
         description: "",
         isArchived: false,
@@ -48,7 +48,7 @@ export function PublicationTopicsPage() {
                 name: formData.name,
                 description: formData.description,
                 isArchived: formData.isArchived || false,
-            } as NewPublicationTopic);
+            } as NewPublicationCategory);
             setFormData({ name: "", description: "", isArchived: false });
             setIsCreating(false);
         } catch (err) {
@@ -56,7 +56,7 @@ export function PublicationTopicsPage() {
         }
     };
 
-    const handleUpdate = async (id: string, updates: Partial<PublicationTopic>) => {
+    const handleUpdate = async (id: string, updates: Partial<PublicationCategory>) => {
         try {
             await update(id, updates);
             setEditingId(null);
@@ -66,7 +66,7 @@ export function PublicationTopicsPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (confirm("Are you sure you want to permanently delete this publication topic? This action cannot be undone.")) {
+        if (confirm("Are you sure you want to permanently delete this publication category? This action cannot be undone.")) {
             try {
                 await remove(id);
             } catch (err) {
@@ -80,7 +80,7 @@ export function PublicationTopicsPage() {
             <div className="flex min-h-screen items-center justify-center">
                 <div className="text-center">
                     <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-                    <p className="text-lg text-gray-600">Loading publication topics...</p>
+                    <p className="text-lg text-gray-600">Loading publication categories...</p>
                 </div>
             </div>
         );
@@ -115,7 +115,7 @@ export function PublicationTopicsPage() {
                         <span className="text-sm text-gray-700">Show archived</span>
                     </label>
                     <span className="text-sm text-gray-500">
-                        {publicationTopics.length} topic{publicationTopics.length !== 1 ? "s" : ""}
+                        {publicationCategories.length} categor{publicationCategories.length !== 1 ? "ies" : "y"}
                     </span>
                 </div>
                 <button
@@ -124,18 +124,18 @@ export function PublicationTopicsPage() {
                     className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     title={!selectedPersonId ? "Please select a person first" : ""}
                 >
-                    {isCreating ? "Cancel" : "+ Add New Topic"}
+                    {isCreating ? "Cancel" : "+ Add New Category"}
                 </button>
             </div>
 
             {isCreating && (
                 <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                     <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                        Create New Publication Topic
+                        Create New Publication Category
                     </h2>
                     {!selectedPersonId && (
                         <div className="mb-4 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-yellow-800">
-                            <strong>⚠️ Warning:</strong> Please select a person from the header before creating a topic.
+                            <strong>⚠️ Warning:</strong> Please select a person from the header before creating a category.
                         </div>
                     )}
                     <form onSubmit={handleCreate} className="space-y-4">
@@ -165,7 +165,7 @@ export function PublicationTopicsPage() {
                                 }
                                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 rows={3}
-                                placeholder="Describe what this topic is for..."
+                                placeholder="Describe what this category is for..."
                                 required
                             />
                         </div>
@@ -192,27 +192,27 @@ export function PublicationTopicsPage() {
             )}
 
             <div className="space-y-4">
-                {publicationTopics.length === 0 ? (
+                {publicationCategories.length === 0 ? (
                     <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
                         <p className="text-gray-500">
                             {showArchived
-                                ? "No publication topics found."
-                                : "No active publication topics. Create one to get started!"}
+                                ? "No publication categories found."
+                                : "No active publication categories. Create one to get started!"}
                         </p>
                     </div>
                 ) : (
-                    publicationTopics.map((topic) => (
+                    publicationCategories.map((category) => (
                         <div
-                            key={topic.id}
-                            className={`rounded-lg border p-6 shadow-sm transition-shadow hover:shadow-md ${topic.isArchived
+                            key={category.id}
+                            className={`rounded-lg border p-6 shadow-sm transition-shadow hover:shadow-md ${category.isArchived
                                 ? "border-gray-300 bg-gray-50"
                                 : "border-gray-200 bg-white"
                                 }`}
                         >
-                            {editingId === topic.id ? (
+                            {editingId === category.id ? (
                                 <EditForm
-                                    topic={topic}
-                                    onSave={(updates) => handleUpdate(topic.id, updates)}
+                                    category={category}
+                                    onSave={(updates) => handleUpdate(category.id, updates)}
                                     onCancel={() => setEditingId(null)}
                                 />
                             ) : (
@@ -221,35 +221,35 @@ export function PublicationTopicsPage() {
                                         <div className="flex-1">
                                             <div className="mb-1 flex items-center gap-2">
                                                 <h3 className="text-xl font-semibold text-gray-900">
-                                                    {topic.name}
+                                                    {category.name}
                                                 </h3>
-                                                {topic.isArchived && (
+                                                {category.isArchived && (
                                                     <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700">
                                                         Archived
                                                     </span>
                                                 )}
                                             </div>
-                                            <p className="text-gray-600">{topic.description}</p>
+                                            <p className="text-gray-600">{category.description}</p>
                                         </div>
                                         <div className="ml-4 flex gap-2">
                                             <button
-                                                onClick={() => setEditingId(topic.id)}
+                                                onClick={() => setEditingId(category.id)}
                                                 className="rounded-lg bg-yellow-50 px-4 py-2 text-sm font-medium text-yellow-700 transition-colors hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
                                             >
                                                 Edit
                                             </button>
                                             <button
                                                 onClick={() =>
-                                                    handleUpdate(topic.id, {
-                                                        isArchived: !topic.isArchived,
+                                                    handleUpdate(category.id, {
+                                                        isArchived: !category.isArchived,
                                                     })
                                                 }
                                                 className="rounded-lg bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                                             >
-                                                {topic.isArchived ? "Unarchive" : "Archive"}
+                                                {category.isArchived ? "Unarchive" : "Archive"}
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(topic.id)}
+                                                onClick={() => handleDelete(category.id)}
                                                 className="rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                                             >
                                                 Delete
@@ -257,8 +257,8 @@ export function PublicationTopicsPage() {
                                         </div>
                                     </div>
                                     <div className="text-xs text-gray-500">
-                                        Created: {formatDate(topic.createdAt)} •
-                                        Updated: {formatDate(topic.updatedAt)}
+                                        Created: {formatDate(category.createdAt)} •
+                                        Updated: {formatDate(category.updatedAt)}
                                     </div>
                                 </>
                             )}
@@ -271,16 +271,16 @@ export function PublicationTopicsPage() {
 }
 
 function EditForm({
-    topic,
+    category,
     onSave,
     onCancel,
 }: {
-    topic: PublicationTopic;
-    onSave: (updates: Partial<PublicationTopic>) => void;
+    category: PublicationCategory;
+    onSave: (updates: Partial<PublicationCategory>) => void;
     onCancel: () => void;
 }) {
-    const [name, setName] = useState(topic.name);
-    const [description, setDescription] = useState(topic.description);
+    const [name, setName] = useState(category.name);
+    const [description, setDescription] = useState(category.description);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

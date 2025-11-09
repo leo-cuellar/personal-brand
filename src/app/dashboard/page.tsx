@@ -28,7 +28,7 @@ export default function DashboardPage() {
                     </p>
                     <div className="space-y-3">
                         <Link
-                            href="/dashboard/settings/topics"
+                            href="/dashboard/settings/categories"
                             className="block rounded-lg border border-gray-300 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50"
                         >
                             <div className="font-medium text-gray-900">

@@ -6,7 +6,7 @@ import { getPostgresClient } from "../index";
 import { mockPublications } from "../mocks/publications";
 import { mockStrongOpinions } from "../mocks/strong-opinions";
 import { mockPublicationTypes } from "../mocks/publication-types";
-import { mockPublicationTopics } from "../mocks/publication-topics";
+import { mockPublicationCategories } from "../mocks/publication-categories";
 import { mockPublicationIdeas } from "../mocks/publication-ideas";
 import { mockPersons } from "../mocks/persons";
 import { mockInspirations } from "../mocks/inspirations";
@@ -126,25 +126,25 @@ async function seedPublicationTypes() {
     }
 }
 
-async function seedPublicationTopics() {
-    console.log("🌱 Seeding publication topics...");
+async function seedPublicationCategories() {
+    console.log("🌱 Seeding publication categories...");
 
     try {
         const client = pg();
 
-        // Insert publication topics one by one using direct SQL
-        for (const publicationTopic of mockPublicationTopics) {
+        // Insert publication categories one by one using direct SQL
+        for (const publicationCategory of mockPublicationCategories) {
             await client`
-                INSERT INTO public.publication_topics (
+                INSERT INTO public.publication_categories (
                     id, person_id, name, description, created_at, updated_at, is_archived
                 ) VALUES (
-                    ${publicationTopic.id}::uuid,
-                    ${publicationTopic.personId}::uuid,
-                    ${publicationTopic.name},
-                    ${publicationTopic.description},
-                    ${new Date(publicationTopic.createdAt)},
-                    ${new Date(publicationTopic.updatedAt)},
-                    ${publicationTopic.isArchived}
+                    ${publicationCategory.id}::uuid,
+                    ${publicationCategory.personId}::uuid,
+                    ${publicationCategory.name},
+                    ${publicationCategory.description},
+                    ${new Date(publicationCategory.createdAt)},
+                    ${new Date(publicationCategory.updatedAt)},
+                    ${publicationCategory.isArchived}
                 )
                 ON CONFLICT (id) DO NOTHING
             `;
@@ -153,10 +153,10 @@ async function seedPublicationTopics() {
         await client.end();
 
         console.log(
-            `✅ ${mockPublicationTopics.length} publication topics inserted successfully`
+            `✅ ${mockPublicationCategories.length} publication categories inserted successfully`
         );
     } catch (error) {
-        console.error("❌ Error seeding publication topics:", error);
+        console.error("❌ Error seeding publication categories:", error);
         throw error;
     }
 }
@@ -289,7 +289,7 @@ async function main() {
     try {
         await seedPersons();
         await seedPublicationIdeas();
-        await seedPublicationTopics();
+        await seedPublicationCategories();
         await seedPublicationTypes();
         await seedStrongOpinions();
         await seedPublications();
@@ -313,7 +313,7 @@ export {
     seedPublications,
     seedStrongOpinions,
     seedPublicationTypes,
-    seedPublicationTopics,
+    seedPublicationCategories,
     seedPublicationIdeas,
     seedPersons,
     seedInspirations,

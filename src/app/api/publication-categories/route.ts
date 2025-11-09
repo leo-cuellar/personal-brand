@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/services/supabase/client";
-import { PublicationTopic, NewPublicationTopic } from "@/services/supabase/schemas";
+import { PublicationCategory, NewPublicationCategory } from "@/services/supabase/schemas";
 
-// GET - Get all publication topics
+// GET - Get all publication categories
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
         const personId = searchParams.get("personId");
 
         let query = supabaseAdmin
-            .from("publication_topics")
+            .from("publication_categories")
             .select("*")
             .order("created_at", { ascending: false });
 
@@ -34,19 +34,19 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ data });
     } catch {
         return NextResponse.json(
-            { error: "Failed to fetch publication topics" },
+            { error: "Failed to fetch publication categories" },
             { status: 500 }
         );
     }
 }
 
-// POST - Create a new publication topic
+// POST - Create a new publication category
 export async function POST(request: NextRequest) {
     try {
-        const body: NewPublicationTopic = await request.json();
+        const body: NewPublicationCategory = await request.json();
 
         const { data, error } = await supabaseAdmin
-            .from("publication_topics")
+            .from("publication_categories")
             .insert({
                 person_id: body.personId,
                 name: body.name,
@@ -66,16 +66,16 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ data }, { status: 201 });
     } catch {
         return NextResponse.json(
-            { error: "Failed to create publication topic" },
+            { error: "Failed to create publication category" },
             { status: 500 }
         );
     }
 }
 
-// PUT - Update a publication topic
+// PUT - Update a publication category
 export async function PUT(request: NextRequest) {
     try {
-        const body: Partial<PublicationTopic> & { id: string } =
+        const body: Partial<PublicationCategory> & { id: string } =
             await request.json();
 
         if (!body.id) {
@@ -101,7 +101,7 @@ export async function PUT(request: NextRequest) {
             updateData.is_archived = body.isArchived;
 
         const { data, error } = await supabaseAdmin
-            .from("publication_topics")
+            .from("publication_categories")
             .update(updateData)
             .eq("id", body.id)
             .select()
@@ -117,13 +117,13 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ data });
     } catch {
         return NextResponse.json(
-            { error: "Failed to update publication topic" },
+            { error: "Failed to update publication category" },
             { status: 500 }
         );
     }
 }
 
-// DELETE - Delete a publication topic (permanent delete)
+// DELETE - Delete a publication category (permanent delete)
 export async function DELETE(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
@@ -137,7 +137,7 @@ export async function DELETE(request: NextRequest) {
         }
 
         const { error } = await supabaseAdmin
-            .from("publication_topics")
+            .from("publication_categories")
             .delete()
             .eq("id", id);
 
@@ -151,7 +151,7 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({ success: true });
     } catch {
         return NextResponse.json(
-            { error: "Failed to delete publication topic" },
+            { error: "Failed to delete publication category" },
             { status: 500 }
         );
     }

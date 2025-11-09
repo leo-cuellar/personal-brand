@@ -1,8 +1,8 @@
 import { randomUUID } from "crypto";
-import { PublicationTopic } from "../schemas";
+import { PublicationCategory } from "../schemas";
 import { MOCK_PERSON_ID } from "./persons";
 
-export const mockPublicationTopics: PublicationTopic[] = [
+export const mockPublicationCategories: PublicationCategory[] = [
     {
         id: randomUUID(),
         personId: MOCK_PERSON_ID as unknown as string,

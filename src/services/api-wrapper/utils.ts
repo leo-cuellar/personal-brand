@@ -1,6 +1,6 @@
 import {
     PublicationType,
-    PublicationTopic,
+    PublicationCategory,
     StrongOpinion,
     PublicationIdea,
     Publication,
@@ -19,7 +19,7 @@ interface SupabasePublicationType {
     is_archived: boolean;
 }
 
-interface SupabasePublicationTopic {
+interface SupabasePublicationCategory {
     id: string;
     person_id: string;
     name: string;
@@ -99,9 +99,9 @@ export function transformPublicationType(
     };
 }
 
-export function transformPublicationTopic(
-    data: SupabasePublicationTopic
-): PublicationTopic {
+export function transformPublicationCategory(
+    data: SupabasePublicationCategory
+): PublicationCategory {
     return {
         id: data.id,
         personId: data.person_id,
