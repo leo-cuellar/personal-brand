@@ -16,6 +16,7 @@ export const publicationCategories = pgTable("publication_categories", {
         .notNull()
         .defaultNow(),
     isArchived: boolean("is_archived").notNull().default(false),
+    useForSearch: boolean("use_for_search").notNull().default(false),
 });
 
 // TypeScript types derived from schema

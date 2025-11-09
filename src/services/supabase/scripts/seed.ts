@@ -136,7 +136,7 @@ async function seedPublicationCategories() {
         for (const publicationCategory of mockPublicationCategories) {
             await client`
                 INSERT INTO public.publication_categories (
-                    id, person_id, name, description, created_at, updated_at, is_archived
+                    id, person_id, name, description, created_at, updated_at, is_archived, use_for_search
                 ) VALUES (
                     ${publicationCategory.id}::uuid,
                     ${publicationCategory.personId}::uuid,
@@ -144,7 +144,8 @@ async function seedPublicationCategories() {
                     ${publicationCategory.description},
                     ${new Date(publicationCategory.createdAt)},
                     ${new Date(publicationCategory.updatedAt)},
-                    ${publicationCategory.isArchived}
+                    ${publicationCategory.isArchived},
+                    ${publicationCategory.useForSearch}
                 )
                 ON CONFLICT (id) DO NOTHING
             `;

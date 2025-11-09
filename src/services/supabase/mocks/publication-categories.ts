@@ -11,6 +11,7 @@ export const mockPublicationCategories: PublicationCategory[] = [
         createdAt: new Date(),
         updatedAt: new Date(),
         isArchived: false,
+        useForSearch: true,
     },
     {
         id: randomUUID(),
@@ -20,6 +21,7 @@ export const mockPublicationCategories: PublicationCategory[] = [
         createdAt: new Date(),
         updatedAt: new Date(),
         isArchived: false,
+        useForSearch: true,
     },
     {
         id: randomUUID(),
@@ -29,6 +31,7 @@ export const mockPublicationCategories: PublicationCategory[] = [
         createdAt: new Date(),
         updatedAt: new Date(),
         isArchived: false,
+        useForSearch: true,
     },
     {
         id: randomUUID(),
@@ -38,6 +41,7 @@ export const mockPublicationCategories: PublicationCategory[] = [
         createdAt: new Date(),
         updatedAt: new Date(),
         isArchived: false,
+        useForSearch: false,
     },
     {
         id: randomUUID(),
@@ -47,6 +51,7 @@ export const mockPublicationCategories: PublicationCategory[] = [
         createdAt: new Date(),
         updatedAt: new Date(),
         isArchived: false,
+        useForSearch: true,
     },
 ];
 
