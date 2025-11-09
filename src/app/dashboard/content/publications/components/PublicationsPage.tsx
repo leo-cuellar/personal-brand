@@ -21,6 +21,7 @@ export function PublicationsPage() {
     const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
     const [statusFilter, setStatusFilter] = useState<"draft" | "scheduled" | "published" | "all">("all");
+    const [expandedPublications, setExpandedPublications] = useState<Set<string>>(new Set());
     const params = useMemo(() => {
         const p: { includeArchived?: boolean; status?: "draft" | "scheduled" | "published" } = {};
         if (showArchived) p.includeArchived = true;
@@ -93,6 +94,23 @@ export function PublicationsPage() {
                 console.error("Failed to delete:", err);
             }
         }
+    };
+
+    const toggleExpand = (id: string) => {
+        setExpandedPublications((prev) => {
+            const newSet = new Set(prev);
+            if (newSet.has(id)) {
+                newSet.delete(id);
+            } else {
+                newSet.add(id);
+            }
+            return newSet;
+        });
+    };
+
+    const shouldShowViewMore = (content: string) => {
+        // Show "View more" if content is longer than ~150 characters (approximately 3 lines)
+        return content.length > 150;
     };
 
     if (loading) {
@@ -308,9 +326,19 @@ export function PublicationsPage() {
                                                     </span>
                                                 )}
                                             </div>
-                                            <p className="mb-2 text-gray-600 line-clamp-3">
-                                                {publication.content}
-                                            </p>
+                                            <div className="mb-2">
+                                                <p className={`text-gray-600 whitespace-pre-wrap ${expandedPublications.has(publication.id) ? "" : "line-clamp-3"}`}>
+                                                    {publication.content}
+                                                </p>
+                                                {shouldShowViewMore(publication.content) && (
+                                                    <button
+                                                        onClick={() => toggleExpand(publication.id)}
+                                                        className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-700 focus:outline-none focus:underline"
+                                                    >
+                                                        {expandedPublications.has(publication.id) ? "View less" : "View more"}
+                                                    </button>
+                                                )}
+                                            </div>
                                             <div className="text-xs text-gray-500">
                                                 Platform: {publication.platform} •
                                                 Scheduled: {formatDate(publication.scheduledAt)} •
