@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const includeArchived = searchParams.get("includeArchived") === "true";
         const personId = searchParams.get("personId");
+        const status = searchParams.get("status"); // Filter by status: in_review, accepted, rejected
 
         let query = supabaseAdmin
             .from("publication_ideas")
@@ -16,6 +17,10 @@ export async function GET(request: NextRequest) {
 
         if (personId) {
             query = query.eq("person_id", personId);
+        }
+
+        if (status && ["in_review", "accepted", "rejected"].includes(status)) {
+            query = query.eq("status", status);
         }
 
         if (!includeArchived) {
@@ -40,7 +45,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// POST - Create a new publication idea
+// POST - Create a new publication idea (used by n8n)
 export async function POST(request: NextRequest) {
     try {
         const body: NewPublicationIdea = await request.json();
@@ -51,7 +56,7 @@ export async function POST(request: NextRequest) {
                 person_id: body.personId,
                 idea: body.idea,
                 description: body.description || null,
-                source: body.source || "manual",
+                status: body.status || "in_review",
                 is_archived: body.isArchived || false,
             })
             .select()
@@ -89,7 +94,7 @@ export async function PUT(request: NextRequest) {
         const updateData: {
             idea?: string;
             description?: string | null;
-            source?: string;
+            status?: string;
             is_archived?: boolean;
             updated_at: string;
         } = {
@@ -99,7 +104,7 @@ export async function PUT(request: NextRequest) {
         if (body.idea !== undefined) updateData.idea = body.idea;
         if (body.description !== undefined)
             updateData.description = body.description || null;
-        if (body.source !== undefined) updateData.source = body.source;
+        if (body.status !== undefined) updateData.status = body.status;
         if (body.isArchived !== undefined)
             updateData.is_archived = body.isArchived;
 

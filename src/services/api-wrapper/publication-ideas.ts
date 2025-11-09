@@ -6,6 +6,7 @@ const API_BASE_URL = "/api/publication-ideas";
 export interface GetPublicationIdeasParams {
     includeArchived?: boolean;
     personId?: string | null;
+    status?: "in_review" | "accepted" | "rejected";
 }
 
 export async function getPublicationIdeas(
@@ -17,6 +18,9 @@ export async function getPublicationIdeas(
     }
     if (params?.personId) {
         queryParams.append("personId", params.personId);
+    }
+    if (params?.status) {
+        queryParams.append("status", params.status);
     }
 
     const url = `${API_BASE_URL}${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;

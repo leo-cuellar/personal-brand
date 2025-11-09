@@ -43,7 +43,7 @@ interface SupabasePublicationIdea {
     person_id: string;
     idea: string;
     description: string | null;
-    source: string;
+    status: string;
     created_at: string;
     updated_at: string;
     is_archived: boolean;
@@ -134,7 +134,7 @@ export function transformPublicationIdea(
         personId: data.person_id,
         idea: data.idea,
         description: data.description,
-        source: data.source as "ai" | "manual",
+        status: data.status as "in_review" | "accepted" | "rejected",
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,
