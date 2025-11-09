@@ -30,6 +30,7 @@ export function InspirationsPage() {
     const [formData, setFormData] = useState<Partial<NewInspiration>>({
         text: "",
         link: "",
+        source: "manual",
         isArchived: false,
     });
 
@@ -47,9 +48,10 @@ export function InspirationsPage() {
             await create({
                 text: formData.text,
                 link: formData.link || null,
+                source: formData.source || "manual",
                 isArchived: formData.isArchived || false,
             } as NewInspiration);
-            setFormData({ text: "", link: "", isArchived: false });
+            setFormData({ text: "", link: "", source: "manual", isArchived: false });
             setIsCreating(false);
         } catch (err) {
             console.error("Failed to create:", err);
@@ -168,6 +170,21 @@ export function InspirationsPage() {
                                 placeholder="https://example.com"
                             />
                         </div>
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">
+                                Source
+                            </label>
+                            <select
+                                value={formData.source || "manual"}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, source: e.target.value as "manual" | "trend_scanner" })
+                                }
+                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="manual">Manual</option>
+                                <option value="trend_scanner">Trend Scanner</option>
+                            </select>
+                        </div>
                         <div className="flex gap-3">
                             <button
                                 type="submit"
@@ -179,7 +196,7 @@ export function InspirationsPage() {
                                 type="button"
                                 onClick={() => {
                                     setIsCreating(false);
-                                    setFormData({ text: "", link: "", isArchived: false });
+                                    setFormData({ text: "", link: "", source: "manual", isArchived: false });
                                 }}
                                 className="rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                             >
@@ -224,6 +241,13 @@ export function InspirationsPage() {
                                                         Archived
                                                     </span>
                                                 )}
+                                                <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                                                    inspiration.source === "trend_scanner"
+                                                        ? "bg-purple-100 text-purple-800"
+                                                        : "bg-gray-100 text-gray-800"
+                                                }`}>
+                                                    {inspiration.source === "trend_scanner" ? "Trend Scanner" : "Manual"}
+                                                </span>
                                             </div>
                                             <p className="whitespace-pre-wrap text-gray-800">{inspiration.text}</p>
                                             {inspiration.link && (
@@ -289,10 +313,11 @@ function EditForm({
 }) {
     const [text, setText] = useState(inspiration.text);
     const [link, setLink] = useState(inspiration.link || "");
+    const [source, setSource] = useState<"manual" | "trend_scanner">(inspiration.source);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSave({ text, link: link || null });
+        onSave({ text, link: link || null, source });
     };
 
     return (
@@ -320,6 +345,19 @@ function EditForm({
                     className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="https://example.com"
                 />
+            </div>
+            <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Source
+                </label>
+                <select
+                    value={source}
+                    onChange={(e) => setSource(e.target.value as "manual" | "trend_scanner")}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="manual">Manual</option>
+                    <option value="trend_scanner">Trend Scanner</option>
+                </select>
             </div>
             <div className="flex gap-3">
                 <button

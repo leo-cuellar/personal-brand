@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
                 person_id: body.personId,
                 text: body.text,
                 link: body.link || null,
+                source: body.source || "manual",
                 is_archived: body.isArchived || false,
             })
             .select()
@@ -88,6 +89,7 @@ export async function PUT(request: NextRequest) {
         const updateData: {
             text?: string;
             link?: string | null;
+            source?: string;
             is_archived?: boolean;
             updated_at: string;
         } = {
@@ -96,6 +98,7 @@ export async function PUT(request: NextRequest) {
 
         if (body.text !== undefined) updateData.text = body.text;
         if (body.link !== undefined) updateData.link = body.link || null;
+        if (body.source !== undefined) updateData.source = body.source;
         if (body.isArchived !== undefined)
             updateData.is_archived = body.isArchived;
 

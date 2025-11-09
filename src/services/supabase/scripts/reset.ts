@@ -32,6 +32,7 @@ async function resetDatabase() {
         await client`DROP TYPE IF EXISTS public.idea_status CASCADE`;
         await client`DROP TYPE IF EXISTS public.publication_status CASCADE`;
         await client`DROP TYPE IF EXISTS public.publication_platform CASCADE`;
+        await client`DROP TYPE IF EXISTS public.inspiration_source CASCADE`;
 
         await client.end();
 

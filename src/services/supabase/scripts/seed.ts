@@ -260,12 +260,13 @@ async function seedInspirations() {
         for (const inspiration of mockInspirations) {
             await client`
                 INSERT INTO public.inspirations (
-                    id, person_id, text, link, created_at, updated_at, is_archived
+                    id, person_id, text, link, source, created_at, updated_at, is_archived
                 ) VALUES (
                     ${inspiration.id}::uuid,
                     ${inspiration.personId}::uuid,
                     ${inspiration.text},
                     ${inspiration.link || null},
+                    ${inspiration.source || "manual"}::inspiration_source,
                     ${new Date(inspiration.createdAt)},
                     ${new Date(inspiration.updatedAt)},
                     ${inspiration.isArchived}

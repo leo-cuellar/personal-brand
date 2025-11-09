@@ -195,6 +195,7 @@ interface SupabaseInspiration {
     person_id: string;
     text: string;
     link: string | null;
+    source: string;
     created_at: string;
     updated_at: string;
     is_archived: boolean;
@@ -208,6 +209,7 @@ export function transformInspiration(
         personId: data.person_id,
         text: data.text,
         link: data.link || null,
+        source: data.source as "manual" | "trend_scanner",
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,
