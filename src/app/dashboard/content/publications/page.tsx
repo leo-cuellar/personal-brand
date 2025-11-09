@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { PublicationsPage } from "./components/PublicationsPage";
+import { PublicationsContainer } from "./components/PublicationsContainer";
 
 export const metadata: Metadata = {
     title: "Publications | Social Assistant",
@@ -7,6 +7,6 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-    return <PublicationsPage />;
+    return <PublicationsContainer />;
 }
 
