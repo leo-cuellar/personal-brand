@@ -96,6 +96,17 @@ export default function DashboardPage() {
                             </div>
                         </Link>
                         <Link
+                            href="/dashboard/content/inspirations"
+                            className="block rounded-lg border border-gray-300 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50"
+                        >
+                            <div className="font-medium text-gray-900">
+                                Inspirations
+                            </div>
+                            <div className="text-sm text-gray-500">
+                                Manage inspiration content - from short ideas to full LinkedIn posts
+                            </div>
+                        </Link>
+                        <Link
                             href="/dashboard/content/publications"
                             className="block rounded-lg border border-gray-300 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50"
                         >

@@ -5,6 +5,7 @@ import {
     PublicationIdea,
     Publication,
     Person,
+    Inspiration,
 } from "@/services/supabase/schemas";
 
 // Supabase response types (snake_case)
@@ -181,6 +182,28 @@ export function transformPerson(
         currentVisionOrPersonalMission: data.current_vision_or_personal_mission,
         socialProofOrValidation: data.social_proof_or_validation,
         callToAction: data.call_to_action,
+        createdAt: new Date(data.created_at) as unknown as Date,
+        updatedAt: new Date(data.updated_at) as unknown as Date,
+        isArchived: data.is_archived,
+    };
+}
+
+interface SupabaseInspiration {
+    id: string;
+    person_id: string;
+    text: string;
+    created_at: string;
+    updated_at: string;
+    is_archived: boolean;
+}
+
+export function transformInspiration(
+    data: SupabaseInspiration
+): Inspiration {
+    return {
+        id: data.id,
+        personId: data.person_id,
+        text: data.text,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,

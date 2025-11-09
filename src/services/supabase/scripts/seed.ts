@@ -9,6 +9,7 @@ import { mockPublicationTypes } from "../mocks/publication-types";
 import { mockPublicationTopics } from "../mocks/publication-topics";
 import { mockPublicationIdeas } from "../mocks/publication-ideas";
 import { mockPersons } from "../mocks/persons";
+import { mockInspirations } from "../mocks/inspirations";
 
 const pg = () => getPostgresClient();
 
@@ -248,6 +249,40 @@ async function seedPersons() {
     }
 }
 
+async function seedInspirations() {
+    console.log("🌱 Seeding inspirations...");
+
+    try {
+        const client = pg();
+
+        // Insert inspirations one by one using direct SQL
+        for (const inspiration of mockInspirations) {
+            await client`
+                INSERT INTO public.inspirations (
+                    id, person_id, text, created_at, updated_at, is_archived
+                ) VALUES (
+                    ${inspiration.id}::uuid,
+                    ${inspiration.personId}::uuid,
+                    ${inspiration.text},
+                    ${new Date(inspiration.createdAt)},
+                    ${new Date(inspiration.updatedAt)},
+                    ${inspiration.isArchived}
+                )
+                ON CONFLICT (id) DO NOTHING
+            `;
+        }
+
+        await client.end();
+
+        console.log(
+            `✅ ${mockInspirations.length} inspirations inserted successfully`
+        );
+    } catch (error) {
+        console.error("❌ Error seeding inspirations:", error);
+        throw error;
+    }
+}
+
 async function main() {
     console.log("🚀 Starting seed process...");
 
@@ -258,6 +293,7 @@ async function main() {
         await seedPublicationTypes();
         await seedStrongOpinions();
         await seedPublications();
+        await seedInspirations();
         console.log("🎉 Seed completed successfully!");
     } catch (error) {
         console.error("💥 Error in seed process:", error);
@@ -280,4 +316,5 @@ export {
     seedPublicationTopics,
     seedPublicationIdeas,
     seedPersons,
+    seedInspirations,
 };

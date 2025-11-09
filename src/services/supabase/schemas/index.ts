@@ -4,3 +4,4 @@ export * from "./publication-type";
 export * from "./publication-topic";
 export * from "./publication-idea";
 export * from "./person";
+export * from "./inspiration";
