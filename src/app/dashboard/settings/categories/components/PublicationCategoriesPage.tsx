@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { usePublicationCategories } from "@/hooks/usePublicationCategories";
 import { PublicationCategory, NewPublicationCategory } from "@/services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
+import { useOpenAI } from "@/hooks/useOpenAI";
 
 function formatDate(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
@@ -313,9 +314,32 @@ function EditForm({
     onSave: (updates: Partial<PublicationCategory>) => void;
     onCancel: () => void;
 }) {
+    const { selectedPersonId } = usePersonContext();
     const [name, setName] = useState(category.name);
     const [description, setDescription] = useState(category.description);
     const [useForSearch, setUseForSearch] = useState(category.useForSearch);
+    const { generateCategoryDescription, loading: aiLoading, error: aiError } = useOpenAI();
+
+    const handleGenerateDescription = async () => {
+        if (!name.trim()) {
+            alert("Please enter a category name first");
+            return;
+        }
+        if (!selectedPersonId) {
+            alert("Please select a person first");
+            return;
+        }
+        try {
+            const generatedDescription = await generateCategoryDescription({
+                categoryName: name,
+                personId: selectedPersonId,
+            });
+            setDescription(generatedDescription);
+        } catch (err) {
+            console.error("Failed to generate description:", err);
+            alert("Failed to generate description. Please try again.");
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -337,9 +361,25 @@ function EditForm({
                 />
             </div>
             <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Description *
-                </label>
+                <div className="mb-2 flex items-center justify-between">
+                    <label className="block text-sm font-medium text-gray-700">
+                        Description *
+                    </label>
+                    <button
+                        type="button"
+                        onClick={handleGenerateDescription}
+                        disabled={aiLoading || !name.trim() || !selectedPersonId}
+                        className="text-sm font-medium text-blue-600 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-2 py-1"
+                        title={!selectedPersonId ? "Please select a person first" : ""}
+                    >
+                        {aiLoading ? "Generando..." : "Generar con IA"}
+                    </button>
+                </div>
+                {aiError && (
+                    <div className="mb-2 rounded-lg border border-red-300 bg-red-50 p-2 text-xs text-red-800">
+                        {aiError}
+                    </div>
+                )}
                 <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
