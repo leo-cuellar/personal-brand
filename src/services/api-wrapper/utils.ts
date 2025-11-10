@@ -60,6 +60,7 @@ interface SupabasePublication {
     platform: string;
     scheduled_at: string | null;
     published_at: string | null;
+    source: string | null;
     created_at: string;
     updated_at: string;
     is_archived: boolean;
@@ -161,6 +162,7 @@ export function transformPublication(
         publishedAt: data.published_at
             ? (new Date(data.published_at) as unknown as Date)
             : null,
+        source: data.source || null,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,

@@ -64,6 +64,7 @@ export async function POST(request: NextRequest) {
                 published_at: body.publishedAt
                     ? new Date(body.publishedAt).toISOString()
                     : null,
+                source: body.source || null,
                 is_archived: body.isArchived || false,
             })
             .select()
@@ -105,6 +106,7 @@ export async function PUT(request: NextRequest) {
             platform?: string;
             scheduled_at?: string | null;
             published_at?: string | null;
+            source?: string | null;
             is_archived?: boolean;
             updated_at: string;
         } = {
@@ -123,6 +125,7 @@ export async function PUT(request: NextRequest) {
             updateData.published_at = body.publishedAt
                 ? new Date(body.publishedAt).toISOString()
                 : null;
+        if (body.source !== undefined) updateData.source = body.source || null;
         if (body.isArchived !== undefined)
             updateData.is_archived = body.isArchived;
 

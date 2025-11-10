@@ -40,6 +40,7 @@ export function PublicationsList({
         platform: "linkedin",
         scheduledAt: null,
         publishedAt: null,
+        source: null,
         isArchived: false,
     });
 
@@ -61,6 +62,7 @@ export function PublicationsList({
                 platform: formData.platform || "linkedin",
                 scheduledAt: formData.scheduledAt || null,
                 publishedAt: formData.publishedAt || null,
+                source: formData.source || null,
                 isArchived: formData.isArchived || false,
             } as NewPublication);
             setFormData({
@@ -70,6 +72,7 @@ export function PublicationsList({
                 platform: "linkedin",
                 scheduledAt: null,
                 publishedAt: null,
+                source: null,
                 isArchived: false,
             });
             setIsCreating(false);
@@ -201,6 +204,20 @@ export function PublicationsList({
                                 </select>
                             </div>
                         </div>
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">
+                                Source (optional)
+                            </label>
+                            <input
+                                type="url"
+                                value={formData.source || ""}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, source: e.target.value || null })
+                                }
+                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="https://example.com"
+                            />
+                        </div>
                         <div className="flex gap-3">
                             <button
                                 type="submit"
@@ -219,6 +236,7 @@ export function PublicationsList({
                                         platform: "linkedin",
                                         scheduledAt: null,
                                         publishedAt: null,
+                                        source: null,
                                         isArchived: false,
                                     });
                                 }}
@@ -288,6 +306,18 @@ export function PublicationsList({
                                                     </button>
                                                 )}
                                             </div>
+                                            {publication.source && (
+                                                <div className="mb-2">
+                                                    <a
+                                                        href={publication.source}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                                    >
+                                                        {publication.source}
+                                                    </a>
+                                                </div>
+                                            )}
                                             <div className="text-xs text-gray-500">
                                                 Platform: {publication.platform} •
                                                 Scheduled: {formatDate(publication.scheduledAt)} •
@@ -346,6 +376,7 @@ function EditForm({
     const [content, setContent] = useState(publication.content);
     const [status, setStatus] = useState<"draft" | "scheduled" | "published">(publication.status);
     const [platform, setPlatform] = useState<"linkedin">(publication.platform);
+    const [source, setSource] = useState(publication.source || "");
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -354,6 +385,7 @@ function EditForm({
             content,
             status,
             platform,
+            source: source || null,
         });
     };
 
@@ -411,6 +443,18 @@ function EditForm({
                         <option value="linkedin">LinkedIn</option>
                     </select>
                 </div>
+            </div>
+            <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Source (optional)
+                </label>
+                <input
+                    type="url"
+                    value={source}
+                    onChange={(e) => setSource(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://example.com"
+                />
             </div>
             <div className="flex gap-3">
                 <button

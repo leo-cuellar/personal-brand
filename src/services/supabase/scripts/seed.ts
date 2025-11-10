@@ -27,7 +27,7 @@ async function seedPublications() {
             await client`
                 INSERT INTO public.publications (
                     id, person_id, title, content, status, platform, 
-                    scheduled_at, published_at, 
+                    scheduled_at, published_at, source,
                     created_at, updated_at, is_archived
                 ) VALUES (
                     ${publication.id}::uuid,
@@ -38,6 +38,7 @@ async function seedPublications() {
                     ${publication.platform}::publication_platform,
                     ${publication.scheduledAt ? new Date(publication.scheduledAt) : null},
                     ${publication.publishedAt ? new Date(publication.publishedAt) : null},
+                    ${publication.source || null},
                     ${new Date(publication.createdAt)},
                     ${new Date(publication.updatedAt)},
                     ${publication.isArchived}
