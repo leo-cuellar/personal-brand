@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useInspirations } from "@/hooks/useInspirations";
 import { Inspiration, NewInspiration } from "@/services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
+import { useN8nHooks } from "@/hooks/useN8nHooks";
 
 function formatDate(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
@@ -25,6 +26,7 @@ export function InspirationsPage() {
     );
     const { inspirations, loading, error, create, update, remove } =
         useInspirations(params);
+    const { trendScanner, loading: trendScannerLoading, error: trendScannerError } = useN8nHooks();
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Partial<NewInspiration>>({
@@ -53,8 +55,8 @@ export function InspirationsPage() {
             } as NewInspiration);
             setFormData({ text: "", link: "", source: "manual", isArchived: false });
             setIsCreating(false);
-        } catch (err) {
-            console.error("Failed to create:", err);
+        } catch {
+            // Error handled by alert or UI
         }
     };
 
@@ -62,8 +64,8 @@ export function InspirationsPage() {
         try {
             await update(id, updates);
             setEditingId(null);
-        } catch (err) {
-            console.error("Failed to update:", err);
+        } catch {
+            // Error handled by alert or UI
         }
     };
 
@@ -71,9 +73,17 @@ export function InspirationsPage() {
         if (confirm("Are you sure you want to permanently delete this inspiration? This action cannot be undone.")) {
             try {
                 await remove(id);
-            } catch (err) {
-                console.error("Failed to delete:", err);
+            } catch {
+                // Error handled by alert or UI
             }
+        }
+    };
+
+    const handleRunTrendScanner = async () => {
+        try {
+            await trendScanner();
+        } catch (err) {
+            alert(`Failed to run trend scanner: ${err instanceof Error ? err.message : "Unknown error"}`);
         }
     };
 
@@ -105,6 +115,12 @@ export function InspirationsPage() {
                 </div>
             )}
 
+            {trendScannerError && (
+                <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">
+                    <strong>Trend Scanner Error:</strong> {trendScannerError}
+                </div>
+            )}
+
             <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <label className="flex items-center gap-2">
@@ -120,14 +136,24 @@ export function InspirationsPage() {
                         {inspirations.length} inspiration{inspirations.length !== 1 ? "s" : ""}
                     </span>
                 </div>
-                <button
-                    onClick={() => setIsCreating(!isCreating)}
-                    disabled={!selectedPersonId}
-                    className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    title={!selectedPersonId ? "Please select a person first" : ""}
-                >
-                    {isCreating ? "Cancel" : "+ Add New Inspiration"}
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={handleRunTrendScanner}
+                        disabled={trendScannerLoading || !selectedPersonId}
+                        className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        title={!selectedPersonId ? "Please select a person first" : ""}
+                    >
+                        {trendScannerLoading ? "Running..." : "Run Trend Scanner"}
+                    </button>
+                    <button
+                        onClick={() => setIsCreating(!isCreating)}
+                        disabled={!selectedPersonId}
+                        className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        title={!selectedPersonId ? "Please select a person first" : ""}
+                    >
+                        {isCreating ? "Cancel" : "+ Add New Inspiration"}
+                    </button>
+                </div>
             </div>
 
             {isCreating && (
@@ -241,11 +267,10 @@ export function InspirationsPage() {
                                                         Archived
                                                     </span>
                                                 )}
-                                                <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                                                    inspiration.source === "trend_scanner"
-                                                        ? "bg-purple-100 text-purple-800"
-                                                        : "bg-gray-100 text-gray-800"
-                                                }`}>
+                                                <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${inspiration.source === "trend_scanner"
+                                                    ? "bg-purple-100 text-purple-800"
+                                                    : "bg-gray-100 text-gray-800"
+                                                    }`}>
                                                     {inspiration.source === "trend_scanner" ? "Trend Scanner" : "Manual"}
                                                 </span>
                                             </div>
