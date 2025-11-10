@@ -13,6 +13,7 @@ export const mockPublications: Publication[] = [
         platform: "linkedin",
         scheduledAt: null,
         publishedAt: null,
+        source: null,
         createdAt: new Date(),
         updatedAt: new Date(),
         isArchived: false,
@@ -27,6 +28,7 @@ export const mockPublications: Publication[] = [
         platform: "linkedin",
         scheduledAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
         publishedAt: null,
+        source: null,
         createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
         updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
         isArchived: false,
@@ -41,6 +43,7 @@ export const mockPublications: Publication[] = [
         platform: "linkedin",
         scheduledAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
         publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+        source: null,
         createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
         updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
         isArchived: false,
@@ -55,6 +58,7 @@ export const mockPublications: Publication[] = [
         platform: "linkedin",
         scheduledAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 14 days ago
         publishedAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000), // 12 days ago
+        source: null,
         createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000), // 15 days ago
         updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago (when archived)
         isArchived: true,
