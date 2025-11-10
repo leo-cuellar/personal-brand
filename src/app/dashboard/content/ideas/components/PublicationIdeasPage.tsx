@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
+import { useN8nHooks } from "@/hooks/useN8nHooks";
+import { usePersonContext } from "@/contexts/PersonContext";
 
 function formatDate(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
@@ -15,6 +17,7 @@ function formatDate(date: Date | string): string {
 }
 
 export function PublicationIdeasPage() {
+    const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
     const [statusFilter, setStatusFilter] = useState<"in_review" | "accepted" | "rejected" | "used" | "all">("in_review");
     const params = useMemo(() => {
@@ -24,14 +27,15 @@ export function PublicationIdeasPage() {
         return p;
     }, [showArchived, statusFilter]);
     const { publicationIdeas, loading, error, update, refetch } = usePublicationIdeas(params);
+    const { idGenTrendScanner, idGenContext, loading: n8nLoading, error: n8nError } = useN8nHooks();
 
     const handleAccept = async (id: string) => {
         try {
             await update(id, { status: "accepted" });
             // Refetch to update the list based on current filter
             await refetch();
-        } catch (err) {
-            console.error("Failed to accept idea:", err);
+        } catch {
+            // Error handled by UI
         }
     };
 
@@ -40,8 +44,18 @@ export function PublicationIdeasPage() {
             await update(id, { status: "rejected" });
             // Refetch to update the list based on current filter
             await refetch();
+        } catch {
+            // Error handled by UI
+        }
+    };
+
+    const handleGenerateIdeas = async () => {
+        try {
+            await idGenTrendScanner();
+            await idGenContext();
+            await refetch();
         } catch (err) {
-            console.error("Failed to reject idea:", err);
+            alert(`Failed to generate ideas: ${err instanceof Error ? err.message : "Unknown error"}`);
         }
     };
 
@@ -103,6 +117,12 @@ export function PublicationIdeasPage() {
                 </div>
             )}
 
+            {n8nError && (
+                <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">
+                    <strong>Generate Ideas Error:</strong> {n8nError}
+                </div>
+            )}
+
             <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <label className="flex items-center gap-2">
@@ -129,6 +149,14 @@ export function PublicationIdeasPage() {
                         {publicationIdeas.length} idea{publicationIdeas.length !== 1 ? "s" : ""}
                     </span>
                 </div>
+                <button
+                    onClick={handleGenerateIdeas}
+                    disabled={n8nLoading || !selectedPersonId}
+                    className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    title={!selectedPersonId ? "Please select a person first" : ""}
+                >
+                    {n8nLoading ? "Generating..." : "Generate Ideas"}
+                </button>
             </div>
 
             <div className="space-y-4">

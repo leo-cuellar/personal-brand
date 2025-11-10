@@ -5,6 +5,8 @@ import { usePublications } from "@/hooks/usePublications";
 import { Publication } from "@/services/supabase/schemas";
 import { PublicationsList } from "./PublicationsList";
 import { PublicationsCalendar } from "./PublicationsCalendar";
+import { useN8nHooks } from "@/hooks/useN8nHooks";
+import { usePersonContext } from "@/contexts/PersonContext";
 
 type ViewType = "list" | "calendar";
 
@@ -20,12 +22,22 @@ export function PublicationsContainer() {
         return p;
     }, [showArchived, statusFilter]);
 
-    const { publications, loading, error, create, update, remove } = usePublications(params);
+    const { selectedPersonId } = usePersonContext();
+    const { publications, loading, error, create, update, remove, refetch } = usePublications(params);
+    const { publicationGen, loading: n8nLoading, error: n8nError } = useN8nHooks();
+
+    const handleGeneratePublication = async () => {
+        try {
+            await publicationGen();
+            await refetch();
+        } catch (err) {
+            alert(`Failed to generate publication: ${err instanceof Error ? err.message : "Unknown error"}`);
+        }
+    };
 
     const handleSelectEvent = (event: { resource: Publication }) => {
         const pub = event.resource;
         // You can add logic here to show a modal or navigate to edit
-        console.log("Selected publication:", pub);
     };
 
     const handleEventDrop = async (args: { event: { resource: Publication }; start: Date; end: Date }) => {
@@ -34,8 +46,8 @@ export function PublicationsContainer() {
             await update(pub.id, {
                 scheduledAt: args.start,
             });
-        } catch (err) {
-            console.error("Failed to update publication date:", err);
+        } catch {
+            // Error handled by UI
         }
     };
 
@@ -64,6 +76,12 @@ export function PublicationsContainer() {
             {error && (
                 <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">
                     <strong>Error:</strong> {error}
+                </div>
+            )}
+
+            {n8nError && (
+                <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">
+                    <strong>Generate Publication Error:</strong> {n8nError}
                 </div>
             )}
 
@@ -112,6 +130,14 @@ export function PublicationsContainer() {
                         {publications.length} publication{publications.length !== 1 ? "s" : ""}
                     </span>
                 </div>
+                <button
+                    onClick={handleGeneratePublication}
+                    disabled={n8nLoading || !selectedPersonId}
+                    className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    title={!selectedPersonId ? "Please select a person first" : ""}
+                >
+                    {n8nLoading ? "Generating..." : "Generate Publication"}
+                </button>
             </div>
 
             {view === "list" ? (
