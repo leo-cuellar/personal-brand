@@ -8,6 +8,7 @@ import { mockStrongOpinions } from "../mocks/strong-opinions";
 import { mockPublicationTypes } from "../mocks/publication-types";
 import { mockPublicationCategories } from "../mocks/publication-categories";
 import { mockPublicationIdeas } from "../mocks/publication-ideas";
+import { mockPublicationStructures } from "../mocks/publication-structures";
 import { mockPersons } from "../mocks/persons";
 import { mockInspirations } from "../mocks/inspirations";
 
@@ -288,6 +289,42 @@ async function seedInspirations() {
     }
 }
 
+async function seedPublicationStructures() {
+    console.log("🌱 Seeding publication structures...");
+
+    try {
+        const client = pg();
+
+        // Insert publication structures one by one using direct SQL
+        for (const structure of mockPublicationStructures) {
+            await client`
+                INSERT INTO public.publication_structures (
+                    id, person_id, name, description, structure, created_at, updated_at, is_archived
+                ) VALUES (
+                    ${structure.id}::uuid,
+                    ${structure.personId}::uuid,
+                    ${structure.name},
+                    ${structure.description || null},
+                    ${JSON.stringify(structure.structure)}::jsonb,
+                    ${new Date(structure.createdAt)},
+                    ${new Date(structure.updatedAt)},
+                    ${structure.isArchived}
+                )
+                ON CONFLICT (id) DO NOTHING
+            `;
+        }
+
+        await client.end();
+
+        console.log(
+            `✅ ${mockPublicationStructures.length} publication structures inserted successfully`
+        );
+    } catch (error) {
+        console.error("❌ Error seeding publication structures:", error);
+        throw error;
+    }
+}
+
 async function main() {
     console.log("🚀 Starting seed process...");
 
@@ -296,6 +333,7 @@ async function main() {
         await seedPublicationIdeas();
         await seedPublicationCategories();
         await seedPublicationTypes();
+        await seedPublicationStructures();
         await seedStrongOpinions();
         await seedPublications();
         await seedInspirations();
@@ -320,6 +358,7 @@ export {
     seedPublicationTypes,
     seedPublicationCategories,
     seedPublicationIdeas,
+    seedPublicationStructures,
     seedPersons,
     seedInspirations,
 };

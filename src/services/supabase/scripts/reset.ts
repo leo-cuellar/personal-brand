@@ -23,6 +23,7 @@ async function resetDatabase() {
         await client`DROP TABLE IF EXISTS public.publication_ideas CASCADE`;
         await client`DROP TABLE IF EXISTS public.publication_categories CASCADE`;
         await client`DROP TABLE IF EXISTS public.publication_types CASCADE`;
+        await client`DROP TABLE IF EXISTS public.publication_structures CASCADE`;
         await client`DROP TABLE IF EXISTS public.strong_opinions CASCADE`;
         await client`DROP TABLE IF EXISTS public.publications CASCADE`;
         await client`DROP TABLE IF EXISTS public.inspirations CASCADE`;

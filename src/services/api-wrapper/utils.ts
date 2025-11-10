@@ -6,6 +6,7 @@ import {
     Publication,
     Person,
     Inspiration,
+    PublicationStructure,
 } from "@/services/supabase/schemas";
 
 // Supabase response types (snake_case)
@@ -214,6 +215,42 @@ export function transformInspiration(
         text: data.text,
         link: data.link || null,
         source: data.source as "manual" | "trend_scanner",
+        createdAt: new Date(data.created_at) as unknown as Date,
+        updatedAt: new Date(data.updated_at) as unknown as Date,
+        isArchived: data.is_archived,
+    };
+}
+
+interface SupabasePublicationStructure {
+    id: string;
+    person_id: string;
+    name: string;
+    description: string | null;
+    structure: unknown;
+    created_at: string;
+    updated_at: string;
+    is_archived: boolean;
+}
+
+export function transformPublicationStructure(
+    data: SupabasePublicationStructure
+): PublicationStructure {
+    // Parse JSON structure if it's a string
+    let parsedStructure = data.structure;
+    if (typeof data.structure === "string") {
+        try {
+            parsedStructure = JSON.parse(data.structure);
+        } catch {
+            parsedStructure = {};
+        }
+    }
+
+    return {
+        id: data.id,
+        personId: data.person_id,
+        name: data.name,
+        description: data.description,
+        structure: parsedStructure,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,

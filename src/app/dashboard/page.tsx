@@ -50,6 +50,17 @@ export default function DashboardPage() {
                             </div>
                         </Link>
                         <Link
+                            href="/dashboard/settings/structures"
+                            className="block rounded-lg border border-gray-300 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50"
+                        >
+                            <div className="font-medium text-gray-900">
+                                Publication Structures
+                            </div>
+                            <div className="text-sm text-gray-500">
+                                Define flexible publication structures with dynamic fields
+                            </div>
+                        </Link>
+                        <Link
                             href="/dashboard/settings/opinions"
                             className="block rounded-lg border border-gray-300 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50"
                         >
