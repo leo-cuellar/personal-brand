@@ -5,22 +5,37 @@
  */
 
 export interface LatePost {
-    id: string;
-    status: "draft" | "scheduled" | "published" | "failed";
-    platforms: Array<{
-        platform: string;
-        accountId: string;
-        status: "pending" | "published" | "failed";
-        error?: string;
-    }>;
+    _id: string;
+    userId: {
+        name: string;
+        id: string;
+    };
+    title?: string;
     content: string;
+    mediaItems: unknown[];
+    platforms: unknown[];
     scheduledFor?: string;
-    publishedAt?: string;
+    timezone?: string;
+    status: "draft" | "scheduled" | "published" | "failed";
+    tags: string[];
+    hashtags: string[];
+    mentions: string[];
+    visibility: string;
+    crosspostingEnabled: boolean;
+    analytics: {
+        impressions: number;
+        reach: number;
+        likes: number;
+        comments: number;
+        shares: number;
+        clicks: number;
+        views: number;
+    };
+    metadata: Record<string, unknown>;
+    publishAttempts: number;
     createdAt: string;
     updatedAt: string;
-    createdBy?: string;
-    profileId?: string;
-    hidden?: boolean;
+    __v: number;
 }
 
 export interface LateGetPostsParams {
@@ -41,7 +56,7 @@ export interface LateGetPostsResponse {
         page: number;
         limit: number;
         total: number;
-        totalPages: number;
+        pages: number;
     };
 }
 

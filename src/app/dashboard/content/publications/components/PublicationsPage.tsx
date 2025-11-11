@@ -17,6 +17,141 @@ function formatDate(date: Date | string): string {
     return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
+function getStatusBadgeColor(status: string) {
+    switch (status) {
+        case "published":
+            return "bg-green-100 text-green-800";
+        case "scheduled":
+            return "bg-blue-100 text-blue-800";
+        case "draft":
+            return "bg-gray-100 text-gray-800";
+        case "failed":
+            return "bg-red-100 text-red-800";
+        default:
+            return "bg-gray-100 text-gray-800";
+    }
+}
+
+interface PostCardProps {
+    post: LatePost;
+}
+
+function PostCard({ post }: PostCardProps) {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const CONTENT_PREVIEW_LENGTH = 300;
+    const shouldTruncate = post.content.length > CONTENT_PREVIEW_LENGTH;
+    const displayContent = isExpanded || !shouldTruncate
+        ? post.content
+        : `${post.content.substring(0, CONTENT_PREVIEW_LENGTH)}...`;
+
+    return (
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+            {/* Header */}
+            <div className="mb-4 flex items-start justify-between">
+                <div className="flex-1">
+                    {post.title && (
+                        <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                            {post.title}
+                        </h3>
+                    )}
+                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                        <span
+                            className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadgeColor(post.status)}`}
+                        >
+                            {post.status}
+                        </span>
+                        {post.platforms && post.platforms.length > 0 && (
+                            <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                                {post.platforms.length} platform{post.platforms.length !== 1 ? "s" : ""}
+                            </span>
+                        )}
+                        {post.visibility && (
+                            <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                                {post.visibility}
+                            </span>
+                        )}
+                    </div>
+                    <div className="space-y-1 text-xs text-gray-500">
+                        <p>
+                            <span className="font-medium">ID:</span> {post._id}
+                        </p>
+                        {post.userId && (
+                            <p>
+                                <span className="font-medium">Author:</span> {post.userId.name} ({post.userId.id})
+                            </p>
+                        )}
+                        {post.scheduledFor && (
+                            <p>
+                                <span className="font-medium">Scheduled:</span> {formatDate(post.scheduledFor)}
+                                {post.timezone && ` (${post.timezone})`}
+                            </p>
+                        )}
+                        <p>
+                            <span className="font-medium">Created:</span> {formatDate(post.createdAt)}
+                        </p>
+                        <p>
+                            <span className="font-medium">Updated:</span> {formatDate(post.updatedAt)}
+                        </p>
+                        {post.analytics && (
+                            <div className="mt-2 flex flex-wrap gap-3">
+                                <span>
+                                    <span className="font-medium">Impressions:</span> {post.analytics.impressions}
+                                </span>
+                                <span>
+                                    <span className="font-medium">Likes:</span> {post.analytics.likes}
+                                </span>
+                                <span>
+                                    <span className="font-medium">Comments:</span> {post.analytics.comments}
+                                </span>
+                                <span>
+                                    <span className="font-medium">Shares:</span> {post.analytics.shares}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Content */}
+            <div className="rounded-lg bg-gray-50 p-4">
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-900">
+                    {displayContent}
+                </p>
+                {shouldTruncate && (
+                    <button
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-800"
+                    >
+                        {isExpanded ? "View less" : "View more"}
+                    </button>
+                )}
+            </div>
+
+            {/* Tags and Hashtags */}
+            {(post.tags.length > 0 || post.hashtags.length > 0) && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                    {post.hashtags.map((hashtag, idx) => (
+                        <span
+                            key={idx}
+                            className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800"
+                        >
+                            #{hashtag}
+                        </span>
+                    ))}
+                    {post.tags.map((tag, idx) => (
+                        <span
+                            key={idx}
+                            className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800"
+                        >
+                            {tag}
+                        </span>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export function PublicationsPage() {
     const { getPosts, loading, error } = useLate();
     const [posts, setPosts] = useState<LatePost[]>([]);
@@ -24,7 +159,7 @@ export function PublicationsPage() {
         page: 1,
         limit: 10,
         total: 0,
-        totalPages: 0,
+        pages: 0,
     });
 
     // Filters
@@ -99,21 +234,6 @@ export function PublicationsPage() {
             cancelled = true;
         };
     }, [getPosts, currentPage, limit, statusFilter, platformFilter, dateFrom, dateTo, includeHidden, profileId]);
-
-    const getStatusBadgeColor = (status: string) => {
-        switch (status) {
-            case "published":
-                return "bg-green-100 text-green-800";
-            case "scheduled":
-                return "bg-blue-100 text-blue-800";
-            case "draft":
-                return "bg-gray-100 text-gray-800";
-            case "failed":
-                return "bg-red-100 text-red-800";
-            default:
-                return "bg-gray-100 text-gray-800";
-        }
-    };
 
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage);
@@ -261,57 +381,13 @@ export function PublicationsPage() {
                     </div>
                 ) : (
                     posts.map((post) => (
-                        <div
-                            key={post.id}
-                            className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
-                        >
-                            <div className="mb-4 flex items-start justify-between">
-                                <div className="flex-1">
-                                    <div className="mb-2 flex items-center gap-2">
-                                        <span
-                                            className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadgeColor(post.status)}`}
-                                        >
-                                            {post.status}
-                                        </span>
-                                        {post.platforms.map((platform, idx) => (
-                                            <span
-                                                key={idx}
-                                                className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800"
-                                            >
-                                                {platform.platform} ({platform.status})
-                                            </span>
-                                        ))}
-                                    </div>
-                                    <p className="mb-2 text-sm text-gray-500">
-                                        ID: {post.id}
-                                    </p>
-                                    {post.scheduledFor && (
-                                        <p className="mb-1 text-sm text-gray-500">
-                                            Scheduled: {formatDate(post.scheduledFor)}
-                                        </p>
-                                    )}
-                                    {post.publishedAt && (
-                                        <p className="mb-1 text-sm text-gray-500">
-                                            Published: {formatDate(post.publishedAt)}
-                                        </p>
-                                    )}
-                                    <p className="text-sm text-gray-500">
-                                        Created: {formatDate(post.createdAt)}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="rounded-lg bg-gray-50 p-4">
-                                <p className="whitespace-pre-wrap text-sm text-gray-900">
-                                    {post.content}
-                                </p>
-                            </div>
-                        </div>
+                        <PostCard key={post._id} post={post} />
                     ))
                 )}
             </div>
 
             {/* Pagination */}
-            {pagination.totalPages > 1 && (
+            {pagination.pages > 1 && (
                 <div className="mt-6 flex items-center justify-center gap-2">
                     <button
                         onClick={() => handlePageChange(currentPage - 1)}
@@ -321,11 +397,11 @@ export function PublicationsPage() {
                         Previous
                     </button>
                     <span className="px-4 py-2 text-sm text-gray-700">
-                        Page {pagination.page} of {pagination.totalPages}
+                        Page {pagination.page} of {pagination.pages}
                     </span>
                     <button
                         onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === pagination.totalPages || loading}
+                        disabled={currentPage === pagination.pages || loading}
                         className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         Next
