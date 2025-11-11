@@ -3,10 +3,9 @@ import type { LateSchedulePostResponse } from "@/services/api-wrapper/late";
 
 interface UseLateReturn {
     schedulePublication: (
-        publicationId: string,
         text: string,
         schedule?: string
-    ) => Promise<{ latePost: LateSchedulePostResponse; publication: unknown }>;
+    ) => Promise<{ latePost: LateSchedulePostResponse }>;
     loading: boolean;
     error: string | null;
 }
@@ -17,7 +16,6 @@ export function useLate(): UseLateReturn {
 
     const schedulePublication = useCallback(
         async (
-            publicationId: string,
             text: string,
             schedule?: string
         ) => {
@@ -31,7 +29,6 @@ export function useLate(): UseLateReturn {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        publicationId,
                         text,
                         schedule,
                     }),

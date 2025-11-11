@@ -3,7 +3,6 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 
 import { getPostgresClient } from "../index";
-import { mockPublications } from "../mocks/publications";
 import { mockStrongOpinions } from "../mocks/strong-opinions";
 import { mockPublicationTypes } from "../mocks/publication-types";
 import { mockPublicationCategories } from "../mocks/publication-categories";
@@ -16,48 +15,6 @@ const pg = () => getPostgresClient();
 
 // TODO: Configure Row Level Security (RLS) for all tables in the future
 // This should include policies for SELECT, INSERT, UPDATE, and DELETE operations
-
-async function seedPublications() {
-    console.log("🌱 Seeding publications...");
-
-    try {
-        const client = pg();
-
-        // Insert publications one by one using direct SQL
-        for (const publication of mockPublications) {
-            await client`
-                INSERT INTO public.publications (
-                    id, person_id, title, content, status, platform, 
-                    scheduled_at, published_at, source,
-                    created_at, updated_at, is_archived
-                ) VALUES (
-                    ${publication.id}::uuid,
-                    ${publication.personId}::uuid,
-                    ${publication.title || null},
-                    ${publication.content},
-                    ${publication.status}::publication_status,
-                    ${publication.platform}::publication_platform,
-                    ${publication.scheduledAt ? new Date(publication.scheduledAt) : null},
-                    ${publication.publishedAt ? new Date(publication.publishedAt) : null},
-                    ${publication.source || null},
-                    ${new Date(publication.createdAt)},
-                    ${new Date(publication.updatedAt)},
-                    ${publication.isArchived}
-                )
-                ON CONFLICT (id) DO NOTHING
-            `;
-        }
-
-        await client.end();
-
-        console.log(
-            `✅ ${mockPublications.length} publications inserted successfully`
-        );
-    } catch (error) {
-        console.error("❌ Error seeding publications:", error);
-        throw error;
-    }
-}
 
 async function seedStrongOpinions() {
     console.log("🌱 Seeding strong opinions...");
@@ -335,7 +292,6 @@ async function main() {
         await seedPublicationTypes();
         await seedPublicationStructures();
         await seedStrongOpinions();
-        await seedPublications();
         await seedInspirations();
         console.log("🎉 Seed completed successfully!");
     } catch (error) {
@@ -353,7 +309,6 @@ if (require.main === module) {
 }
 
 export {
-    seedPublications,
     seedStrongOpinions,
     seedPublicationTypes,
     seedPublicationCategories,

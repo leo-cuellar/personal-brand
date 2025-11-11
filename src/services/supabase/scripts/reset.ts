@@ -25,14 +25,11 @@ async function resetDatabase() {
         await client`DROP TABLE IF EXISTS public.publication_types CASCADE`;
         await client`DROP TABLE IF EXISTS public.publication_structures CASCADE`;
         await client`DROP TABLE IF EXISTS public.strong_opinions CASCADE`;
-        await client`DROP TABLE IF EXISTS public.publications CASCADE`;
         await client`DROP TABLE IF EXISTS public.inspirations CASCADE`;
 
         // Drop enums if they exist
         await client`DROP TYPE IF EXISTS public.idea_source CASCADE`;
         await client`DROP TYPE IF EXISTS public.idea_status CASCADE`;
-        await client`DROP TYPE IF EXISTS public.publication_status CASCADE`;
-        await client`DROP TYPE IF EXISTS public.publication_platform CASCADE`;
         await client`DROP TYPE IF EXISTS public.inspiration_source CASCADE`;
 
         await client.end();

@@ -3,7 +3,6 @@ import {
     PublicationCategory,
     StrongOpinion,
     PublicationIdea,
-    Publication,
     Person,
     Inspiration,
     PublicationStructure,
@@ -47,22 +46,6 @@ interface SupabasePublicationIdea {
     description: string | null;
     link: string | null;
     status: string;
-    created_at: string;
-    updated_at: string;
-    is_archived: boolean;
-}
-
-interface SupabasePublication {
-    id: string;
-    person_id: string;
-    title: string | null;
-    content: string;
-    status: string;
-    platform: string;
-    scheduled_at: string | null;
-    published_at: string | null;
-    source: string | null;
-    late_post_id: string | null;
     created_at: string;
     updated_at: string;
     is_archived: boolean;
@@ -142,30 +125,6 @@ export function transformPublicationIdea(
         description: data.description,
         link: data.link || null,
         status: data.status as "in_review" | "accepted" | "rejected" | "used",
-        createdAt: new Date(data.created_at) as unknown as Date,
-        updatedAt: new Date(data.updated_at) as unknown as Date,
-        isArchived: data.is_archived,
-    };
-}
-
-export function transformPublication(
-    data: SupabasePublication
-): Publication {
-    return {
-        id: data.id,
-        personId: data.person_id,
-        title: data.title,
-        content: data.content,
-        status: data.status as "draft" | "scheduled" | "published",
-        platform: data.platform as "linkedin",
-        scheduledAt: data.scheduled_at
-            ? (new Date(data.scheduled_at) as unknown as Date)
-            : null,
-        publishedAt: data.published_at
-            ? (new Date(data.published_at) as unknown as Date)
-            : null,
-        source: data.source || null,
-        latePostId: data.late_post_id || null,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,
