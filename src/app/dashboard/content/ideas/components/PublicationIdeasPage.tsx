@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
 import { useN8nHooks } from "@/hooks/useN8nHooks";
 import { usePersonContext } from "@/contexts/PersonContext";
+import { IdeasReviewFlow } from "./IdeasReviewFlow";
 
 function formatDate(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
@@ -20,6 +21,7 @@ export function PublicationIdeasPage() {
     const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
     const [statusFilter, setStatusFilter] = useState<"in_review" | "accepted" | "rejected" | "used" | "all">("in_review");
+    const [isReviewMode, setIsReviewMode] = useState(false);
     const params = useMemo(() => {
         const p: { includeArchived?: boolean; status?: "in_review" | "accepted" | "rejected" | "used" } = {};
         if (showArchived) p.includeArchived = true;
@@ -27,13 +29,19 @@ export function PublicationIdeasPage() {
         return p;
     }, [showArchived, statusFilter]);
     const { publicationIdeas, loading, error, update, refetch } = usePublicationIdeas(params);
+
+    // Get ideas in review for review mode
+    const reviewParams = useMemo(() => {
+        return { status: "in_review" as const, includeArchived: false };
+    }, []);
+    const { publicationIdeas: reviewIdeas, refetch: refetchReviewIdeas } = usePublicationIdeas(reviewParams);
     const { idGenTrendScanner, idGenContext, loading: n8nLoading, error: n8nError } = useN8nHooks();
 
     const handleAccept = async (id: string) => {
         try {
             await update(id, { status: "accepted" });
-            // Refetch to update the list based on current filter
-            await refetch();
+            // Refetch both lists to update everything
+            await Promise.all([refetch(), refetchReviewIdeas()]);
         } catch {
             // Error handled by UI
         }
@@ -42,11 +50,24 @@ export function PublicationIdeasPage() {
     const handleReject = async (id: string) => {
         try {
             await update(id, { status: "rejected" });
-            // Refetch to update the list based on current filter
-            await refetch();
+            // Refetch both lists to update everything
+            await Promise.all([refetch(), refetchReviewIdeas()]);
         } catch {
             // Error handled by UI
         }
+    };
+
+    const handleStartReview = () => {
+        if (reviewIdeas.length === 0) {
+            alert("No ideas in review to process.");
+            return;
+        }
+        setIsReviewMode(true);
+    };
+
+    const handleExitReview = () => {
+        setIsReviewMode(false);
+        refetch(); // Refresh the list when exiting review mode
     };
 
     const handleGenerateIdeas = async () => {
@@ -100,6 +121,18 @@ export function PublicationIdeasPage() {
         );
     }
 
+    // Show review flow if in review mode
+    if (isReviewMode) {
+        return (
+            <IdeasReviewFlow
+                ideas={reviewIdeas}
+                onAccept={handleAccept}
+                onReject={handleReject}
+                onExit={handleExitReview}
+            />
+        );
+    }
+
     return (
         <div className="container mx-auto max-w-6xl p-8">
             <div className="mb-8">
@@ -147,16 +180,31 @@ export function PublicationIdeasPage() {
                     </select>
                     <span className="text-sm text-gray-500">
                         {publicationIdeas.length} idea{publicationIdeas.length !== 1 ? "s" : ""}
+                        {reviewIdeas.length > 0 && (
+                            <span className="ml-2 text-blue-600">
+                                ({reviewIdeas.length} in review)
+                            </span>
+                        )}
                     </span>
                 </div>
-                <button
-                    onClick={handleGenerateIdeas}
-                    disabled={n8nLoading || !selectedPersonId}
-                    className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    title={!selectedPersonId ? "Please select a person first" : ""}
-                >
-                    {n8nLoading ? "Generating..." : "Generate Ideas"}
-                </button>
+                <div className="flex gap-3">
+                    {reviewIdeas.length > 0 && (
+                        <button
+                            onClick={handleStartReview}
+                            className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        >
+                            Start Review ({reviewIdeas.length})
+                        </button>
+                    )}
+                    <button
+                        onClick={handleGenerateIdeas}
+                        disabled={n8nLoading || !selectedPersonId}
+                        className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        title={!selectedPersonId ? "Please select a person first" : ""}
+                    >
+                        {n8nLoading ? "Generating..." : "Generate Ideas"}
+                    </button>
+                </div>
             </div>
 
             <div className="space-y-4">
