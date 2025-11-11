@@ -6,6 +6,8 @@
 import type {
     LateGetPostsParams,
     LateGetPostsResponse,
+    LateUpdatePostRequest,
+    LatePost,
 } from "@/services/late/posts";
 
 /**
@@ -60,6 +62,32 @@ export async function getPosts(
     }
 
     const data: LateGetPostsResponse = await response.json();
+    return data;
+}
+
+/**
+ * Update a post in Late.dev via our API route
+ */
+export async function updatePost(
+    postId: string,
+    updates: LateUpdatePostRequest
+): Promise<LatePost> {
+    const url = `/api/late/posts/${postId}`;
+
+    const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updates),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update post");
+    }
+
+    const data: LatePost = await response.json();
     return data;
 }
 

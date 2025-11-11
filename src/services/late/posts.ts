@@ -60,6 +60,17 @@ export interface LateGetPostsResponse {
     };
 }
 
+export interface LateUpdatePostRequest {
+    title?: string;
+    content?: string;
+    scheduledFor?: string;
+    timezone?: string;
+    status?: "draft" | "scheduled" | "published" | "failed";
+    tags?: string[];
+    hashtags?: string[];
+    visibility?: string;
+}
+
 export interface LateErrorResponse {
     error: string;
     message?: string;
@@ -134,6 +145,53 @@ export async function getPosts(
 
         const errorMessage =
             errorData.message || errorData.error || `Failed to get posts: ${response.statusText}`;
+        throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    return data;
+}
+
+/**
+ * Update a post in Late.dev
+ * @param postId - The ID of the post to update
+ * @param updates - The fields to update
+ * @returns The updated post
+ */
+export async function updatePost(
+    postId: string,
+    updates: LateUpdatePostRequest
+): Promise<LatePost> {
+    const apiKey = process.env.LATE_SECRET_KEY;
+
+    if (!apiKey) {
+        throw new Error("LATE_SECRET_KEY is not configured");
+    }
+
+    const url = `https://getlate.dev/api/v1/posts/${postId}`;
+
+    const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(updates),
+    });
+
+    if (!response.ok) {
+        let errorData: LateErrorResponse;
+        try {
+            errorData = await response.json();
+        } catch {
+            const errorText = await response.text();
+            throw new Error(
+                `Failed to update post (${response.status}): ${errorText || response.statusText}`
+            );
+        }
+
+        const errorMessage =
+            errorData.message || errorData.error || `Failed to update post: ${response.statusText}`;
         throw new Error(errorMessage);
     }
 

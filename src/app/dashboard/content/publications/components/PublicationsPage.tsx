@@ -34,15 +34,42 @@ function getStatusBadgeColor(status: string) {
 
 interface PostCardProps {
     post: LatePost;
+    onUpdate: (postId: string, updates: { title?: string; content?: string }) => Promise<void>;
 }
 
-function PostCard({ post }: PostCardProps) {
+function PostCard({ post, onUpdate }: PostCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedTitle, setEditedTitle] = useState(post.title || "");
+    const [editedContent, setEditedContent] = useState(post.content);
+    const [isSaving, setIsSaving] = useState(false);
+
     const CONTENT_PREVIEW_LENGTH = 300;
     const shouldTruncate = post.content.length > CONTENT_PREVIEW_LENGTH;
     const displayContent = isExpanded || !shouldTruncate
         ? post.content
         : `${post.content.substring(0, CONTENT_PREVIEW_LENGTH)}...`;
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            await onUpdate(post._id, {
+                title: editedTitle || undefined,
+                content: editedContent,
+            });
+            setIsEditing(false);
+        } catch (error) {
+            alert(`Failed to update post: ${error instanceof Error ? error.message : "Unknown error"}`);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleCancel = () => {
+        setEditedTitle(post.title || "");
+        setEditedContent(post.content);
+        setIsEditing(false);
+    };
 
     return (
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
@@ -114,18 +141,77 @@ function PostCard({ post }: PostCardProps) {
 
             {/* Content */}
             <div className="rounded-lg bg-gray-50 p-4">
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-900">
-                    {displayContent}
-                </p>
-                {shouldTruncate && (
-                    <button
-                        onClick={() => setIsExpanded(!isExpanded)}
-                        className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-800"
-                    >
-                        {isExpanded ? "View less" : "View more"}
-                    </button>
+                {isEditing ? (
+                    <div className="space-y-4">
+                        <div>
+                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                                Title
+                            </label>
+                            <input
+                                type="text"
+                                value={editedTitle}
+                                onChange={(e) => setEditedTitle(e.target.value)}
+                                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Post title (optional)"
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-1 block text-sm font-medium text-gray-700">
+                                Content
+                            </label>
+                            <textarea
+                                value={editedContent}
+                                onChange={(e) => setEditedContent(e.target.value)}
+                                rows={10}
+                                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Post content"
+                            />
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                {isSaving ? "Saving..." : "Save"}
+                            </button>
+                            <button
+                                onClick={handleCancel}
+                                disabled={isSaving}
+                                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-900">
+                            {displayContent}
+                        </p>
+                        {shouldTruncate && (
+                            <button
+                                onClick={() => setIsExpanded(!isExpanded)}
+                                className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-800"
+                            >
+                                {isExpanded ? "View less" : "View more"}
+                            </button>
+                        )}
+                    </>
                 )}
             </div>
+
+            {/* Actions */}
+            {!isEditing && (
+                <div className="mt-4 flex gap-2">
+                    <button
+                        onClick={() => setIsEditing(true)}
+                        className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                    >
+                        Edit
+                    </button>
+                </div>
+            )}
 
             {/* Tags and Hashtags */}
             {(post.tags.length > 0 || post.hashtags.length > 0) && (
@@ -153,7 +239,7 @@ function PostCard({ post }: PostCardProps) {
 }
 
 export function PublicationsPage() {
-    const { getPosts, loading, error } = useLate();
+    const { getPosts, updatePost: updatePostHook, loading, error } = useLate();
     const [posts, setPosts] = useState<LatePost[]>([]);
     const [pagination, setPagination] = useState({
         page: 1,
@@ -381,7 +467,50 @@ export function PublicationsPage() {
                     </div>
                 ) : (
                     posts.map((post) => (
-                        <PostCard key={post._id} post={post} />
+                        <PostCard
+                            key={post._id}
+                            post={post}
+                            onUpdate={async (postId, updates) => {
+                                await updatePostHook(postId, updates);
+                                // Refetch posts after update
+                                const params: {
+                                    page?: number;
+                                    limit?: number;
+                                    status?: "draft" | "scheduled" | "published" | "failed";
+                                    platform?: string;
+                                    profileId?: string;
+                                    dateFrom?: string;
+                                    dateTo?: string;
+                                    includeHidden?: boolean;
+                                } = {
+                                    page: currentPage,
+                                    limit: limit,
+                                    includeHidden: includeHidden,
+                                };
+                                if (statusFilter !== "all") {
+                                    params.status = statusFilter;
+                                }
+                                if (platformFilter) {
+                                    params.platform = platformFilter;
+                                }
+                                if (profileId) {
+                                    params.profileId = profileId;
+                                }
+                                if (dateFrom) {
+                                    const fromDate = new Date(dateFrom);
+                                    fromDate.setHours(0, 0, 0, 0);
+                                    params.dateFrom = fromDate.toISOString();
+                                }
+                                if (dateTo) {
+                                    const toDate = new Date(dateTo);
+                                    toDate.setHours(23, 59, 59, 999);
+                                    params.dateTo = toDate.toISOString();
+                                }
+                                const response = await getPosts(params);
+                                setPosts(response.posts);
+                                setPagination(response.pagination);
+                            }}
+                        />
                     ))
                 )}
             </div>
