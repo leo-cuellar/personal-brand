@@ -35,14 +35,19 @@ function getStatusBadgeColor(status: string) {
 interface PostCardProps {
     post: LatePost;
     onUpdate: (postId: string, updates: { title?: string; content?: string }) => Promise<void>;
+    onSchedule: (postId: string, scheduleData: { scheduledFor: string; timezone: string }) => Promise<void>;
 }
 
-function PostCard({ post, onUpdate }: PostCardProps) {
+function PostCard({ post, onUpdate, onSchedule }: PostCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(post.title || "");
     const [editedContent, setEditedContent] = useState(post.content);
     const [isSaving, setIsSaving] = useState(false);
+    const [showScheduleForm, setShowScheduleForm] = useState(false);
+    const [scheduleDate, setScheduleDate] = useState("");
+    const [scheduleTime, setScheduleTime] = useState("");
+    const [isScheduling, setIsScheduling] = useState(false);
 
     const CONTENT_PREVIEW_LENGTH = 300;
     const shouldTruncate = post.content.length > CONTENT_PREVIEW_LENGTH;
@@ -69,6 +74,36 @@ function PostCard({ post, onUpdate }: PostCardProps) {
         setEditedTitle(post.title || "");
         setEditedContent(post.content);
         setIsEditing(false);
+    };
+
+    const handleSchedule = async () => {
+        if (!scheduleDate || !scheduleTime) {
+            alert("Please select both date and time");
+            return;
+        }
+
+        setIsScheduling(true);
+        try {
+            // Combine date and time and convert to ISO 8601 format with Z (UTC)
+            const dateTimeString = `${scheduleDate}T${scheduleTime}`;
+            const scheduleDateTime = new Date(dateTimeString);
+
+            // Convert to UTC ISO 8601 format (with Z)
+            const scheduledFor = scheduleDateTime.toISOString();
+
+            await onSchedule(post._id, {
+                scheduledFor,
+                timezone: "America/Chicago", // CST timezone
+            });
+
+            setShowScheduleForm(false);
+            setScheduleDate("");
+            setScheduleTime("");
+        } catch (error) {
+            alert(`Failed to schedule post: ${error instanceof Error ? error.message : "Unknown error"}`);
+        } finally {
+            setIsScheduling(false);
+        }
     };
 
     return (
@@ -203,13 +238,64 @@ function PostCard({ post, onUpdate }: PostCardProps) {
 
             {/* Actions */}
             {!isEditing && (
-                <div className="mt-4 flex gap-2">
-                    <button
-                        onClick={() => setIsEditing(true)}
-                        className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-                    >
-                        Edit
-                    </button>
+                <div className="mt-4 space-y-4">
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setIsEditing(true)}
+                            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                        >
+                            Edit
+                        </button>
+                        <button
+                            onClick={() => setShowScheduleForm(!showScheduleForm)}
+                            disabled={post.status === "published"}
+                            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {showScheduleForm ? "Cancel Schedule" : "Schedule"}
+                        </button>
+                    </div>
+
+                    {/* Schedule Form */}
+                    {showScheduleForm && (
+                        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                            <h4 className="mb-3 text-sm font-semibold text-gray-900">Schedule Publication</h4>
+
+                            {/* Date and Time */}
+                            <div className="mb-4 grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                                        Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={scheduleDate}
+                                        onChange={(e) => setScheduleDate(e.target.value)}
+                                        min={new Date().toISOString().split('T')[0]}
+                                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                                        Time
+                                    </label>
+                                    <input
+                                        type="time"
+                                        value={scheduleTime}
+                                        onChange={(e) => setScheduleTime(e.target.value)}
+                                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={handleSchedule}
+                                disabled={!scheduleDate || !scheduleTime || isScheduling}
+                                className="w-full rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                {isScheduling ? "Scheduling..." : "Confirm Schedule"}
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -239,7 +325,7 @@ function PostCard({ post, onUpdate }: PostCardProps) {
 }
 
 export function PublicationsPage() {
-    const { getPosts, updatePost: updatePostHook, loading, error } = useLate();
+    const { getPosts, updatePost: updatePostHook, schedulePost: schedulePostHook, loading, error } = useLate();
     const [posts, setPosts] = useState<LatePost[]>([]);
     const [pagination, setPagination] = useState({
         page: 1,
@@ -257,10 +343,6 @@ export function PublicationsPage() {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(10);
 
-    // Get profileId from environment (LATE_PROFILE_ID)
-    // For now, we'll use it as a filter if needed
-    const profileId = process.env.NEXT_PUBLIC_LATE_PROFILE_ID || "";
-
     useEffect(() => {
         let cancelled = false;
 
@@ -271,7 +353,6 @@ export function PublicationsPage() {
                     limit?: number;
                     status?: "draft" | "scheduled" | "published" | "failed";
                     platform?: string;
-                    profileId?: string;
                     dateFrom?: string;
                     dateTo?: string;
                     includeHidden?: boolean;
@@ -286,9 +367,6 @@ export function PublicationsPage() {
                 }
                 if (platformFilter) {
                     params.platform = platformFilter;
-                }
-                if (profileId) {
-                    params.profileId = profileId;
                 }
                 if (dateFrom) {
                     // Convert date input to ISO datetime (start of day)
@@ -319,7 +397,7 @@ export function PublicationsPage() {
         return () => {
             cancelled = true;
         };
-    }, [getPosts, currentPage, limit, statusFilter, platformFilter, dateFrom, dateTo, includeHidden, profileId]);
+    }, [getPosts, currentPage, limit, statusFilter, platformFilter, dateFrom, dateTo, includeHidden]);
 
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage);
@@ -493,8 +571,41 @@ export function PublicationsPage() {
                                 if (platformFilter) {
                                     params.platform = platformFilter;
                                 }
-                                if (profileId) {
-                                    params.profileId = profileId;
+                                if (dateFrom) {
+                                    const fromDate = new Date(dateFrom);
+                                    fromDate.setHours(0, 0, 0, 0);
+                                    params.dateFrom = fromDate.toISOString();
+                                }
+                                if (dateTo) {
+                                    const toDate = new Date(dateTo);
+                                    toDate.setHours(23, 59, 59, 999);
+                                    params.dateTo = toDate.toISOString();
+                                }
+                                const response = await getPosts(params);
+                                setPosts(response.posts);
+                                setPagination(response.pagination);
+                            }}
+                            onSchedule={async (postId, scheduleData) => {
+                                await schedulePostHook(postId, scheduleData);
+                                // Refetch posts after schedule
+                                const params: {
+                                    page?: number;
+                                    limit?: number;
+                                    status?: "draft" | "scheduled" | "published" | "failed";
+                                    platform?: string;
+                                    dateFrom?: string;
+                                    dateTo?: string;
+                                    includeHidden?: boolean;
+                                } = {
+                                    page: currentPage,
+                                    limit: limit,
+                                    includeHidden: includeHidden,
+                                };
+                                if (statusFilter !== "all") {
+                                    params.status = statusFilter;
+                                }
+                                if (platformFilter) {
+                                    params.platform = platformFilter;
                                 }
                                 if (dateFrom) {
                                     const fromDate = new Date(dateFrom);

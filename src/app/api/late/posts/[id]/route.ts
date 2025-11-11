@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updatePost, type LateUpdatePostRequest } from "@/services/late/posts";
+import { updatePost, schedulePost, type LateUpdatePostRequest, type LateSchedulePostRequest } from "@/services/late/posts";
 
 export async function PUT(
     request: NextRequest,
@@ -8,7 +8,7 @@ export async function PUT(
     try {
         const resolvedParams = await Promise.resolve(params);
         const { id } = resolvedParams;
-        const body: LateUpdatePostRequest = await request.json();
+        const body: LateUpdatePostRequest | LateSchedulePostRequest = await request.json();
 
         if (!id) {
             return NextResponse.json(
@@ -17,8 +17,20 @@ export async function PUT(
             );
         }
 
-        const updatedPost = await updatePost(id, body);
+        // If this is a schedule request (has scheduledFor and timezone, but no title/content)
+        // Use schedulePost instead of updatePost
+        if (
+            "scheduledFor" in body &&
+            "timezone" in body &&
+            !("title" in body) &&
+            !("content" in body)
+        ) {
+            const scheduledPost = await schedulePost(id, body as LateSchedulePostRequest);
+            return NextResponse.json(scheduledPost);
+        }
 
+        // Otherwise, use regular updatePost
+        const updatedPost = await updatePost(id, body as LateUpdatePostRequest);
         return NextResponse.json(updatedPost);
     } catch (error) {
         return NextResponse.json(

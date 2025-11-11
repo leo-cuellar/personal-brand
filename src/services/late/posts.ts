@@ -65,10 +65,23 @@ export interface LateUpdatePostRequest {
     content?: string;
     scheduledFor?: string;
     timezone?: string;
+    platforms?: Array<{
+        accountId: string;
+        platform?: string;
+        customContent?: string;
+    }>;
+    isDraft?: boolean;
+    publishNow?: boolean;
     status?: "draft" | "scheduled" | "published" | "failed";
     tags?: string[];
     hashtags?: string[];
     visibility?: string;
+}
+
+export interface LateSchedulePostRequest {
+    scheduledFor: string; // ISO 8601 format (e.g., "2023-10-15T14:00:00Z")
+    timezone: string; // e.g., "America/Chicago"
+    platforms?: string[]; // e.g., ["linkedin"] - optional, defaults to linkedin
 }
 
 export interface LateErrorResponse {
@@ -170,6 +183,12 @@ export async function updatePost(
 
     const url = `https://getlate.dev/api/v1/posts/${postId}`;
 
+    console.log("📤 Late.dev PUT Request:", {
+        url,
+        method: "PUT",
+        payload: updates,
+    });
+
     const response = await fetch(url, {
         method: "PUT",
         headers: {
@@ -197,5 +216,51 @@ export async function updatePost(
 
     const data = await response.json();
     return data;
+}
+
+/**
+ * Schedule a post in Late.dev
+ * Uses PUT to update the post with scheduledFor, timezone, and platforms
+ * @param postId - The ID of the post to schedule
+ * @param scheduleData - The scheduling information
+ * @returns The updated post
+ */
+export async function schedulePost(
+    postId: string,
+    scheduleData: LateSchedulePostRequest
+): Promise<LatePost> {
+    const profileId = process.env.LATE_PROFILE_ID;
+
+    if (!profileId) {
+        throw new Error("LATE_PROFILE_ID is not configured");
+    }
+
+    // Default to linkedin if no platforms specified
+    const platforms = scheduleData.platforms && scheduleData.platforms.length > 0
+        ? scheduleData.platforms
+        : ["linkedin"];
+
+    // Transform platforms to include accountId
+    const platformsWithAccountId = platforms.map(platform => ({
+        accountId: profileId,
+        platform,
+    }));
+
+    const updatePayload = {
+        scheduledFor: scheduleData.scheduledFor,
+        timezone: scheduleData.timezone,
+        platforms: platformsWithAccountId,
+        isDraft: false, // Required to actually schedule the post
+    };
+
+    console.log("📅 Late.dev Schedule Request:", {
+        postId,
+        scheduleData,
+        platformsWithAccountId,
+        updatePayload: JSON.stringify(updatePayload, null, 2),
+    });
+
+    // Use updatePost to schedule - Late.dev uses PUT with scheduledFor, timezone, platforms, and isDraft
+    return updatePost(postId, updatePayload);
 }
 

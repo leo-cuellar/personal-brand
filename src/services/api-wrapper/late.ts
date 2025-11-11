@@ -7,6 +7,7 @@ import type {
     LateGetPostsParams,
     LateGetPostsResponse,
     LateUpdatePostRequest,
+    LateSchedulePostRequest,
     LatePost,
 } from "@/services/late/posts";
 
@@ -85,6 +86,35 @@ export async function updatePost(
     if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to update post");
+    }
+
+    const data: LatePost = await response.json();
+    return data;
+}
+
+/**
+ * Schedule a post in Late.dev via our API route
+ * Uses PUT to update the post with scheduledFor, timezone, and platforms
+ */
+export async function schedulePost(
+    postId: string,
+    scheduleData: LateSchedulePostRequest
+): Promise<LatePost> {
+    // Call PUT endpoint - the API route will detect it's a schedule request
+    // and call schedulePost service which adds platforms with accountId
+    const url = `/api/late/posts/${postId}`;
+
+    const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(scheduleData),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to schedule post");
     }
 
     const data: LatePost = await response.json();

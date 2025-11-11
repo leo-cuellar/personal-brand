@@ -1,9 +1,10 @@
 import { useState, useCallback } from "react";
-import { getPosts as getPostsWrapper, updatePost as updatePostWrapper } from "@/services/api-wrapper/late";
+import { getPosts as getPostsWrapper, updatePost as updatePostWrapper, schedulePost as schedulePostWrapper } from "@/services/api-wrapper/late";
 import type {
     LateGetPostsParams,
     LateGetPostsResponse,
     LateUpdatePostRequest,
+    LateSchedulePostRequest,
     LatePost,
 } from "@/services/late/posts";
 
@@ -14,6 +15,10 @@ interface UseLateReturn {
     updatePost: (
         postId: string,
         updates: LateUpdatePostRequest
+    ) => Promise<LatePost>;
+    schedulePost: (
+        postId: string,
+        scheduleData: LateSchedulePostRequest
     ) => Promise<LatePost>;
     loading: boolean;
     error: string | null;
@@ -63,9 +68,30 @@ export function useLate(): UseLateReturn {
         []
     );
 
+    const schedulePost = useCallback(
+        async (postId: string, scheduleData: LateSchedulePostRequest) => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const data = await schedulePostWrapper(postId, scheduleData);
+                return data;
+            } catch (err) {
+                const errorMessage =
+                    err instanceof Error ? err.message : "Failed to schedule post";
+                setError(errorMessage);
+                throw err;
+            } finally {
+                setLoading(false);
+            }
+        },
+        []
+    );
+
     return {
         getPosts,
         updatePost,
+        schedulePost,
         loading,
         error,
     };
