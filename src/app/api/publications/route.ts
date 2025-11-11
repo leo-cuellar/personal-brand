@@ -65,6 +65,7 @@ export async function POST(request: NextRequest) {
                     ? new Date(body.publishedAt).toISOString()
                     : null,
                 source: body.source || null,
+                late_post_id: body.latePostId || null,
                 is_archived: body.isArchived || false,
             })
             .select()
@@ -107,6 +108,7 @@ export async function PUT(request: NextRequest) {
             scheduled_at?: string | null;
             published_at?: string | null;
             source?: string | null;
+            late_post_id?: string | null;
             is_archived?: boolean;
             updated_at: string;
         } = {
@@ -126,6 +128,7 @@ export async function PUT(request: NextRequest) {
                 ? new Date(body.publishedAt).toISOString()
                 : null;
         if (body.source !== undefined) updateData.source = body.source || null;
+        if (body.latePostId !== undefined) updateData.late_post_id = body.latePostId || null;
         if (body.isArchived !== undefined)
             updateData.is_archived = body.isArchived;
 

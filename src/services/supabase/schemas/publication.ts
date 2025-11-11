@@ -36,6 +36,7 @@ export const publications = pgTable("publications", {
     scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
     publishedAt: timestamp("published_at", { withTimezone: true }),
     source: varchar("source", { length: 500 }),
+    latePostId: varchar("late_post_id", { length: 255 }),
     createdAt: timestamp("created_at", { withTimezone: true })
         .notNull()
         .defaultNow(),

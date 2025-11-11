@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Publication, NewPublication } from "@/services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
+import { useLate } from "@/hooks/useLate";
 
 function formatDate(date: Date | string | null): string {
     if (!date) return "N/A";
@@ -30,9 +31,13 @@ export function PublicationsList({
     onDelete,
 }: PublicationsListProps) {
     const { selectedPersonId } = usePersonContext();
+    const { schedulePublication, loading: lateLoading, error: lateError } = useLate();
     const [expandedPublications, setExpandedPublications] = useState<Set<string>>(new Set());
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [schedulingId, setSchedulingId] = useState<string | null>(null);
+    const [showScheduleInputs, setShowScheduleInputs] = useState<Set<string>>(new Set());
+    const [scheduleInputs, setScheduleInputs] = useState<Record<string, { date: string; time: string }>>({});
     const [formData, setFormData] = useState<Partial<NewPublication>>({
         title: null,
         content: "",
@@ -42,6 +47,10 @@ export function PublicationsList({
         publishedAt: null,
         source: null,
         isArchived: false,
+    });
+    const [scheduleDateTime, setScheduleDateTime] = useState({
+        date: "",
+        time: "",
     });
 
     const handleCreate = async (e: React.FormEvent) => {
@@ -97,6 +106,76 @@ export function PublicationsList({
             } catch (err) {
                 console.error("Failed to delete:", err);
             }
+        }
+    };
+
+    const handleScheduleWithLate = async (publication: Publication) => {
+        // Validate content exists and is not empty
+        const content = publication.content?.trim();
+        if (!content || content.length === 0) {
+            alert("La publicación debe tener contenido para poder agendarla");
+            return;
+        }
+
+        // Get date and time from publication-specific inputs or use scheduledAt if available
+        const inputs = scheduleInputs[publication.id];
+        let scheduleDate: Date;
+
+        if (inputs?.date && inputs?.time) {
+            scheduleDate = new Date(`${inputs.date}T${inputs.time}`);
+        } else if (publication.scheduledAt) {
+            scheduleDate = new Date(publication.scheduledAt);
+        } else {
+            // Show inputs if not already shown
+            setShowScheduleInputs((prev) => new Set(prev).add(publication.id));
+            return;
+        }
+
+        if (isNaN(scheduleDate.getTime())) {
+            alert("Fecha o hora inválida");
+            return;
+        }
+
+        // Check if date is in the future
+        if (scheduleDate <= new Date()) {
+            alert("La fecha de agendamiento debe ser en el futuro");
+            return;
+        }
+
+        setSchedulingId(publication.id);
+
+        try {
+            const result = await schedulePublication(
+                publication.id,
+                content, // Use trimmed content
+                scheduleDate.toISOString()
+            );
+
+            // Update the publication with the new status and late post ID
+            await onUpdate(publication.id, {
+                status: "scheduled",
+                scheduledAt: scheduleDate,
+                latePostId: result.latePost.id,
+            });
+
+            // Reset schedule inputs for this publication
+            setScheduleInputs((prev) => {
+                const newInputs = { ...prev };
+                delete newInputs[publication.id];
+                return newInputs;
+            });
+            setShowScheduleInputs((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(publication.id);
+                return newSet;
+            });
+            alert("¡Publicación agendada exitosamente en Late.dev!");
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : "Error desconocido";
+            console.error("Error scheduling publication:", err);
+            alert(`Error al agendar publicación: ${errorMessage}`);
+        } finally {
+            setSchedulingId(null);
         }
     };
 
@@ -218,6 +297,39 @@ export function PublicationsList({
                                 placeholder="https://example.com"
                             />
                         </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-gray-700">
+                                    Schedule Date (optional)
+                                </label>
+                                <input
+                                    type="date"
+                                    value={scheduleDateTime.date}
+                                    onChange={(e) =>
+                                        setScheduleDateTime({ ...scheduleDateTime, date: e.target.value })
+                                    }
+                                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-gray-700">
+                                    Schedule Time (optional)
+                                </label>
+                                <input
+                                    type="time"
+                                    value={scheduleDateTime.time}
+                                    onChange={(e) =>
+                                        setScheduleDateTime({ ...scheduleDateTime, time: e.target.value })
+                                    }
+                                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                        </div>
+                        {lateError && (
+                            <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">
+                                <strong>Error:</strong> {lateError}
+                            </div>
+                        )}
                         <div className="flex gap-3">
                             <button
                                 type="submit"
@@ -322,31 +434,128 @@ export function PublicationsList({
                                                 Platform: {publication.platform} •
                                                 Scheduled: {formatDate(publication.scheduledAt)} •
                                                 Published: {formatDate(publication.publishedAt)}
+                                                {publication.latePostId && (
+                                                    <> • Late ID: {publication.latePostId}</>
+                                                )}
                                             </div>
                                         </div>
-                                        <div className="ml-4 flex gap-2">
-                                            <button
-                                                onClick={() => setEditingId(publication.id)}
-                                                className="rounded-lg bg-yellow-50 px-4 py-2 text-sm font-medium text-yellow-700 transition-colors hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                onClick={() =>
-                                                    handleUpdate(publication.id, {
-                                                        isArchived: !publication.isArchived,
-                                                    })
-                                                }
-                                                className="rounded-lg bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                                            >
-                                                {publication.isArchived ? "Unarchive" : "Archive"}
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(publication.id)}
-                                                className="rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                            >
-                                                Delete
-                                            </button>
+                                        <div className="ml-4 flex flex-col gap-2">
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => setEditingId(publication.id)}
+                                                    className="rounded-lg bg-yellow-50 px-4 py-2 text-sm font-medium text-yellow-700 transition-colors hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
+                                                >
+                                                    Edit
+                                                </button>
+                                                {!publication.latePostId && publication.status !== "published" && (
+                                                    <button
+                                                        onClick={() => {
+                                                            // Always show inputs when clicking the button
+                                                            setShowScheduleInputs((prev) => new Set(prev).add(publication.id));
+                                                        }}
+                                                        disabled={lateLoading || schedulingId === publication.id}
+                                                        className="rounded-lg bg-purple-50 px-4 py-2 text-sm font-medium text-purple-700 transition-colors hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                    >
+                                                        Agendar en Late
+                                                    </button>
+                                                )}
+                                            </div>
+                                            {showScheduleInputs.has(publication.id) && !publication.latePostId && (
+                                                <div className="mt-2 rounded-lg border border-purple-200 bg-purple-50 p-4">
+                                                    <div className="mb-3 text-sm font-medium text-purple-900">
+                                                        Selecciona fecha y hora para agendar:
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className="mb-1 block text-xs font-medium text-purple-700">
+                                                                Fecha
+                                                            </label>
+                                                            <input
+                                                                type="date"
+                                                                value={scheduleInputs[publication.id]?.date || ""}
+                                                                onChange={(e) =>
+                                                                    setScheduleInputs((prev) => ({
+                                                                        ...prev,
+                                                                        [publication.id]: {
+                                                                            ...prev[publication.id],
+                                                                            date: e.target.value,
+                                                                            time: prev[publication.id]?.time || "",
+                                                                        },
+                                                                    }))
+                                                                }
+                                                                className="w-full rounded-lg border border-purple-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                                min={new Date().toISOString().split("T")[0]}
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="mb-1 block text-xs font-medium text-purple-700">
+                                                                Hora
+                                                            </label>
+                                                            <input
+                                                                type="time"
+                                                                value={scheduleInputs[publication.id]?.time || ""}
+                                                                onChange={(e) =>
+                                                                    setScheduleInputs((prev) => ({
+                                                                        ...prev,
+                                                                        [publication.id]: {
+                                                                            ...prev[publication.id],
+                                                                            date: prev[publication.id]?.date || "",
+                                                                            time: e.target.value,
+                                                                        },
+                                                                    }))
+                                                                }
+                                                                className="w-full rounded-lg border border-purple-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                                required
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="mt-3 flex gap-2">
+                                                        <button
+                                                            onClick={() => handleScheduleWithLate(publication)}
+                                                            disabled={lateLoading || schedulingId === publication.id || !scheduleInputs[publication.id]?.date || !scheduleInputs[publication.id]?.time}
+                                                            className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                        >
+                                                            {schedulingId === publication.id ? "Agendando..." : "Confirmar Agendamiento"}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setShowScheduleInputs((prev) => {
+                                                                    const newSet = new Set(prev);
+                                                                    newSet.delete(publication.id);
+                                                                    return newSet;
+                                                                });
+                                                                setScheduleInputs((prev) => {
+                                                                    const newInputs = { ...prev };
+                                                                    delete newInputs[publication.id];
+                                                                    return newInputs;
+                                                                });
+                                                            }}
+                                                            className="rounded-lg border border-purple-300 bg-white px-4 py-2 text-sm font-medium text-purple-700 transition-colors hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                                                        >
+                                                            Cancelar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() =>
+                                                        handleUpdate(publication.id, {
+                                                            isArchived: !publication.isArchived,
+                                                        })
+                                                    }
+                                                    className="rounded-lg bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                                                >
+                                                    {publication.isArchived ? "Unarchive" : "Archive"}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(publication.id)}
+                                                    className="rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="text-xs text-gray-500">
