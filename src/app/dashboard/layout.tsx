@@ -44,6 +44,15 @@ export default function DashboardLayout({
                                 Dashboard
                             </Link>
                             <Link
+                                href="/dashboard/content/publications"
+                                className={`px-4 py-3 text-sm font-medium transition-colors ${isActive("/dashboard/content")
+                                    ? "text-blue-600 border-b-2 border-blue-600"
+                                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                                    }`}
+                            >
+                                Content
+                            </Link>
+                            <Link
                                 href="/dashboard/publication-types"
                                 className={`px-4 py-3 text-sm font-medium transition-colors ${isActive("/dashboard/publication-types")
                                     ? "text-blue-600 border-b-2 border-blue-600"
