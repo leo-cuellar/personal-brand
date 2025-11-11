@@ -183,12 +183,6 @@ export async function updatePost(
 
     const url = `https://getlate.dev/api/v1/posts/${postId}`;
 
-    console.log("📤 Late.dev PUT Request:", {
-        url,
-        method: "PUT",
-        payload: updates,
-    });
-
     const response = await fetch(url, {
         method: "PUT",
         headers: {
@@ -252,13 +246,6 @@ export async function schedulePost(
         platforms: platformsWithAccountId,
         isDraft: false, // Required to actually schedule the post
     };
-
-    console.log("📅 Late.dev Schedule Request:", {
-        postId,
-        scheduleData,
-        platformsWithAccountId,
-        updatePayload: JSON.stringify(updatePayload, null, 2),
-    });
 
     // Use updatePost to schedule - Late.dev uses PUT with scheduledFor, timezone, platforms, and isDraft
     return updatePost(postId, updatePayload);
