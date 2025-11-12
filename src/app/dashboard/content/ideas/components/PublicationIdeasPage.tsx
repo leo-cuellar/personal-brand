@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
-import { useN8nHooks } from "@/hooks/useN8nHooks";
 import { usePersonContext } from "@/contexts/PersonContext";
 import { IdeasReviewFlow } from "./IdeasReviewFlow";
 
@@ -46,7 +45,6 @@ export function PublicationIdeasPage() {
         getReviewIdeas(reviewParams);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [reviewParams]);
-    const { idGenTrendScanner, idGenContext, loading: n8nLoading, error: n8nError } = useN8nHooks();
 
     const handleAccept = async (id: string) => {
         try {
@@ -79,16 +77,6 @@ export function PublicationIdeasPage() {
     const handleExitReview = () => {
         setIsReviewMode(false);
         getPublicationIdeas(params); // Refresh the list when exiting review mode
-    };
-
-    const handleGenerateIdeas = async () => {
-        try {
-            await idGenTrendScanner();
-            await idGenContext();
-            await getPublicationIdeas(params);
-        } catch (err) {
-            alert(`Failed to generate ideas: ${err instanceof Error ? err.message : "Unknown error"}`);
-        }
     };
 
     const getStatusBadgeColor = (status: string) => {
@@ -161,12 +149,6 @@ export function PublicationIdeasPage() {
                 </div>
             )}
 
-            {n8nError && (
-                <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">
-                    <strong>Generate Ideas Error:</strong> {n8nError}
-                </div>
-            )}
-
             <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <label className="flex items-center gap-2">
@@ -207,14 +189,6 @@ export function PublicationIdeasPage() {
                             Start Review ({reviewIdeas.length})
                         </button>
                     )}
-                    <button
-                        onClick={handleGenerateIdeas}
-                        disabled={n8nLoading || !selectedPersonId}
-                        className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        title={!selectedPersonId ? "Please select a person first" : ""}
-                    >
-                        {n8nLoading ? "Generating..." : "Generate Ideas"}
-                    </button>
                 </div>
             </div>
 

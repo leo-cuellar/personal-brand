@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useInspirations } from "@/hooks/useInspirations";
 import { Inspiration, NewInspiration } from "../../../../../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
+import { useN8nHooks } from "@/hooks/useN8nHooks";
 
 function formatDate(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
@@ -31,6 +32,7 @@ export function InspirationsPage() {
         getInspirations(params);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params]);
+    const { idGenTrendScanner, idGenContext, loading: n8nLoading, error: n8nError } = useN8nHooks();
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Partial<NewInspiration>>({
@@ -83,6 +85,17 @@ export function InspirationsPage() {
         }
     };
 
+    const handleGenerateIdeas = async () => {
+        try {
+            await idGenTrendScanner();
+            await idGenContext();
+            // Refresh inspirations after generating ideas
+            await getInspirations(params);
+        } catch (err) {
+            alert(`Failed to generate ideas: ${err instanceof Error ? err.message : "Unknown error"}`);
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex min-h-screen items-center justify-center">
@@ -111,6 +124,12 @@ export function InspirationsPage() {
                 </div>
             )}
 
+            {n8nError && (
+                <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">
+                    <strong>Generate Ideas Error:</strong> {n8nError}
+                </div>
+            )}
+
             <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <label className="flex items-center gap-2">
@@ -127,6 +146,14 @@ export function InspirationsPage() {
                     </span>
                 </div>
                 <div className="flex items-center gap-3">
+                    <button
+                        onClick={handleGenerateIdeas}
+                        disabled={n8nLoading || !selectedPersonId}
+                        className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        title={!selectedPersonId ? "Please select a person first" : ""}
+                    >
+                        {n8nLoading ? "Generating..." : "Generate Ideas"}
+                    </button>
                     <button
                         onClick={() => setIsCreating(!isCreating)}
                         disabled={!selectedPersonId}
