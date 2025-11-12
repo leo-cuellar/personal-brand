@@ -63,14 +63,14 @@ export default function SettingsPage() {
                     </div>
                 </Link>
                 <Link
-                    href="/dashboard/settings/persons"
+                    href="/dashboard/settings/personal-brands"
                     className="block rounded-lg border border-gray-300 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50"
                 >
                     <div className="font-medium text-gray-900">
-                        Persons
+                        Personal Brands
                     </div>
                     <div className="text-sm text-gray-500">
-                        Manage persons (personal brands) for content generation
+                        Manage personal brands for content generation
                     </div>
                 </Link>
             </div>
