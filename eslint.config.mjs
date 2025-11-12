@@ -12,7 +12,18 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Extension build files
+    "extension/dist/**",
+    "extension/build.config.js",
   ]),
+  // Override for extension folder
+  {
+    files: ["extension/**/*.js", "extension/**/*.mjs"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+      "no-undef": "off", // Node.js globals
+    },
+  },
 ]);
 
 export default eslintConfig;

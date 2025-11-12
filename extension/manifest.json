@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "Social Assistant",
+  "version": "1.0.0",
+  "description": "Agrega publicaciones de LinkedIn como inspiraciones",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.linkedin.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.linkedin.com/*"],
+      "js": ["content/index.js"],
+      "css": ["content/styles.css"]
+    }
+  ],
+  "background": {
+    "service_worker": "background/index.js"
+  },
+  "action": {
+    "default_popup": "popup/index.html",
+    "default_icon": {
+      "16": "public/icons/icon16.png",
+      "48": "public/icons/icon48.png",
+      "128": "public/icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "public/icons/icon16.png",
+    "48": "public/icons/icon48.png",
+    "128": "public/icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["content/*", "popup/*"],
+      "matches": ["https://www.linkedin.com/*"]
+    }
+  ]
+}
+

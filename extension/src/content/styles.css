@@ -1,0 +1,38 @@
+/* Estilos para el botón de agregar inspiración en LinkedIn */
+
+.social-assistant-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: #0077b5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.social-assistant-button:hover {
+  background-color: #005885;
+}
+
+.social-assistant-button:active {
+  background-color: #004d73;
+}
+
+.social-assistant-button.loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.social-assistant-button.success {
+  background-color: #28a745;
+}
+
+.social-assistant-button.error {
+  background-color: #dc3545;
+}
+
