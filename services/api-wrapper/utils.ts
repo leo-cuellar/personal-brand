@@ -162,6 +162,7 @@ interface SupabaseInspiration {
     text: string;
     link: string | null;
     source: string;
+    metadata: unknown;
     created_at: string;
     updated_at: string;
     is_archived: boolean;
@@ -175,7 +176,8 @@ export function transformInspiration(
         personId: data.person_id,
         text: data.text,
         link: data.link || null,
-        source: data.source as "manual" | "trend_scanner",
+        source: data.source as "manual" | "trend_scanner" | "linkedin",
+        metadata: data.metadata || null,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,

@@ -50,7 +50,7 @@ export function InspirationsPage() {
             await create({
                 text: formData.text,
                 link: formData.link || null,
-                source: formData.source || "manual",
+                source: "manual",
                 isArchived: formData.isArchived || false,
             } as NewInspiration);
             setFormData({ text: "", link: "", source: "manual", isArchived: false });
@@ -196,21 +196,6 @@ export function InspirationsPage() {
                                 placeholder="https://example.com"
                             />
                         </div>
-                        <div>
-                            <label className="mb-2 block text-sm font-medium text-gray-700">
-                                Source
-                            </label>
-                            <select
-                                value={formData.source || "manual"}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, source: e.target.value as "manual" | "trend_scanner" })
-                                }
-                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="manual">Manual</option>
-                                <option value="trend_scanner">Trend Scanner</option>
-                            </select>
-                        </div>
                         <div className="flex gap-3">
                             <button
                                 type="submit"
@@ -269,9 +254,15 @@ export function InspirationsPage() {
                                                 )}
                                                 <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${inspiration.source === "trend_scanner"
                                                     ? "bg-purple-100 text-purple-800"
-                                                    : "bg-gray-100 text-gray-800"
+                                                    : inspiration.source === "linkedin"
+                                                        ? "bg-blue-100 text-blue-800"
+                                                        : "bg-gray-100 text-gray-800"
                                                     }`}>
-                                                    {inspiration.source === "trend_scanner" ? "Trend Scanner" : "Manual"}
+                                                    {inspiration.source === "trend_scanner"
+                                                        ? "Trend Scanner"
+                                                        : inspiration.source === "linkedin"
+                                                            ? "LinkedIn"
+                                                            : "Manual"}
                                                 </span>
                                             </div>
                                             <p className="whitespace-pre-wrap text-gray-800">{inspiration.text}</p>
@@ -338,11 +329,10 @@ function EditForm({
 }) {
     const [text, setText] = useState(inspiration.text);
     const [link, setLink] = useState(inspiration.link || "");
-    const [source, setSource] = useState<"manual" | "trend_scanner">(inspiration.source);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSave({ text, link: link || null, source });
+        onSave({ text, link: link || null });
     };
 
     return (
@@ -370,19 +360,6 @@ function EditForm({
                     className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="https://example.com"
                 />
-            </div>
-            <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Source
-                </label>
-                <select
-                    value={source}
-                    onChange={(e) => setSource(e.target.value as "manual" | "trend_scanner")}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                    <option value="manual">Manual</option>
-                    <option value="trend_scanner">Trend Scanner</option>
-                </select>
             </div>
             <div className="flex gap-3">
                 <button
