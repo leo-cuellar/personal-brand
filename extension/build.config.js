@@ -77,6 +77,11 @@ function copyRecursive(src, dest) {
   }
 }
 
+// Crear directorios necesarios
+fs.mkdirSync(path.join(distDir, "content"), { recursive: true });
+fs.mkdirSync(path.join(distDir, "popup"), { recursive: true });
+fs.mkdirSync(path.join(distDir, "background"), { recursive: true });
+
 // Copiar CSS
 fs.copyFileSync(
   path.join(srcDir, "content", "styles.css"),
