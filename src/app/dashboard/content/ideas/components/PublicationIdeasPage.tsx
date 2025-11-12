@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
+import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 import { IdeasReviewFlow } from "./IdeasReviewFlow";
 
 function formatDate(date: Date | string): string {
@@ -20,29 +21,44 @@ export function PublicationIdeasPage() {
     const [statusFilter, setStatusFilter] = useState<"in_review" | "accepted" | "rejected" | "used" | "all">("in_review");
     const [isReviewMode, setIsReviewMode] = useState(false);
 
+    const { selectedPersonId } = usePersonalBrandContext();
     const { publicationIdeas, loading, error, getPublicationIdeas, update } = usePublicationIdeas();
     const { publicationIdeas: reviewIdeas, getPublicationIdeas: getReviewIdeas } = usePublicationIdeas();
 
     const params = useMemo(() => {
-        const p: { includeArchived?: boolean; status?: "in_review" | "accepted" | "rejected" | "used" } = {};
+        if (!selectedPersonId) return undefined; // Return undefined if no personal brand selected
+        const p: { includeArchived?: boolean; status?: "in_review" | "accepted" | "rejected" | "used"; personalBrandId: string } = {
+            personalBrandId: selectedPersonId,
+        };
         if (showArchived) p.includeArchived = true;
         if (statusFilter !== "all") p.status = statusFilter;
         return p;
-    }, [showArchived, statusFilter]);
+    }, [showArchived, statusFilter, selectedPersonId]);
 
     const reviewParams = useMemo(() => {
-        return { status: "in_review" as const, includeArchived: false };
-    }, []);
+        if (!selectedPersonId) return undefined; // Return undefined if no personal brand selected
+        return { status: "in_review" as const, includeArchived: false, personalBrandId: selectedPersonId };
+    }, [selectedPersonId]);
+
+    // Use refs to track if we've already fetched with these params to avoid duplicate calls
+    const paramsRef = useRef<string | null>(null);
+    const reviewParamsRef = useRef<string | null>(null);
 
     useEffect(() => {
+        if (!params) return; // Don't fetch if no params (no personal brand selected)
+        const paramsKey = JSON.stringify(params);
+        if (paramsRef.current === paramsKey) return; // Already fetched with these params
+        paramsRef.current = paramsKey;
         getPublicationIdeas(params);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [params]);
+    }, [params, getPublicationIdeas]);
 
     useEffect(() => {
+        if (!reviewParams) return; // Don't fetch if no params (no personal brand selected)
+        const reviewParamsKey = JSON.stringify(reviewParams);
+        if (reviewParamsRef.current === reviewParamsKey) return; // Already fetched with these params
+        reviewParamsRef.current = reviewParamsKey;
         getReviewIdeas(reviewParams);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [reviewParams]);
+    }, [reviewParams, getReviewIdeas]);
 
     const handleAccept = async (id: string) => {
         try {
@@ -74,7 +90,7 @@ export function PublicationIdeasPage() {
 
     const handleExitReview = () => {
         setIsReviewMode(false);
-        getPublicationIdeas(params); // Refresh the list when exiting review mode
+        if (params) getPublicationIdeas(params); // Refresh the list when exiting review mode
     };
 
     const getStatusBadgeColor = (status: string) => {
