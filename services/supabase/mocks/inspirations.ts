@@ -9,6 +9,7 @@ export const mockInspirations: Inspiration[] = [
         text: "Hablar sobre cómo la tecnología está cambiando la forma en que trabajamos y vivimos",
         link: null,
         source: "manual",
+        metadata: null,
         createdAt: new Date(),
         updatedAt: new Date(),
         isArchived: false,

@@ -71,6 +71,15 @@ export default function DashboardLayout({
                                 Publications
                             </Link>
                             <Link
+                                href="/dashboard/content/trend-scanner"
+                                className={`px-4 py-3 text-sm font-medium transition-colors ${isActive("/dashboard/content/trend-scanner")
+                                    ? "text-blue-600 border-b-2 border-blue-600"
+                                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                                    }`}
+                            >
+                                Trend Scanner
+                            </Link>
+                            <Link
                                 href="/dashboard/settings"
                                 className={`px-4 py-3 text-sm font-medium transition-colors ${isActive("/dashboard/settings")
                                     ? "text-blue-600 border-b-2 border-blue-600"
