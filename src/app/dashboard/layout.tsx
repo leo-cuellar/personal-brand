@@ -15,7 +15,7 @@ export default function DashboardLayout({
         if (path === "/dashboard") {
             return pathname === "/dashboard";
         }
-        return pathname?.startsWith(path);
+        return pathname === path || pathname?.startsWith(path + "/");
     };
 
     return (
@@ -44,25 +44,34 @@ export default function DashboardLayout({
                                 Dashboard
                             </Link>
                             <Link
+                                href="/dashboard/content/inspirations"
+                                className={`px-4 py-3 text-sm font-medium transition-colors ${isActive("/dashboard/content/inspirations")
+                                    ? "text-blue-600 border-b-2 border-blue-600"
+                                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                                    }`}
+                            >
+                                Inspirations
+                            </Link>
+                            <Link
+                                href="/dashboard/content/ideas"
+                                className={`px-4 py-3 text-sm font-medium transition-colors ${isActive("/dashboard/content/ideas")
+                                    ? "text-blue-600 border-b-2 border-blue-600"
+                                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                                    }`}
+                            >
+                                Ideas
+                            </Link>
+                            <Link
                                 href="/dashboard/content/publications"
-                                className={`px-4 py-3 text-sm font-medium transition-colors ${isActive("/dashboard/content")
+                                className={`px-4 py-3 text-sm font-medium transition-colors ${isActive("/dashboard/content/publications")
                                     ? "text-blue-600 border-b-2 border-blue-600"
                                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                                     }`}
                             >
-                                Content
+                                Publications
                             </Link>
                             <Link
-                                href="/dashboard/publication-types"
-                                className={`px-4 py-3 text-sm font-medium transition-colors ${isActive("/dashboard/publication-types")
-                                    ? "text-blue-600 border-b-2 border-blue-600"
-                                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                                    }`}
-                            >
-                                Publication Types
-                            </Link>
-                            <Link
-                                href="/dashboard/settings/categories"
+                                href="/dashboard/settings"
                                 className={`px-4 py-3 text-sm font-medium transition-colors ${isActive("/dashboard/settings")
                                     ? "text-blue-600 border-b-2 border-blue-600"
                                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
