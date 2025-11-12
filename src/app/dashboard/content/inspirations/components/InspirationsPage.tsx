@@ -293,16 +293,6 @@ export function InspirationsPage() {
                                                 Edit
                                             </button>
                                             <button
-                                                onClick={() =>
-                                                    handleUpdate(inspiration.id, {
-                                                        isArchived: !inspiration.isArchived,
-                                                    })
-                                                }
-                                                className="rounded-lg bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                                            >
-                                                {inspiration.isArchived ? "Unarchive" : "Archive"}
-                                            </button>
-                                            <button
                                                 onClick={() => handleDelete(inspiration.id)}
                                                 className="rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                                             >
