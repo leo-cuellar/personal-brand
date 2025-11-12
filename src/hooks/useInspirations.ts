@@ -7,8 +7,8 @@ import {
     updateInspiration,
     deleteInspiration,
     GetInspirationsParams,
-} from "@/services/api-wrapper/inspirations";
-import { Inspiration, NewInspiration } from "@/services/supabase/schemas";
+} from "../../services/api-wrapper/inspirations";
+import { Inspiration, NewInspiration } from "../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
 
 interface UseInspirationsReturn {

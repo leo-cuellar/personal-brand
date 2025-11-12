@@ -7,8 +7,8 @@ import {
     updatePublicationStructure,
     deletePublicationStructure,
     GetPublicationStructuresParams,
-} from "@/services/api-wrapper/publication-structures";
-import { PublicationStructure, NewPublicationStructure } from "@/services/supabase/schemas";
+} from "../../services/api-wrapper/publication-structures";
+import { PublicationStructure, NewPublicationStructure } from "../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
 
 interface UsePublicationStructuresReturn {

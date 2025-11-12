@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/services/supabase/client";
-import { Person, NewPerson } from "@/services/supabase/schemas";
+import { supabaseAdmin } from "../../../../services/supabase/client";
+import { Person, NewPerson } from "../../../../services/supabase/schemas";
 
 // GET - Get all persons
 export async function GET(request: NextRequest) {

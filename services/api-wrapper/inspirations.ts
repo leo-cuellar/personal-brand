@@ -1,16 +1,16 @@
-import { PublicationStructure, NewPublicationStructure } from "@/services/supabase/schemas";
-import { transformPublicationStructure } from "./utils";
+import { Inspiration, NewInspiration } from "../supabase/schemas";
+import { transformInspiration } from "./utils";
 
-const API_BASE_URL = "/api/publication-structures";
+const API_BASE_URL = "/api/inspirations";
 
-export interface GetPublicationStructuresParams {
+export interface GetInspirationsParams {
     includeArchived?: boolean;
     personId?: string | null;
 }
 
-export async function getPublicationStructures(
-    params?: GetPublicationStructuresParams
-): Promise<PublicationStructure[]> {
+export async function getInspirations(
+    params?: GetInspirationsParams
+): Promise<Inspiration[]> {
     const queryParams = new URLSearchParams();
     if (params?.includeArchived) {
         queryParams.append("includeArchived", "true");
@@ -30,37 +30,37 @@ export async function getPublicationStructures(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to fetch publication structures");
+        throw new Error(error.error || "Failed to fetch inspirations");
     }
 
     const { data } = await response.json();
-    return Array.isArray(data) ? data.map(transformPublicationStructure) : [];
+    return Array.isArray(data) ? data.map(transformInspiration) : [];
 }
 
-export async function createPublicationStructure(
-    structure: NewPublicationStructure
-): Promise<PublicationStructure> {
+export async function createInspiration(
+    inspiration: NewInspiration
+): Promise<Inspiration> {
     const response = await fetch(API_BASE_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(structure),
+        body: JSON.stringify(inspiration),
     });
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to create publication structure");
+        throw new Error(error.error || "Failed to create inspiration");
     }
 
     const { data } = await response.json();
-    return transformPublicationStructure(data);
+    return transformInspiration(data);
 }
 
-export async function updatePublicationStructure(
+export async function updateInspiration(
     id: string,
-    updates: Partial<PublicationStructure>
-): Promise<PublicationStructure> {
+    updates: Partial<Inspiration>
+): Promise<Inspiration> {
     const response = await fetch(API_BASE_URL, {
         method: "PUT",
         headers: {
@@ -71,14 +71,14 @@ export async function updatePublicationStructure(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to update publication structure");
+        throw new Error(error.error || "Failed to update inspiration");
     }
 
     const { data } = await response.json();
-    return transformPublicationStructure(data);
+    return transformInspiration(data);
 }
 
-export async function deletePublicationStructure(id: string): Promise<void> {
+export async function deleteInspiration(id: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}?id=${id}`, {
         method: "DELETE",
         headers: {
@@ -88,7 +88,7 @@ export async function deletePublicationStructure(id: string): Promise<void> {
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to delete publication structure");
+        throw new Error(error.error || "Failed to delete inspiration");
     }
 }
 

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { usePersons } from "@/hooks/usePersons";
-import { Person, NewPerson } from "@/services/supabase/schemas";
+import { Person, NewPerson } from "../../../../../../services/supabase/schemas";
 
 // Field descriptions matching the schema comments
 const FIELD_DESCRIPTIONS = {

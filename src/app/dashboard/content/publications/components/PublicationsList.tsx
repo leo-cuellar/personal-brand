@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { LatePost } from "@/services/late/posts";
+import type { LatePost } from "../../../../../../services/late/posts";
 
 function formatDate(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;

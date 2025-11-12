@@ -7,8 +7,8 @@ import {
     updateStrongOpinion,
     deleteStrongOpinion,
     GetStrongOpinionsParams,
-} from "@/services/api-wrapper/strong-opinions";
-import { StrongOpinion, NewStrongOpinion } from "@/services/supabase/schemas";
+} from "../../services/api-wrapper/strong-opinions";
+import { StrongOpinion, NewStrongOpinion } from "../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
 
 interface UseStrongOpinionsReturn {

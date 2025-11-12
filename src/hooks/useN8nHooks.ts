@@ -7,7 +7,7 @@ import {
     idGenContext,
     publicationGen,
     N8nResponse,
-} from "@/services/api-wrapper/n8n";
+} from "../../services/api-wrapper/n8n";
 
 interface UseN8nHooksReturn {
     trendScanner: () => Promise<N8nResponse>;

@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import {
     generateCategoryDescription,
     GenerateCategoryDescriptionParams,
-} from "@/services/api-wrapper/openai";
+} from "../../services/api-wrapper/openai";
 
 interface UseOpenAIReturn {
     generateCategoryDescription: (

@@ -1,12 +1,12 @@
 import { useState, useCallback } from "react";
-import { getPosts as getPostsWrapper, updatePost as updatePostWrapper, schedulePost as schedulePostWrapper, deletePost as deletePostWrapper } from "@/services/api-wrapper/late";
+import { getPosts as getPostsWrapper, updatePost as updatePostWrapper, schedulePost as schedulePostWrapper, deletePost as deletePostWrapper } from "../../services/api-wrapper/late";
 import type {
     LateGetPostsParams,
     LateGetPostsResponse,
     LateUpdatePostRequest,
     LateSchedulePostRequest,
     LatePost,
-} from "@/services/late/posts";
+} from "../../services/late/posts";
 
 interface UseLateReturn {
     getPosts: (

@@ -1,16 +1,16 @@
-import { PublicationCategory, NewPublicationCategory } from "@/services/supabase/schemas";
-import { transformPublicationCategory } from "./utils";
+import { StrongOpinion, NewStrongOpinion } from "../supabase/schemas";
+import { transformStrongOpinion } from "./utils";
 
-const API_BASE_URL = "/api/publication-categories";
+const API_BASE_URL = "/api/strong-opinions";
 
-export interface GetPublicationCategoriesParams {
+export interface GetStrongOpinionsParams {
     includeArchived?: boolean;
     personId?: string | null;
 }
 
-export async function getPublicationCategories(
-    params?: GetPublicationCategoriesParams
-): Promise<PublicationCategory[]> {
+export async function getStrongOpinions(
+    params?: GetStrongOpinionsParams
+): Promise<StrongOpinion[]> {
     const queryParams = new URLSearchParams();
     if (params?.includeArchived) {
         queryParams.append("includeArchived", "true");
@@ -30,37 +30,37 @@ export async function getPublicationCategories(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to fetch publication categories");
+        throw new Error(error.error || "Failed to fetch strong opinions");
     }
 
     const { data } = await response.json();
-    return Array.isArray(data) ? data.map(transformPublicationCategory) : [];
+    return Array.isArray(data) ? data.map(transformStrongOpinion) : [];
 }
 
-export async function createPublicationCategory(
-    publicationCategory: NewPublicationCategory
-): Promise<PublicationCategory> {
+export async function createStrongOpinion(
+    strongOpinion: NewStrongOpinion
+): Promise<StrongOpinion> {
     const response = await fetch(API_BASE_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(publicationCategory),
+        body: JSON.stringify(strongOpinion),
     });
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to create publication category");
+        throw new Error(error.error || "Failed to create strong opinion");
     }
 
     const { data } = await response.json();
-    return transformPublicationCategory(data);
+    return transformStrongOpinion(data);
 }
 
-export async function updatePublicationCategory(
+export async function updateStrongOpinion(
     id: string,
-    updates: Partial<PublicationCategory>
-): Promise<PublicationCategory> {
+    updates: Partial<StrongOpinion>
+): Promise<StrongOpinion> {
     const response = await fetch(API_BASE_URL, {
         method: "PUT",
         headers: {
@@ -71,14 +71,14 @@ export async function updatePublicationCategory(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to update publication category");
+        throw new Error(error.error || "Failed to update strong opinion");
     }
 
     const { data } = await response.json();
-    return transformPublicationCategory(data);
+    return transformStrongOpinion(data);
 }
 
-export async function deletePublicationCategory(id: string): Promise<void> {
+export async function deleteStrongOpinion(id: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}?id=${id}`, {
         method: "DELETE",
         headers: {
@@ -88,7 +88,7 @@ export async function deletePublicationCategory(id: string): Promise<void> {
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to delete publication category");
+        throw new Error(error.error || "Failed to delete strong opinion");
     }
 }
 

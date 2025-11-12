@@ -1,22 +1,18 @@
-import { Inspiration, NewInspiration } from "@/services/supabase/schemas";
-import { transformInspiration } from "./utils";
+import { Person, NewPerson } from "../supabase/schemas";
+import { transformPerson } from "./utils";
 
-const API_BASE_URL = "/api/inspirations";
+const API_BASE_URL = "/api/persons";
 
-export interface GetInspirationsParams {
+export interface GetPersonsParams {
     includeArchived?: boolean;
-    personId?: string | null;
 }
 
-export async function getInspirations(
-    params?: GetInspirationsParams
-): Promise<Inspiration[]> {
+export async function getPersons(
+    params?: GetPersonsParams
+): Promise<Person[]> {
     const queryParams = new URLSearchParams();
     if (params?.includeArchived) {
         queryParams.append("includeArchived", "true");
-    }
-    if (params?.personId) {
-        queryParams.append("personId", params.personId);
     }
 
     const url = `${API_BASE_URL}${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
@@ -30,37 +26,37 @@ export async function getInspirations(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to fetch inspirations");
+        throw new Error(error.error || "Failed to fetch persons");
     }
 
     const { data } = await response.json();
-    return Array.isArray(data) ? data.map(transformInspiration) : [];
+    return Array.isArray(data) ? data.map(transformPerson) : [];
 }
 
-export async function createInspiration(
-    inspiration: NewInspiration
-): Promise<Inspiration> {
+export async function createPerson(
+    person: NewPerson
+): Promise<Person> {
     const response = await fetch(API_BASE_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(inspiration),
+        body: JSON.stringify(person),
     });
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to create inspiration");
+        throw new Error(error.error || "Failed to create person");
     }
 
     const { data } = await response.json();
-    return transformInspiration(data);
+    return transformPerson(data);
 }
 
-export async function updateInspiration(
+export async function updatePerson(
     id: string,
-    updates: Partial<Inspiration>
-): Promise<Inspiration> {
+    updates: Partial<Person>
+): Promise<Person> {
     const response = await fetch(API_BASE_URL, {
         method: "PUT",
         headers: {
@@ -71,14 +67,14 @@ export async function updateInspiration(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to update inspiration");
+        throw new Error(error.error || "Failed to update person");
     }
 
     const { data } = await response.json();
-    return transformInspiration(data);
+    return transformPerson(data);
 }
 
-export async function deleteInspiration(id: string): Promise<void> {
+export async function deletePerson(id: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}?id=${id}`, {
         method: "DELETE",
         headers: {
@@ -88,7 +84,7 @@ export async function deleteInspiration(id: string): Promise<void> {
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to delete inspiration");
+        throw new Error(error.error || "Failed to delete person");
     }
 }
 

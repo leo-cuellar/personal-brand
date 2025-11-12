@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import { getPersons } from "@/services/api-wrapper/persons";
+import { getPersons } from "../../services/api-wrapper/persons";
 
 interface PersonContextType {
     selectedPersonId: string | null;

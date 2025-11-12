@@ -7,8 +7,8 @@ import {
     updatePerson,
     deletePerson,
     GetPersonsParams,
-} from "@/services/api-wrapper/persons";
-import { Person, NewPerson } from "@/services/supabase/schemas";
+} from "../../services/api-wrapper/persons";
+import { Person, NewPerson } from "../../services/supabase/schemas";
 
 interface UsePersonsReturn {
     persons: Person[];

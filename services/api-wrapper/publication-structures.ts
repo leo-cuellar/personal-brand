@@ -1,16 +1,16 @@
-import { PublicationType, NewPublicationType } from "@/services/supabase/schemas";
-import { transformPublicationType } from "./utils";
+import { PublicationStructure, NewPublicationStructure } from "../supabase/schemas";
+import { transformPublicationStructure } from "./utils";
 
-const API_BASE_URL = "/api/publication-types";
+const API_BASE_URL = "/api/publication-structures";
 
-export interface GetPublicationTypesParams {
+export interface GetPublicationStructuresParams {
     includeArchived?: boolean;
     personId?: string | null;
 }
 
-export async function getPublicationTypes(
-    params?: GetPublicationTypesParams
-): Promise<PublicationType[]> {
+export async function getPublicationStructures(
+    params?: GetPublicationStructuresParams
+): Promise<PublicationStructure[]> {
     const queryParams = new URLSearchParams();
     if (params?.includeArchived) {
         queryParams.append("includeArchived", "true");
@@ -30,37 +30,37 @@ export async function getPublicationTypes(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to fetch publication types");
+        throw new Error(error.error || "Failed to fetch publication structures");
     }
 
     const { data } = await response.json();
-    return Array.isArray(data) ? data.map(transformPublicationType) : [];
+    return Array.isArray(data) ? data.map(transformPublicationStructure) : [];
 }
 
-export async function createPublicationType(
-    publicationType: NewPublicationType
-): Promise<PublicationType> {
+export async function createPublicationStructure(
+    structure: NewPublicationStructure
+): Promise<PublicationStructure> {
     const response = await fetch(API_BASE_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(publicationType),
+        body: JSON.stringify(structure),
     });
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to create publication type");
+        throw new Error(error.error || "Failed to create publication structure");
     }
 
     const { data } = await response.json();
-    return transformPublicationType(data);
+    return transformPublicationStructure(data);
 }
 
-export async function updatePublicationType(
+export async function updatePublicationStructure(
     id: string,
-    updates: Partial<PublicationType>
-): Promise<PublicationType> {
+    updates: Partial<PublicationStructure>
+): Promise<PublicationStructure> {
     const response = await fetch(API_BASE_URL, {
         method: "PUT",
         headers: {
@@ -71,14 +71,14 @@ export async function updatePublicationType(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to update publication type");
+        throw new Error(error.error || "Failed to update publication structure");
     }
 
     const { data } = await response.json();
-    return transformPublicationType(data);
+    return transformPublicationStructure(data);
 }
 
-export async function deletePublicationType(id: string): Promise<void> {
+export async function deletePublicationStructure(id: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}?id=${id}`, {
         method: "DELETE",
         headers: {
@@ -88,7 +88,7 @@ export async function deletePublicationType(id: string): Promise<void> {
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to delete publication type");
+        throw new Error(error.error || "Failed to delete publication structure");
     }
 }
 

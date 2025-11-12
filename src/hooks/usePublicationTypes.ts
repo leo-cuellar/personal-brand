@@ -7,8 +7,8 @@ import {
     updatePublicationType,
     deletePublicationType,
     GetPublicationTypesParams,
-} from "@/services/api-wrapper/publication-types";
-import { PublicationType, NewPublicationType } from "@/services/supabase/schemas";
+} from "../../services/api-wrapper/publication-types";
+import { PublicationType, NewPublicationType } from "../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
 
 interface UsePublicationTypesReturn {

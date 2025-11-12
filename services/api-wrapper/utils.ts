@@ -6,7 +6,7 @@ import {
     Person,
     Inspiration,
     PublicationStructure,
-} from "@/services/supabase/schemas";
+} from "../supabase/schemas";
 
 // Supabase response types (snake_case)
 interface SupabasePublicationType {

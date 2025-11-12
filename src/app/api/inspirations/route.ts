@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/services/supabase/client";
-import { Inspiration, NewInspiration } from "@/services/supabase/schemas";
+import { supabaseAdmin } from "../../../../services/supabase/client";
+import { Inspiration, NewInspiration } from "../../../../services/supabase/schemas";
 
 // GET - Get all inspirations
 export async function GET(request: NextRequest) {

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { usePublicationTypes } from "@/hooks/usePublicationTypes";
-import { PublicationType, NewPublicationType } from "@/services/supabase/schemas";
+import { PublicationType, NewPublicationType } from "../../../../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
 
 // Helper function to format dates consistently (avoiding hydration mismatch)

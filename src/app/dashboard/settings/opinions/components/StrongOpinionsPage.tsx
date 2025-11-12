@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useStrongOpinions } from "@/hooks/useStrongOpinions";
-import { StrongOpinion, NewStrongOpinion } from "@/services/supabase/schemas";
+import { StrongOpinion, NewStrongOpinion } from "../../../../../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
 
 function formatDate(date: Date | string): string {

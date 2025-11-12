@@ -9,7 +9,7 @@ import type {
     LateUpdatePostRequest,
     LateSchedulePostRequest,
     LatePost,
-} from "@/services/late/posts";
+} from "../late/posts";
 
 /**
  * Get posts from Late.dev via our API route

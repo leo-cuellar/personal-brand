@@ -2,7 +2,7 @@
 
 import { PublicationsCalendar } from "./PublicationsCalendar";
 import { PublicationsList } from "./PublicationsList";
-import type { LatePost } from "@/services/late/posts";
+import type { LatePost } from "../../../../../../services/late/posts";
 
 type ViewMode = "list" | "calendar";
 

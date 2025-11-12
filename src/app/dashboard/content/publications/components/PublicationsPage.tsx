@@ -3,12 +3,12 @@
 import { useState, useEffect, useMemo } from "react";
 import { useLate } from "@/hooks/useLate";
 import { PublicationsContainer } from "./PublicationsContainer";
-import type { LatePost } from "@/services/late/posts";
+import type { LatePost } from "../../../../../../services/late/posts";
 import { startOfMonth, endOfMonth, format } from "date-fns";
 
 export function PublicationsPage() {
     const { getPosts, updatePost: updatePostHook, schedulePost: schedulePostHook, deletePost: deletePostHook, loading, error } = useLate();
-    
+
     // Calculate default calendar date range (current month)
     const defaultCalendarDateFrom = useMemo(() => {
         return format(startOfMonth(new Date()), "yyyy-MM-dd");

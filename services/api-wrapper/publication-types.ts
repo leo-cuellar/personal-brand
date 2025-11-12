@@ -1,16 +1,16 @@
-import { StrongOpinion, NewStrongOpinion } from "@/services/supabase/schemas";
-import { transformStrongOpinion } from "./utils";
+import { PublicationType, NewPublicationType } from "../supabase/schemas";
+import { transformPublicationType } from "./utils";
 
-const API_BASE_URL = "/api/strong-opinions";
+const API_BASE_URL = "/api/publication-types";
 
-export interface GetStrongOpinionsParams {
+export interface GetPublicationTypesParams {
     includeArchived?: boolean;
     personId?: string | null;
 }
 
-export async function getStrongOpinions(
-    params?: GetStrongOpinionsParams
-): Promise<StrongOpinion[]> {
+export async function getPublicationTypes(
+    params?: GetPublicationTypesParams
+): Promise<PublicationType[]> {
     const queryParams = new URLSearchParams();
     if (params?.includeArchived) {
         queryParams.append("includeArchived", "true");
@@ -30,37 +30,37 @@ export async function getStrongOpinions(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to fetch strong opinions");
+        throw new Error(error.error || "Failed to fetch publication types");
     }
 
     const { data } = await response.json();
-    return Array.isArray(data) ? data.map(transformStrongOpinion) : [];
+    return Array.isArray(data) ? data.map(transformPublicationType) : [];
 }
 
-export async function createStrongOpinion(
-    strongOpinion: NewStrongOpinion
-): Promise<StrongOpinion> {
+export async function createPublicationType(
+    publicationType: NewPublicationType
+): Promise<PublicationType> {
     const response = await fetch(API_BASE_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(strongOpinion),
+        body: JSON.stringify(publicationType),
     });
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to create strong opinion");
+        throw new Error(error.error || "Failed to create publication type");
     }
 
     const { data } = await response.json();
-    return transformStrongOpinion(data);
+    return transformPublicationType(data);
 }
 
-export async function updateStrongOpinion(
+export async function updatePublicationType(
     id: string,
-    updates: Partial<StrongOpinion>
-): Promise<StrongOpinion> {
+    updates: Partial<PublicationType>
+): Promise<PublicationType> {
     const response = await fetch(API_BASE_URL, {
         method: "PUT",
         headers: {
@@ -71,14 +71,14 @@ export async function updateStrongOpinion(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to update strong opinion");
+        throw new Error(error.error || "Failed to update publication type");
     }
 
     const { data } = await response.json();
-    return transformStrongOpinion(data);
+    return transformPublicationType(data);
 }
 
-export async function deleteStrongOpinion(id: string): Promise<void> {
+export async function deletePublicationType(id: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}?id=${id}`, {
         method: "DELETE",
         headers: {
@@ -88,7 +88,7 @@ export async function deleteStrongOpinion(id: string): Promise<void> {
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to delete strong opinion");
+        throw new Error(error.error || "Failed to delete publication type");
     }
 }
 

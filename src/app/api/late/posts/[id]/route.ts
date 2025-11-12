@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updatePost, schedulePost, deletePost, type LateUpdatePostRequest, type LateSchedulePostRequest } from "@/services/late/posts";
+import { updatePost, schedulePost, deletePost, type LateUpdatePostRequest, type LateSchedulePostRequest } from "../../../../../../services/late/posts";
 
 export async function PUT(
     request: NextRequest,

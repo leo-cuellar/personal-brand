@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { PublicationIdea } from "@/services/supabase/schemas";
+import type { PublicationIdea } from "../../../../../../services/supabase/schemas";
 
 interface IdeasReviewFlowProps {
     ideas: PublicationIdea[];
@@ -26,7 +26,7 @@ export function IdeasReviewFlow({ ideas, onAccept, onReject, onExit }: IdeasRevi
         if (!isProcessing && lastProcessedId) {
             // Check if the last processed idea is still in the list
             const stillExists = ideas.some(idea => idea.id === lastProcessedId);
-            
+
             if (!stillExists) {
                 // The idea was removed (accepted/rejected), list was updated
                 // Check if we need to adjust the index

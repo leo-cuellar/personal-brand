@@ -7,8 +7,8 @@ import {
     updatePublicationCategory,
     deletePublicationCategory,
     GetPublicationCategoriesParams,
-} from "@/services/api-wrapper/publication-categories";
-import { PublicationCategory, NewPublicationCategory } from "@/services/supabase/schemas";
+} from "../../services/api-wrapper/publication-categories";
+import { PublicationCategory, NewPublicationCategory } from "../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
 
 interface UsePublicationCategoriesReturn {

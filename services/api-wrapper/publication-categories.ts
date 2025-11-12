@@ -1,18 +1,22 @@
-import { Person, NewPerson } from "@/services/supabase/schemas";
-import { transformPerson } from "./utils";
+import { PublicationCategory, NewPublicationCategory } from "../supabase/schemas";
+import { transformPublicationCategory } from "./utils";
 
-const API_BASE_URL = "/api/persons";
+const API_BASE_URL = "/api/publication-categories";
 
-export interface GetPersonsParams {
+export interface GetPublicationCategoriesParams {
     includeArchived?: boolean;
+    personId?: string | null;
 }
 
-export async function getPersons(
-    params?: GetPersonsParams
-): Promise<Person[]> {
+export async function getPublicationCategories(
+    params?: GetPublicationCategoriesParams
+): Promise<PublicationCategory[]> {
     const queryParams = new URLSearchParams();
     if (params?.includeArchived) {
         queryParams.append("includeArchived", "true");
+    }
+    if (params?.personId) {
+        queryParams.append("personId", params.personId);
     }
 
     const url = `${API_BASE_URL}${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
@@ -26,37 +30,37 @@ export async function getPersons(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to fetch persons");
+        throw new Error(error.error || "Failed to fetch publication categories");
     }
 
     const { data } = await response.json();
-    return Array.isArray(data) ? data.map(transformPerson) : [];
+    return Array.isArray(data) ? data.map(transformPublicationCategory) : [];
 }
 
-export async function createPerson(
-    person: NewPerson
-): Promise<Person> {
+export async function createPublicationCategory(
+    publicationCategory: NewPublicationCategory
+): Promise<PublicationCategory> {
     const response = await fetch(API_BASE_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(person),
+        body: JSON.stringify(publicationCategory),
     });
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to create person");
+        throw new Error(error.error || "Failed to create publication category");
     }
 
     const { data } = await response.json();
-    return transformPerson(data);
+    return transformPublicationCategory(data);
 }
 
-export async function updatePerson(
+export async function updatePublicationCategory(
     id: string,
-    updates: Partial<Person>
-): Promise<Person> {
+    updates: Partial<PublicationCategory>
+): Promise<PublicationCategory> {
     const response = await fetch(API_BASE_URL, {
         method: "PUT",
         headers: {
@@ -67,14 +71,14 @@ export async function updatePerson(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to update person");
+        throw new Error(error.error || "Failed to update publication category");
     }
 
     const { data } = await response.json();
-    return transformPerson(data);
+    return transformPublicationCategory(data);
 }
 
-export async function deletePerson(id: string): Promise<void> {
+export async function deletePublicationCategory(id: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}?id=${id}`, {
         method: "DELETE",
         headers: {
@@ -84,7 +88,7 @@ export async function deletePerson(id: string): Promise<void> {
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to delete person");
+        throw new Error(error.error || "Failed to delete publication category");
     }
 }
 

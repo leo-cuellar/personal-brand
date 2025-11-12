@@ -1,5 +1,5 @@
-import { supabaseAdmin } from "@/services/supabase/client";
-import { Person, StrongOpinion } from "@/services/supabase/schemas";
+import { supabaseAdmin } from "../supabase/client";
+import { Person, StrongOpinion } from "../supabase/schemas";
 
 export async function getPersonData(personId: string): Promise<Person | null> {
     const { data, error } = await supabaseAdmin

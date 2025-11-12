@@ -7,8 +7,8 @@ import {
     updatePublicationIdea,
     deletePublicationIdea,
     GetPublicationIdeasParams,
-} from "@/services/api-wrapper/publication-ideas";
-import { PublicationIdea, NewPublicationIdea } from "@/services/supabase/schemas";
+} from "../../services/api-wrapper/publication-ideas";
+import { PublicationIdea, NewPublicationIdea } from "../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
 
 interface UsePublicationIdeasReturn {

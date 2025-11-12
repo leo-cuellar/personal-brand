@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { usePublicationStructures } from "@/hooks/usePublicationStructures";
-import { PublicationStructure, NewPublicationStructure } from "@/services/supabase/schemas";
+import { PublicationStructure, NewPublicationStructure } from "../../../../../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
 
 function formatDate(date: Date | string): string {

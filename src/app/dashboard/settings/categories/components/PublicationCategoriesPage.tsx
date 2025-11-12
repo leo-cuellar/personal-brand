@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { usePublicationCategories } from "@/hooks/usePublicationCategories";
-import { PublicationCategory, NewPublicationCategory } from "@/services/supabase/schemas";
+import { PublicationCategory, NewPublicationCategory } from "../../../../../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
 import { useOpenAI } from "@/hooks/useOpenAI";
 

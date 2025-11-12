@@ -1,4 +1,4 @@
-import { PublicationIdea, NewPublicationIdea } from "@/services/supabase/schemas";
+import { PublicationIdea, NewPublicationIdea } from "../supabase/schemas";
 import { transformPublicationIdea } from "./utils";
 
 const API_BASE_URL = "/api/publication-ideas";

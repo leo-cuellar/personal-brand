@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/services/supabase/client";
-import { StrongOpinion, NewStrongOpinion } from "@/services/supabase/schemas";
+import { supabaseAdmin } from "../../../../services/supabase/client";
+import { StrongOpinion, NewStrongOpinion } from "../../../../services/supabase/schemas";
 
 // GET - Get all strong opinions
 export async function GET(request: NextRequest) {

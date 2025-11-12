@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPosts, type LateGetPostsParams } from "@/services/late/posts";
+import { getPosts, type LateGetPostsParams } from "../../../../../services/late/posts";
 
 export async function GET(request: NextRequest) {
     try {

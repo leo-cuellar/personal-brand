@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateCategoryDescription } from "@/services/openai/category-description";
+import { generateCategoryDescription } from "../../../../../services/openai/category-description";
 
 export async function POST(request: NextRequest) {
     try {

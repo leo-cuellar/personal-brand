@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useInspirations } from "@/hooks/useInspirations";
-import { Inspiration, NewInspiration } from "@/services/supabase/schemas";
+import { Inspiration, NewInspiration } from "../../../../../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
 import { useN8nHooks } from "@/hooks/useN8nHooks";
 
