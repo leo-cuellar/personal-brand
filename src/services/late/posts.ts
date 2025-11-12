@@ -251,3 +251,52 @@ export async function schedulePost(
     return updatePost(postId, updatePayload);
 }
 
+/**
+ * Delete a post in Late.dev
+ * @param postId - The ID of the post to delete
+ * @returns void
+ */
+export async function deletePost(postId: string): Promise<void> {
+    const apiKey = process.env.LATE_SECRET_KEY;
+
+    if (!apiKey) {
+        throw new Error("LATE_SECRET_KEY is not configured");
+    }
+
+    const url = `https://getlate.dev/api/v1/posts/${postId}`;
+
+    const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+        },
+    });
+
+    if (!response.ok) {
+        let errorData: LateErrorResponse;
+        try {
+            errorData = await response.json();
+        } catch {
+            const errorText = await response.text();
+            throw new Error(
+                `Failed to delete post (${response.status}): ${errorText || response.statusText}`
+            );
+        }
+
+        const errorMessage =
+            errorData.message || errorData.error || `Failed to delete post: ${response.statusText}`;
+        throw new Error(errorMessage);
+    }
+
+    // DELETE requests typically return 204 No Content or 200 OK
+    // If there's a response body, try to parse it, otherwise just return
+    if (response.status !== 204) {
+        try {
+            await response.json();
+        } catch {
+            // No body, that's fine
+        }
+    }
+}
+

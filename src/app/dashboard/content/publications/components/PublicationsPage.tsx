@@ -7,7 +7,7 @@ import type { LatePost } from "@/services/late/posts";
 import { startOfMonth, endOfMonth, format } from "date-fns";
 
 export function PublicationsPage() {
-    const { getPosts, updatePost: updatePostHook, schedulePost: schedulePostHook, loading, error } = useLate();
+    const { getPosts, updatePost: updatePostHook, schedulePost: schedulePostHook, deletePost: deletePostHook, loading, error } = useLate();
     
     // Calculate default calendar date range (current month)
     const defaultCalendarDateFrom = useMemo(() => {
@@ -327,6 +327,58 @@ export function PublicationsPage() {
                 onSchedule={async (postId, scheduleData) => {
                     await schedulePostHook(postId, scheduleData);
                     // Refetch posts after schedule
+                    const params: {
+                        page?: number;
+                        limit?: number;
+                        status?: "draft" | "scheduled" | "published" | "failed";
+                        platform?: string;
+                        dateFrom?: string;
+                        dateTo?: string;
+                        includeHidden?: boolean;
+                    } = {
+                        page: viewMode === "list" ? currentPage : 1,
+                        limit: viewMode === "list" ? limit : 100,
+                        includeHidden: includeHidden,
+                    };
+                    if (viewMode === "calendar") {
+                        if (calendarDateFrom) {
+                            const fromDate = new Date(calendarDateFrom);
+                            fromDate.setHours(0, 0, 0, 0);
+                            params.dateFrom = fromDate.toISOString();
+                        }
+                        if (calendarDateTo) {
+                            const toDate = new Date(calendarDateTo);
+                            toDate.setHours(23, 59, 59, 999);
+                            params.dateTo = toDate.toISOString();
+                        }
+                    } else {
+                        if (statusFilter !== "all") {
+                            params.status = statusFilter;
+                        }
+                        if (platformFilter) {
+                            params.platform = platformFilter;
+                        }
+                        if (dateFrom) {
+                            const fromDate = new Date(dateFrom);
+                            fromDate.setHours(0, 0, 0, 0);
+                            params.dateFrom = fromDate.toISOString();
+                        }
+                        if (dateTo) {
+                            const toDate = new Date(dateTo);
+                            toDate.setHours(23, 59, 59, 999);
+                            params.dateTo = toDate.toISOString();
+                        }
+                    }
+                    const response = await getPosts(params);
+                    const filteredPosts = viewMode === "calendar"
+                        ? response.posts.filter((post) => post.scheduledFor)
+                        : response.posts;
+                    setPosts(filteredPosts);
+                    setPagination(response.pagination);
+                }}
+                onDelete={async (postId) => {
+                    await deletePostHook(postId);
+                    // Refetch posts after delete
                     const params: {
                         page?: number;
                         limit?: number;

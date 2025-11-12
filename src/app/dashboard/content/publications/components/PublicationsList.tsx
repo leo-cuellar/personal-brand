@@ -35,9 +35,10 @@ interface PostCardProps {
     post: LatePost;
     onUpdate: (postId: string, updates: { title?: string; content?: string }) => Promise<void>;
     onSchedule: (postId: string, scheduleData: { scheduledFor: string; timezone: string }) => Promise<void>;
+    onDelete: (postId: string) => Promise<void>;
 }
 
-function PostCard({ post, onUpdate, onSchedule }: PostCardProps) {
+function PostCard({ post, onUpdate, onSchedule, onDelete }: PostCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(post.title || "");
@@ -47,6 +48,8 @@ function PostCard({ post, onUpdate, onSchedule }: PostCardProps) {
     const [scheduleDate, setScheduleDate] = useState("");
     const [scheduleTime, setScheduleTime] = useState("");
     const [isScheduling, setIsScheduling] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const CONTENT_PREVIEW_LENGTH = 300;
     const shouldTruncate = post.content.length > CONTENT_PREVIEW_LENGTH;
@@ -252,7 +255,49 @@ function PostCard({ post, onUpdate, onSchedule }: PostCardProps) {
                         >
                             {showScheduleForm ? "Cancel Schedule" : "Schedule"}
                         </button>
+                        <button
+                            onClick={() => setShowDeleteConfirm(true)}
+                            disabled={isDeleting}
+                            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            Delete
+                        </button>
                     </div>
+
+                    {/* Delete Confirmation */}
+                    {showDeleteConfirm && (
+                        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                            <p className="mb-3 text-sm font-medium text-red-800">
+                                Are you sure you want to delete this post? This action cannot be undone.
+                            </p>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={async () => {
+                                        setIsDeleting(true);
+                                        try {
+                                            await onDelete(post._id);
+                                            setShowDeleteConfirm(false);
+                                        } catch (error) {
+                                            alert(`Failed to delete post: ${error instanceof Error ? error.message : "Unknown error"}`);
+                                        } finally {
+                                            setIsDeleting(false);
+                                        }
+                                    }}
+                                    disabled={isDeleting}
+                                    className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {isDeleting ? "Deleting..." : "Confirm Delete"}
+                                </button>
+                                <button
+                                    onClick={() => setShowDeleteConfirm(false)}
+                                    disabled={isDeleting}
+                                    className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Schedule Form */}
                     {showScheduleForm && (
@@ -335,6 +380,7 @@ interface PublicationsListProps {
     onPageChange: (page: number) => void;
     onUpdate: (postId: string, updates: { title?: string; content?: string }) => Promise<void>;
     onSchedule: (postId: string, scheduleData: { scheduledFor: string; timezone: string }) => Promise<void>;
+    onDelete: (postId: string) => Promise<void>;
     loading: boolean;
 }
 
@@ -345,6 +391,7 @@ export function PublicationsList({
     onPageChange,
     onUpdate,
     onSchedule,
+    onDelete,
     loading,
 }: PublicationsListProps) {
     return (
@@ -362,6 +409,7 @@ export function PublicationsList({
                             post={post}
                             onUpdate={onUpdate}
                             onSchedule={onSchedule}
+                            onDelete={onDelete}
                         />
                     ))
                 )}

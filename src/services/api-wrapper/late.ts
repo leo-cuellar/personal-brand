@@ -121,3 +121,22 @@ export async function schedulePost(
     return data;
 }
 
+/**
+ * Delete a post in Late.dev via our API route
+ */
+export async function deletePost(postId: string): Promise<void> {
+    const url = `/api/late/posts/${postId}`;
+
+    const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete post");
+    }
+}
+

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updatePost, schedulePost, type LateUpdatePostRequest, type LateSchedulePostRequest } from "@/services/late/posts";
+import { updatePost, schedulePost, deletePost, type LateUpdatePostRequest, type LateSchedulePostRequest } from "@/services/late/posts";
 
 export async function PUT(
     request: NextRequest,
@@ -39,6 +39,36 @@ export async function PUT(
                     error instanceof Error
                         ? error.message
                         : "Failed to update post",
+            },
+            { status: 500 }
+        );
+    }
+}
+
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> | { id: string } }
+) {
+    try {
+        const resolvedParams = await Promise.resolve(params);
+        const { id } = resolvedParams;
+
+        if (!id) {
+            return NextResponse.json(
+                { error: "Post ID is required" },
+                { status: 400 }
+            );
+        }
+
+        await deletePost(id);
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        return NextResponse.json(
+            {
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Failed to delete post",
             },
             { status: 500 }
         );

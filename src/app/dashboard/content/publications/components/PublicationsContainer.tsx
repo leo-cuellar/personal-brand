@@ -19,6 +19,7 @@ interface PublicationsContainerProps {
     onPageChange: (page: number) => void;
     onUpdate: (postId: string, updates: { title?: string; content?: string }) => Promise<void>;
     onSchedule: (postId: string, scheduleData: { scheduledFor: string; timezone: string }) => Promise<void>;
+    onDelete: (postId: string) => Promise<void>;
     loading: boolean;
     // Calendar-specific props
     calendarDateFrom: string;
@@ -36,6 +37,7 @@ export function PublicationsContainer({
     onPageChange,
     onUpdate,
     onSchedule,
+    onDelete,
     loading,
     calendarDateFrom,
     calendarDateTo,
@@ -53,8 +55,8 @@ export function PublicationsContainer({
                     <button
                         onClick={() => onViewModeChange("list")}
                         className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${viewMode === "list"
-                                ? "bg-blue-600 text-white"
-                                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                            ? "bg-blue-600 text-white"
+                            : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                             }`}
                     >
                         List
@@ -62,8 +64,8 @@ export function PublicationsContainer({
                     <button
                         onClick={() => onViewModeChange("calendar")}
                         className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${viewMode === "calendar"
-                                ? "bg-blue-600 text-white"
-                                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                            ? "bg-blue-600 text-white"
+                            : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                             }`}
                     >
                         Calendar
@@ -108,6 +110,7 @@ export function PublicationsContainer({
                     onPageChange={onPageChange}
                     onUpdate={onUpdate}
                     onSchedule={onSchedule}
+                    onDelete={onDelete}
                     loading={loading}
                 />
             ) : (
