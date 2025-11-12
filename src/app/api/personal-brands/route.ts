@@ -2,15 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../services/supabase/client";
 import { PersonalBrand, NewPersonalBrand } from "../../../../services/supabase/schemas";
 
-// GET - Get all persons
+// GET - Get all personal brands
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
         const includeArchived = searchParams.get("includeArchived") === "true";
+        const includeNarrative = searchParams.get("includeNarrative") !== "false"; // Default to true for backward compatibility
+
+        // Select fields based on whether narrative is needed
+        const selectFields = includeNarrative
+            ? "*"
+            : "id, name, linkedin_profile, created_at, updated_at, is_archived";
 
         let query = supabaseAdmin
             .from("personal_brands")
-            .select("*")
+            .select(selectFields)
             .order("created_at", { ascending: false });
 
         if (!includeArchived) {
@@ -29,7 +35,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ data });
     } catch {
         return NextResponse.json(
-            { error: "Failed to fetch persons" },
+            { error: "Failed to fetch personal brands" },
             { status: 500 }
         );
     }
