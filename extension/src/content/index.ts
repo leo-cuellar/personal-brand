@@ -151,7 +151,9 @@ function generatePostId(postElement: HTMLElement): string {
 function createAddButton(postElement: HTMLElement, postData: LinkedInPost): HTMLButtonElement {
   const button = document.createElement("button");
   button.className = `social-assistant-button ${BUTTON_CLASS}`;
-  button.textContent = "➕ Agregar como inspiración";
+  button.innerHTML = "<span class='social-assistant-button-icon'>+</span>";
+  button.setAttribute("aria-label", "Agregar como inspiración");
+  button.setAttribute("title", "Agregar como inspiración");
   button.setAttribute("data-post-link", postData.link);
   button.setAttribute("data-post-text", postData.text);
 
@@ -161,7 +163,7 @@ function createAddButton(postElement: HTMLElement, postData: LinkedInPost): HTML
 
     button.disabled = true;
     button.classList.add("loading");
-    button.textContent = "Agregando...";
+    button.innerHTML = "<span class='social-assistant-button-icon'>...</span>";
 
     try {
       // Enviar mensaje al background service worker
@@ -176,7 +178,7 @@ function createAddButton(postElement: HTMLElement, postData: LinkedInPost): HTML
       if (response.success) {
         button.classList.remove("loading");
         button.classList.add("success");
-        button.textContent = "✅ Agregado";
+        button.innerHTML = "<span class='social-assistant-button-icon'>✓</span>";
         setTimeout(() => {
           button.style.display = "none";
         }, 2000);
@@ -187,11 +189,11 @@ function createAddButton(postElement: HTMLElement, postData: LinkedInPost): HTML
       console.error("Error adding inspiration:", error);
       button.classList.remove("loading");
       button.classList.add("error");
-      button.textContent = "❌ Error";
+      button.innerHTML = "<span class='social-assistant-button-icon'>✕</span>";
       button.disabled = false;
       setTimeout(() => {
         button.classList.remove("error");
-        button.textContent = "➕ Agregar como inspiración";
+        button.innerHTML = "<span class='social-assistant-button-icon'>+</span>";
       }, 3000);
     }
   });
@@ -201,22 +203,16 @@ function createAddButton(postElement: HTMLElement, postData: LinkedInPost): HTML
 
 /**
  * Encuentra el contenedor adecuado para insertar el botón
+ * El botón se posiciona en la esquina superior derecha del contenedor principal
  */
 function findButtonContainer(postElement: HTMLElement): HTMLElement | null {
-  // Buscar contenedor de acciones del post
-  const actionContainers = [
-    postElement.querySelector("div.feed-shared-social-action-bar"),
-    postElement.querySelector("div.social-actions-button"),
-    postElement.querySelector("div.feed-shared-update-v2__actions"),
-  ];
-
-  for (const container of actionContainers) {
-    if (container) {
-      return container as HTMLElement;
-    }
+  // Buscar el contenedor principal del post (el div con data-id)
+  const mainContainer = postElement.closest('div[data-id*="urn:li:activity"]');
+  if (mainContainer) {
+    return mainContainer as HTMLElement;
   }
 
-  // Fallback: crear un contenedor al final del post
+  // Fallback: usar el elemento del post directamente
   return postElement;
 }
 
@@ -259,8 +255,19 @@ function processPost(postElement: HTMLElement): void {
   const container = findButtonContainer(postElement);
 
   if (container) {
-    // Insertar botón al inicio del contenedor de acciones
-    container.insertBefore(button, container.firstChild);
+    // Asegurar que el contenedor tenga position: relative para el posicionamiento absoluto
+    const containerStyle = window.getComputedStyle(container);
+    if (containerStyle.position === "static") {
+      container.style.position = "relative";
+    }
+
+    // Asegurar que el contenedor tenga overflow visible para que el botón se vea fuera
+    if (containerStyle.overflow === "hidden" || containerStyle.overflow === "clip") {
+      container.style.overflow = "visible";
+    }
+
+    // Agregar el botón al contenedor (se posicionará absolutamente con CSS, fuera del rectángulo)
+    container.appendChild(button);
     postElement.setAttribute(BUTTON_DATA_ATTR, "true");
     processedPosts.add(postId);
   }
