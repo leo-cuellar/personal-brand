@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PersonSelector } from "./components/PersonSelector";
+import { PersonalBrandSelector } from "./components/PersonalBrandSelector";
 
 export default function DashboardLayout({
     children,
@@ -28,7 +28,7 @@ export default function DashboardLayout({
                                 Social Assistant
                             </h1>
                         </Link>
-                        <PersonSelector />
+                        <PersonalBrandSelector />
                     </div>
                 </div>
                 <nav className="border-t border-gray-200 bg-white">

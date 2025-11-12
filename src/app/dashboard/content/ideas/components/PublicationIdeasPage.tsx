@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
-import { usePersonContext } from "@/contexts/PersonContext";
 import { IdeasReviewFlow } from "./IdeasReviewFlow";
 
 function formatDate(date: Date | string): string {
@@ -17,7 +16,6 @@ function formatDate(date: Date | string): string {
 }
 
 export function PublicationIdeasPage() {
-    const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
     const [statusFilter, setStatusFilter] = useState<"in_review" | "accepted" | "rejected" | "used" | "all">("in_review");
     const [isReviewMode, setIsReviewMode] = useState(false);

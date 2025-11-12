@@ -9,7 +9,7 @@ import {
     GetPublicationIdeasParams,
 } from "../../services/api-wrapper/publication-ideas";
 import { PublicationIdea, NewPublicationIdea } from "../../services/supabase/schemas";
-import { usePersonContext } from "@/contexts/PersonContext";
+import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 
 interface UsePublicationIdeasReturn {
     publicationIdeas: PublicationIdea[];
@@ -22,7 +22,7 @@ interface UsePublicationIdeasReturn {
 }
 
 export function usePublicationIdeas(): UsePublicationIdeasReturn {
-    const { selectedPersonId } = usePersonContext();
+    const { selectedPersonId } = usePersonalBrandContext();
     const [publicationIdeas, setPublicationIdeas] = useState<PublicationIdea[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -31,10 +31,10 @@ export function usePublicationIdeas(): UsePublicationIdeasReturn {
         try {
             setLoading(true);
             setError(null);
-            // Merge personId from context with params
+            // Merge personalBrandId from context with params
             const mergedParams = {
                 ...params,
-                personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+                personalBrandId: params?.personalBrandId !== undefined ? params.personalBrandId : selectedPersonId,
             };
             const data = await getPublicationIdeas(mergedParams);
             setPublicationIdeas(data);
@@ -50,16 +50,16 @@ export function usePublicationIdeas(): UsePublicationIdeasReturn {
         async (data: NewPublicationIdea): Promise<PublicationIdea> => {
             try {
                 setError(null);
-                // Ensure personId is set from context if not provided
-                const personId = data.personId || selectedPersonId;
-                if (!personId) {
-                    throw new Error("Person ID is required. Please select a person first.");
+                // Ensure personalBrandId is set from context if not provided
+                const personalBrandId = data.personalBrandId || selectedPersonId;
+                if (!personalBrandId) {
+                    throw new Error("Personal Brand ID is required. Please select a personal brand first.");
                 }
-                const dataWithPersonId = {
+                const dataWithPersonalBrandId = {
                     ...data,
-                    personId,
+                    personalBrandId,
                 };
-                const newPublicationIdea = await createPublicationIdea(dataWithPersonId);
+                const newPublicationIdea = await createPublicationIdea(dataWithPersonalBrandId);
                 setPublicationIdeas((prev) => [newPublicationIdea, ...prev]);
                 return newPublicationIdea;
             } catch (err) {

@@ -7,15 +7,15 @@ export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
         const includeArchived = searchParams.get("includeArchived") === "true";
-        const personId = searchParams.get("personId");
+        const personalBrandId = searchParams.get("personalBrandId");
 
         let query = supabaseAdmin
             .from("publication_categories")
             .select("*")
             .order("created_at", { ascending: false });
 
-        if (personId) {
-            query = query.eq("person_id", personId);
+        if (personalBrandId) {
+            query = query.eq("personal_brand_id", personalBrandId);
         }
 
         if (!includeArchived) {
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
         const { data, error } = await supabaseAdmin
             .from("publication_categories")
             .insert({
-                person_id: body.personId,
+                personal_brand_id: body.personalBrandId,
                 name: body.name,
                 description: body.description,
                 is_archived: body.isArchived || false,

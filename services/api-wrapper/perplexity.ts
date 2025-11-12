@@ -14,7 +14,7 @@ export interface SearchTrendsParams {
 }
 
 export interface SearchTrendsByCategoryParams {
-    personId: string;
+    personalBrandId: string;
 }
 
 export interface CategoryTrendsResult {
@@ -67,10 +67,10 @@ export async function searchTrends(
 export async function searchTrendsByCategory(
     params: SearchTrendsByCategoryParams
 ): Promise<TrendsByCategoryResponse> {
-    const { personId } = params;
+    const { personalBrandId } = params;
 
-    if (!personId || personId.trim().length === 0) {
-        throw new Error("personId is required");
+    if (!personalBrandId || personalBrandId.trim().length === 0) {
+        throw new Error("personalBrandId is required");
     }
 
     const response = await fetch("/api/perplexity/trends", {
@@ -79,7 +79,7 @@ export async function searchTrendsByCategory(
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            personId,
+            personalBrandId,
         }),
     });
 

@@ -9,7 +9,7 @@ import {
     GetPublicationStructuresParams,
 } from "../../services/api-wrapper/publication-structures";
 import { PublicationStructure, NewPublicationStructure } from "../../services/supabase/schemas";
-import { usePersonContext } from "@/contexts/PersonContext";
+import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 
 interface UsePublicationStructuresReturn {
     publicationStructures: PublicationStructure[];
@@ -22,7 +22,7 @@ interface UsePublicationStructuresReturn {
 }
 
 export function usePublicationStructures(): UsePublicationStructuresReturn {
-    const { selectedPersonId } = usePersonContext();
+    const { selectedPersonId } = usePersonalBrandContext();
     const [publicationStructures, setPublicationStructures] = useState<PublicationStructure[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -31,10 +31,10 @@ export function usePublicationStructures(): UsePublicationStructuresReturn {
         try {
             setLoading(true);
             setError(null);
-            // Merge personId from context with params
+            // Merge personalBrandId from context with params
             const mergedParams = {
                 ...params,
-                personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+                personalBrandId: params?.personalBrandId !== undefined ? params.personalBrandId : selectedPersonId,
             };
             const data = await getPublicationStructures(mergedParams);
             setPublicationStructures(data);
@@ -50,16 +50,16 @@ export function usePublicationStructures(): UsePublicationStructuresReturn {
         async (data: NewPublicationStructure): Promise<PublicationStructure> => {
             try {
                 setError(null);
-                // Ensure personId is set from context if not provided
-                const personId = data.personId || selectedPersonId;
-                if (!personId) {
-                    throw new Error("Person ID is required. Please select a person first.");
+                // Ensure personalBrandId is set from context if not provided
+                const personalBrandId = data.personalBrandId || selectedPersonId;
+                if (!personalBrandId) {
+                    throw new Error("Personal Brand ID is required. Please select a personal brand first.");
                 }
-                const dataWithPersonId = {
+                const dataWithPersonalBrandId = {
                     ...data,
-                    personId,
+                    personalBrandId,
                 };
-                const newStructure = await createPublicationStructure(dataWithPersonId);
+                const newStructure = await createPublicationStructure(dataWithPersonalBrandId);
                 setPublicationStructures((prev) => [newStructure, ...prev]);
                 return newStructure;
             } catch (err) {

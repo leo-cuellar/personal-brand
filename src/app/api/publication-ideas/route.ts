@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
         const includeArchived = searchParams.get("includeArchived") === "true";
-        const personId = searchParams.get("personId");
+        const personalBrandId = searchParams.get("personalBrandId");
         const status = searchParams.get("status"); // Filter by status: in_review, accepted, rejected
 
         let query = supabaseAdmin
@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
             .select("*")
             .order("created_at", { ascending: false });
 
-        if (personId) {
-            query = query.eq("person_id", personId);
+        if (personalBrandId) {
+            query = query.eq("personal_brand_id", personalBrandId);
         }
 
         if (status && ["in_review", "accepted", "rejected", "used"].includes(status)) {
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
         const { data, error } = await supabaseAdmin
             .from("publication_ideas")
             .insert({
-                person_id: body.personId,
+                personal_brand_id: body.personalBrandId,
                 idea: body.idea,
                 description: body.description || null,
                 link: body.link || null,

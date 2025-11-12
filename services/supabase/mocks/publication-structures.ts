@@ -1,11 +1,11 @@
 import { randomUUID } from "crypto";
 import { PublicationStructure } from "../schemas";
-import { MOCK_PERSON_ID } from "./persons";
+import { MOCK_PERSON_ID } from "./personal-brands";
 
 export const mockPublicationStructures: PublicationStructure[] = [
     {
         id: randomUUID(),
-        personId: MOCK_PERSON_ID as unknown as string,
+        personalBrandId: MOCK_PERSON_ID as unknown as string,
         name: "Insight-Driven Structure",
         description: "A structure that starts with an insight and builds through tension, story, takeaway, and dialogue invitation",
         structure: {

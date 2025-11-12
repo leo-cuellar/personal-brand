@@ -9,7 +9,7 @@ import {
     GetInspirationsParams,
 } from "../../services/api-wrapper/inspirations";
 import { Inspiration, NewInspiration } from "../../services/supabase/schemas";
-import { usePersonContext } from "@/contexts/PersonContext";
+import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 
 interface UseInspirationsReturn {
     inspirations: Inspiration[];
@@ -22,7 +22,7 @@ interface UseInspirationsReturn {
 }
 
 export function useInspirations(): UseInspirationsReturn {
-    const { selectedPersonId } = usePersonContext();
+    const { selectedPersonId } = usePersonalBrandContext();
     const [inspirations, setInspirations] = useState<Inspiration[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -31,10 +31,10 @@ export function useInspirations(): UseInspirationsReturn {
         try {
             setLoading(true);
             setError(null);
-            // Merge personId from context with params
+            // Merge personalBrandId from context with params
             const mergedParams = {
                 ...params,
-                personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+                personalBrandId: params?.personalBrandId !== undefined ? params.personalBrandId : selectedPersonId,
             };
             const data = await getInspirations(mergedParams);
             setInspirations(data);
@@ -50,16 +50,16 @@ export function useInspirations(): UseInspirationsReturn {
         async (data: NewInspiration): Promise<Inspiration> => {
             try {
                 setError(null);
-                // Ensure personId is set from context if not provided
-                const personId = data.personId || selectedPersonId;
-                if (!personId) {
-                    throw new Error("Person ID is required. Please select a person first.");
+                // Ensure personalBrandId is set from context if not provided
+                const personalBrandId = data.personalBrandId || selectedPersonId;
+                if (!personalBrandId) {
+                    throw new Error("Personal Brand ID is required. Please select a personal brand first.");
                 }
-                const dataWithPersonId = {
+                const dataWithPersonalBrandId = {
                     ...data,
-                    personId,
+                    personalBrandId,
                 };
-                const newInspiration = await createInspiration(dataWithPersonId);
+                const newInspiration = await createInspiration(dataWithPersonalBrandId);
                 setInspirations((prev) => [newInspiration, ...prev]);
                 return newInspiration;
             } catch (err) {

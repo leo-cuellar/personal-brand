@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePersonContext } from "@/contexts/PersonContext";
-import { usePersons } from "@/hooks/usePersons";
+import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
+import { usePersonalBrands } from "@/hooks/usePersonalBrands";
 
-export function PersonSelector() {
+export function PersonalBrandSelector() {
     const { selectedPersonId, setSelectedPersonId, clearSelection } =
-        usePersonContext();
+        usePersonalBrandContext();
 
-    const { persons, loading, getPersons } = usePersons();
+    const { personalBrands, loading, getPersonalBrands } = usePersonalBrands();
 
     useEffect(() => {
-        getPersons({ includeArchived: false });
+        getPersonalBrands({ includeArchived: false });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -26,7 +26,7 @@ export function PersonSelector() {
 
     if (loading) {
         return (
-            <div className="text-sm text-gray-500">Loading persons...</div>
+            <div className="text-sm text-gray-500">Loading personal brands...</div>
         );
     }
 
@@ -34,15 +34,15 @@ export function PersonSelector() {
         <select
             value={selectedPersonId || ""}
             onChange={handleChange}
-            className="appearance-none rounded-lg border border-gray-300 bg-white bg-[length:16px_16px] bg-[right_12px_center] bg-no-repeat pr-10 pl-4 py-2 text-sm font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="appearance-none rounded-lg border border-gray-300 bg-white bg-size-[16px_16px] bg-position-[right_12px_center] bg-no-repeat pr-10 pl-4 py-2 text-sm font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
             }}
         >
-            <option value="">All Persons</option>
-            {persons.map((person) => (
-                <option key={person.id} value={person.id}>
-                    {person.name}
+            <option value="">All Personal Brands</option>
+            {personalBrands.map((brand) => (
+                <option key={brand.id} value={brand.id}>
+                    {brand.name}
                 </option>
             ))}
         </select>

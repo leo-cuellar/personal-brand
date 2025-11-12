@@ -1,17 +1,17 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import { getPersons } from "../../services/api-wrapper/persons";
+import { getPersonalBrands } from "../../services/api-wrapper/personal-brands";
 
-interface PersonContextType {
+interface PersonalBrandContextType {
     selectedPersonId: string | null;
     setSelectedPersonId: (id: string | null) => void;
     clearSelection: () => void;
 }
 
-const PersonContext = createContext<PersonContextType | undefined>(undefined);
+const PersonalBrandContext = createContext<PersonalBrandContextType | undefined>(undefined);
 
-export function PersonProvider({ children }: { children: React.ReactNode }) {
+export function PersonalBrandProvider({ children }: { children: React.ReactNode }) {
     // Initialize state from localStorage using lazy initializer
     const [selectedPersonId, setSelectedPersonIdState] = useState<string | null>(() => {
         if (typeof window !== "undefined") {
@@ -42,12 +42,12 @@ export function PersonProvider({ children }: { children: React.ReactNode }) {
 
         const selectFirstPerson = async () => {
             try {
-                const persons = await getPersons({ includeArchived: false });
-                if (persons.length > 0) {
-                    setSelectedPersonId(persons[0].id);
+                const personalBrands = await getPersonalBrands({ includeArchived: false });
+                if (personalBrands.length > 0) {
+                    setSelectedPersonId(personalBrands[0].id);
                 }
             } catch (error) {
-                console.error("Failed to fetch persons for auto-selection:", error);
+                console.error("Failed to fetch personal brands for auto-selection:", error);
             } finally {
                 setIsInitialized(true);
             }
@@ -57,7 +57,7 @@ export function PersonProvider({ children }: { children: React.ReactNode }) {
     }, [selectedPersonId, isInitialized, setSelectedPersonId]);
 
     return (
-        <PersonContext.Provider
+        <PersonalBrandContext.Provider
             value={{
                 selectedPersonId,
                 setSelectedPersonId,
@@ -65,15 +65,18 @@ export function PersonProvider({ children }: { children: React.ReactNode }) {
             }}
         >
             {children}
-        </PersonContext.Provider>
+        </PersonalBrandContext.Provider>
     );
 }
 
-export function usePersonContext() {
-    const context = useContext(PersonContext);
+export function usePersonalBrandContext() {
+    const context = useContext(PersonalBrandContext);
     if (context === undefined) {
-        throw new Error("usePersonContext must be used within a PersonProvider");
+        throw new Error("usePersonalBrandContext must be used within a PersonalBrandProvider");
     }
     return context;
 }
+
+// Legacy alias for backward compatibility
+export const usePersonContext = usePersonalBrandContext;
 

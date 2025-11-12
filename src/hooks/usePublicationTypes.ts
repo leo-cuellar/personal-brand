@@ -9,7 +9,7 @@ import {
     GetPublicationTypesParams,
 } from "../../services/api-wrapper/publication-types";
 import { PublicationType, NewPublicationType } from "../../services/supabase/schemas";
-import { usePersonContext } from "@/contexts/PersonContext";
+import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 
 interface UsePublicationTypesReturn {
     publicationTypes: PublicationType[];
@@ -22,7 +22,7 @@ interface UsePublicationTypesReturn {
 }
 
 export function usePublicationTypes(): UsePublicationTypesReturn {
-    const { selectedPersonId } = usePersonContext();
+    const { selectedPersonId } = usePersonalBrandContext();
     const [publicationTypes, setPublicationTypes] = useState<PublicationType[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -31,10 +31,10 @@ export function usePublicationTypes(): UsePublicationTypesReturn {
         try {
             setLoading(true);
             setError(null);
-            // Merge personId from context with params
+            // Merge personalBrandId from context with params
             const mergedParams = {
                 ...params,
-                personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+                personalBrandId: params?.personalBrandId !== undefined ? params.personalBrandId : selectedPersonId,
             };
             const data = await getPublicationTypes(mergedParams);
             setPublicationTypes(data);
@@ -50,16 +50,16 @@ export function usePublicationTypes(): UsePublicationTypesReturn {
         async (data: NewPublicationType): Promise<PublicationType> => {
             try {
                 setError(null);
-                // Ensure personId is set from context if not provided
-                const personId = data.personId || selectedPersonId;
-                if (!personId) {
-                    throw new Error("Person ID is required. Please select a person first.");
+                // Ensure personalBrandId is set from context if not provided
+                const personalBrandId = data.personalBrandId || selectedPersonId;
+                if (!personalBrandId) {
+                    throw new Error("Personal Brand ID is required. Please select a personal brand first.");
                 }
-                const dataWithPersonId = {
+                const dataWithPersonalBrandId = {
                     ...data,
-                    personId,
+                    personalBrandId,
                 };
-                const newPublicationType = await createPublicationType(dataWithPersonId);
+                const newPublicationType = await createPublicationType(dataWithPersonalBrandId);
                 setPublicationTypes((prev) => [newPublicationType, ...prev]);
                 return newPublicationType;
             } catch (err) {

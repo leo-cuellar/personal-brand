@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import {
     getPublicationCategories,
     createPublicationCategory,
@@ -9,7 +9,7 @@ import {
     GetPublicationCategoriesParams,
 } from "../../services/api-wrapper/publication-categories";
 import { PublicationCategory, NewPublicationCategory } from "../../services/supabase/schemas";
-import { usePersonContext } from "@/contexts/PersonContext";
+import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 
 interface UsePublicationCategoriesReturn {
     publicationCategories: PublicationCategory[];
@@ -22,7 +22,7 @@ interface UsePublicationCategoriesReturn {
 }
 
 export function usePublicationCategories(): UsePublicationCategoriesReturn {
-    const { selectedPersonId } = usePersonContext();
+    const { selectedPersonId } = usePersonalBrandContext();
     const [publicationCategories, setPublicationCategories] = useState<PublicationCategory[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -31,10 +31,10 @@ export function usePublicationCategories(): UsePublicationCategoriesReturn {
         try {
             setLoading(true);
             setError(null);
-            // Merge personId from context with params
+            // Merge personalBrandId from context with params
             const mergedParams = {
                 ...params,
-                personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+                personalBrandId: params?.personalBrandId !== undefined ? params.personalBrandId : selectedPersonId,
             };
             const data = await getPublicationCategories(mergedParams);
             setPublicationCategories(data);
@@ -50,16 +50,16 @@ export function usePublicationCategories(): UsePublicationCategoriesReturn {
         async (data: NewPublicationCategory): Promise<PublicationCategory> => {
             try {
                 setError(null);
-                // Ensure personId is set from context if not provided
-                const personId = data.personId || selectedPersonId;
-                if (!personId) {
-                    throw new Error("Person ID is required. Please select a person first.");
+                // Ensure personalBrandId is set from context if not provided
+                const personalBrandId = data.personalBrandId || selectedPersonId;
+                if (!personalBrandId) {
+                    throw new Error("Personal Brand ID is required. Please select a personal brand first.");
                 }
-                const dataWithPersonId = {
+                const dataWithPersonalBrandId = {
                     ...data,
-                    personId,
+                    personalBrandId,
                 };
-                const newPublicationCategory = await createPublicationCategory(dataWithPersonId);
+                const newPublicationCategory = await createPublicationCategory(dataWithPersonalBrandId);
                 setPublicationCategories((prev) => [newPublicationCategory, ...prev]);
                 return newPublicationCategory;
             } catch (err) {

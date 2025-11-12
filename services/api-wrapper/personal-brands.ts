@@ -1,15 +1,15 @@
-import { Person, NewPerson } from "../supabase/schemas";
-import { transformPerson } from "./utils";
+import { PersonalBrand, NewPersonalBrand } from "../supabase/schemas";
+import { transformPersonalBrand } from "./utils";
 
-const API_BASE_URL = "/api/persons";
+const API_BASE_URL = "/api/personal-brands";
 
-export interface GetPersonsParams {
+export interface GetPersonalBrandsParams {
     includeArchived?: boolean;
 }
 
-export async function getPersons(
-    params?: GetPersonsParams
-): Promise<Person[]> {
+export async function getPersonalBrands(
+    params?: GetPersonalBrandsParams
+): Promise<PersonalBrand[]> {
     const queryParams = new URLSearchParams();
     if (params?.includeArchived) {
         queryParams.append("includeArchived", "true");
@@ -26,37 +26,37 @@ export async function getPersons(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to fetch persons");
+        throw new Error(error.error || "Failed to fetch personal brands");
     }
 
     const { data } = await response.json();
-    return Array.isArray(data) ? data.map(transformPerson) : [];
+    return Array.isArray(data) ? data.map(transformPersonalBrand) : [];
 }
 
-export async function createPerson(
-    person: NewPerson
-): Promise<Person> {
+export async function createPersonalBrand(
+    personalBrand: NewPersonalBrand
+): Promise<PersonalBrand> {
     const response = await fetch(API_BASE_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(person),
+        body: JSON.stringify(personalBrand),
     });
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to create person");
+        throw new Error(error.error || "Failed to create personal brand");
     }
 
     const { data } = await response.json();
-    return transformPerson(data);
+    return transformPersonalBrand(data);
 }
 
-export async function updatePerson(
+export async function updatePersonalBrand(
     id: string,
-    updates: Partial<Person>
-): Promise<Person> {
+    updates: Partial<PersonalBrand>
+): Promise<PersonalBrand> {
     const response = await fetch(API_BASE_URL, {
         method: "PUT",
         headers: {
@@ -67,14 +67,14 @@ export async function updatePerson(
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to update person");
+        throw new Error(error.error || "Failed to update personal brand");
     }
 
     const { data } = await response.json();
-    return transformPerson(data);
+    return transformPersonalBrand(data);
 }
 
-export async function deletePerson(id: string): Promise<void> {
+export async function deletePersonalBrand(id: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}?id=${id}`, {
         method: "DELETE",
         headers: {
@@ -84,7 +84,7 @@ export async function deletePerson(id: string): Promise<void> {
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to delete person");
+        throw new Error(error.error || "Failed to delete personal brand");
     }
 }
 

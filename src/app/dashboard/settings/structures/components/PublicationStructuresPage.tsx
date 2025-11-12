@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { usePublicationStructures } from "@/hooks/usePublicationStructures";
 import { PublicationStructure, NewPublicationStructure } from "../../../../../../services/supabase/schemas";
-import { usePersonContext } from "@/contexts/PersonContext";
+import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 
 function formatDate(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
@@ -23,7 +23,7 @@ type StructureField = {
 };
 
 export function PublicationStructuresPage() {
-    const { selectedPersonId } = usePersonContext();
+    const { selectedPersonId } = usePersonalBrandContext();
     const [showArchived, setShowArchived] = useState(false);
     const { publicationStructures, loading, error, getPublicationStructures, create, update, remove } =
         usePublicationStructures();

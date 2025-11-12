@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { usePersons } from "@/hooks/usePersons";
-import { Person, NewPerson } from "../../../../../../services/supabase/schemas";
+import { usePersonalBrands } from "@/hooks/usePersonalBrands";
+import { PersonalBrand, NewPersonalBrand, BrandNarrative } from "../../../../../../services/supabase/schemas";
 
 // Field descriptions matching the schema comments
 const FIELD_DESCRIPTIONS = {
@@ -31,10 +31,10 @@ function formatDate(date: Date | string): string {
     return `${year}-${month}-${day}`;
 }
 
-export function PersonsPage() {
+export function PersonalBrandsPage() {
     const [showArchived, setShowArchived] = useState(false);
-    const { persons, loading, error, getPersons, create, update, remove } =
-        usePersons();
+    const { personalBrands, loading, error, getPersonalBrands, create, update, remove } =
+        usePersonalBrands();
 
     const params = useMemo(
         () => ({ includeArchived: showArchived }),
@@ -42,14 +42,14 @@ export function PersonsPage() {
     );
 
     useEffect(() => {
-        getPersons(params);
+        getPersonalBrands(params);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params]);
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
 
     const handleDelete = async (id: string) => {
-        if (confirm("Are you sure you want to permanently delete this person? This action cannot be undone.")) {
+        if (confirm("Are you sure you want to permanently delete this personal brand? This action cannot be undone.")) {
             try {
                 await remove(id);
             } catch (err) {
@@ -63,7 +63,7 @@ export function PersonsPage() {
             <div className="flex min-h-screen items-center justify-center">
                 <div className="text-center">
                     <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-                    <p className="text-lg text-gray-600">Loading persons...</p>
+                    <p className="text-lg text-gray-600">Loading personal brands...</p>
                 </div>
             </div>
         );
@@ -73,10 +73,10 @@ export function PersonsPage() {
         <div className="container mx-auto max-w-6xl p-8">
             <div className="mb-8">
                 <h1 className="mb-2 text-4xl font-bold text-gray-900">
-                    Persons
+                    Personal Brands
                 </h1>
                 <p className="text-gray-600">
-                    Manage persons (personal brands) for content generation
+                    Manage personal brands for content generation
                 </p>
             </div>
 
@@ -98,21 +98,21 @@ export function PersonsPage() {
                         <span className="text-sm text-gray-700">Show archived</span>
                     </label>
                     <span className="text-sm text-gray-500">
-                        {persons.length} person{persons.length !== 1 ? "s" : ""}
+                        {personalBrands.length} personal brand{personalBrands.length !== 1 ? "s" : ""}
                     </span>
                 </div>
                 <button
                     onClick={() => setIsCreating(!isCreating)}
                     className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
-                    {isCreating ? "Cancel" : "+ Add New Person"}
+                    {isCreating ? "Cancel" : "+ Add New Personal Brand"}
                 </button>
             </div>
 
             {isCreating && (
                 <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                     <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                        Create New Person
+                        Create New Personal Brand
                     </h2>
                     <CreateForm
                         onSave={async (data) => {
@@ -125,28 +125,28 @@ export function PersonsPage() {
             )}
 
             <div className="space-y-6">
-                {persons.length === 0 ? (
+                {personalBrands.length === 0 ? (
                     <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
                         <p className="text-gray-500">
                             {showArchived
-                                ? "No persons found."
-                                : "No active persons. Create one to get started!"}
+                                ? "No personal brands found."
+                                : "No active personal brands. Create one to get started!"}
                         </p>
                     </div>
                 ) : (
-                    persons.map((person) => (
+                    personalBrands.map((brand) => (
                         <div
-                            key={person.id}
-                            className={`rounded-lg border p-6 shadow-sm transition-shadow hover:shadow-md ${person.isArchived
+                            key={brand.id}
+                            className={`rounded-lg border p-6 shadow-sm transition-shadow hover:shadow-md ${brand.isArchived
                                 ? "border-gray-300 bg-gray-50"
                                 : "border-gray-200 bg-white"
                                 }`}
                         >
-                            {editingId === person.id ? (
+                            {editingId === brand.id ? (
                                 <EditForm
-                                    person={person}
+                                    person={brand}
                                     onSave={async (updates) => {
-                                        await update(person.id, updates);
+                                        await update(brand.id, updates);
                                         setEditingId(null);
                                     }}
                                     onCancel={() => setEditingId(null)}
@@ -157,44 +157,44 @@ export function PersonsPage() {
                                         <div className="flex-1">
                                             <div className="mb-2 flex items-center gap-3">
                                                 <h2 className="text-2xl font-bold text-gray-900">
-                                                    {person.name}
+                                                    {brand.name}
                                                 </h2>
-                                                {person.isArchived && (
+                                                {brand.isArchived && (
                                                     <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700">
                                                         Archived
                                                     </span>
                                                 )}
                                             </div>
-                                            {person.linkedinProfile && (
+                                            {brand.linkedinProfile && (
                                                 <a
-                                                    href={person.linkedinProfile}
+                                                    href={brand.linkedinProfile}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
                                                 >
-                                                    {person.linkedinProfile}
+                                                    {brand.linkedinProfile}
                                                 </a>
                                             )}
                                         </div>
                                         <div className="ml-4 flex gap-2">
                                             <button
-                                                onClick={() => setEditingId(person.id)}
+                                                onClick={() => setEditingId(brand.id)}
                                                 className="rounded-lg bg-yellow-50 px-4 py-2 text-sm font-medium text-yellow-700 transition-colors hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
                                             >
                                                 Edit
                                             </button>
                                             <button
                                                 onClick={() =>
-                                                    update(person.id, {
-                                                        isArchived: !person.isArchived,
+                                                    update(brand.id, {
+                                                        isArchived: !brand.isArchived,
                                                     })
                                                 }
                                                 className="rounded-lg bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                                             >
-                                                {person.isArchived ? "Unarchive" : "Archive"}
+                                                {brand.isArchived ? "Unarchive" : "Archive"}
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(person.id)}
+                                                onClick={() => handleDelete(brand.id)}
                                                 className="rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                                             >
                                                 Delete
@@ -203,7 +203,7 @@ export function PersonsPage() {
                                     </div>
                                     <div className="space-y-4">
                                         {Object.entries(FIELD_DESCRIPTIONS).map(([key, description]) => {
-                                            const value = person[key as keyof Person] as string;
+                                            const value = brand.brandNarrative[key as keyof BrandNarrative] as string;
                                             return (
                                                 <div key={key} className="border-b border-gray-100 pb-4 last:border-b-0">
                                                     <div className="mb-1 text-sm font-semibold text-gray-900">
@@ -223,8 +223,8 @@ export function PersonsPage() {
                                         })}
                                     </div>
                                     <div className="mt-4 text-xs text-gray-500">
-                                        Created: {formatDate(person.createdAt)} •
-                                        Updated: {formatDate(person.updatedAt)}
+                                        Created: {formatDate(brand.createdAt)} •
+                                        Updated: {formatDate(brand.updatedAt)}
                                     </div>
                                 </>
                             )}
@@ -240,30 +240,39 @@ function CreateForm({
     onSave,
     onCancel,
 }: {
-    onSave: (data: NewPerson) => Promise<void>;
+    onSave: (data: NewPersonalBrand) => Promise<void>;
     onCancel: () => void;
 }) {
-    const [formData, setFormData] = useState<NewPerson>({
+    const [formData, setFormData] = useState<{
+        name: string;
+        linkedinProfile: string | null;
+        brandNarrative: BrandNarrative;
+    }>({
         name: "",
         linkedinProfile: null,
-        immediateCredibility: "",
-        professionalProblemOrChallenge: "",
-        internalStruggles: "",
-        externalContext: "",
-        keyMicrotransitions: "",
-        insightOrSpark: "",
-        process: "",
-        resultOrTransformation: "",
-        sharedBeliefs: "",
-        currentVisionOrPersonalMission: "",
-        socialProofOrValidation: "",
-        callToAction: "",
-        isArchived: false,
+        brandNarrative: {
+            immediateCredibility: "",
+            professionalProblemOrChallenge: "",
+            internalStruggles: "",
+            externalContext: "",
+            keyMicrotransitions: "",
+            insightOrSpark: "",
+            process: "",
+            resultOrTransformation: "",
+            sharedBeliefs: "",
+            currentVisionOrPersonalMission: "",
+            socialProofOrValidation: "",
+            callToAction: "",
+        },
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await onSave(formData);
+        await onSave({
+            name: formData.name,
+            linkedinProfile: formData.linkedinProfile,
+            brandNarrative: formData.brandNarrative,
+        });
     };
 
     return (
@@ -310,9 +319,15 @@ function CreateForm({
                         {description}
                     </div>
                     <textarea
-                        value={formData[key as keyof NewPerson] as string}
+                        value={formData.brandNarrative[key as keyof BrandNarrative] as string}
                         onChange={(e) =>
-                            setFormData({ ...formData, [key]: e.target.value })
+                            setFormData({
+                                ...formData,
+                                brandNarrative: {
+                                    ...formData.brandNarrative,
+                                    [key]: e.target.value,
+                                },
+                            })
                         }
                         className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         rows={4}
@@ -340,34 +355,31 @@ function CreateForm({
 }
 
 function EditForm({
-    person,
+    person: personalBrand,
     onSave,
     onCancel,
 }: {
-    person: Person;
-    onSave: (updates: Partial<Person>) => Promise<void>;
+    person: PersonalBrand;
+    onSave: (updates: Partial<PersonalBrand>) => Promise<void>;
     onCancel: () => void;
 }) {
-    const [formData, setFormData] = useState<Partial<Person>>({
-        name: person.name,
-        linkedinProfile: person.linkedinProfile,
-        immediateCredibility: person.immediateCredibility,
-        professionalProblemOrChallenge: person.professionalProblemOrChallenge,
-        internalStruggles: person.internalStruggles,
-        externalContext: person.externalContext,
-        keyMicrotransitions: person.keyMicrotransitions,
-        insightOrSpark: person.insightOrSpark,
-        process: person.process,
-        resultOrTransformation: person.resultOrTransformation,
-        sharedBeliefs: person.sharedBeliefs,
-        currentVisionOrPersonalMission: person.currentVisionOrPersonalMission,
-        socialProofOrValidation: person.socialProofOrValidation,
-        callToAction: person.callToAction,
+    const [formData, setFormData] = useState<{
+        name: string;
+        linkedinProfile: string | null;
+        brandNarrative: BrandNarrative;
+    }>({
+        name: personalBrand.name,
+        linkedinProfile: personalBrand.linkedinProfile,
+        brandNarrative: personalBrand.brandNarrative,
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await onSave(formData);
+        await onSave({
+            name: formData.name,
+            linkedinProfile: formData.linkedinProfile,
+            brandNarrative: formData.brandNarrative,
+        });
     };
 
     return (
@@ -413,9 +425,15 @@ function EditForm({
                         {description}
                     </div>
                     <textarea
-                        value={(formData[key as keyof Person] as string) || ""}
+                        value={formData.brandNarrative[key as keyof BrandNarrative] as string}
                         onChange={(e) =>
-                            setFormData({ ...formData, [key]: e.target.value })
+                            setFormData({
+                                ...formData,
+                                brandNarrative: {
+                                    ...formData.brandNarrative,
+                                    [key]: e.target.value,
+                                },
+                            })
                         }
                         className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         rows={4}

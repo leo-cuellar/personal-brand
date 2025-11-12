@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../services/supabase/client";
-import { Person, NewPerson } from "../../../../services/supabase/schemas";
+import { PersonalBrand, NewPersonalBrand } from "../../../../services/supabase/schemas";
 
 // GET - Get all persons
 export async function GET(request: NextRequest) {
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
         const includeArchived = searchParams.get("includeArchived") === "true";
 
         let query = supabaseAdmin
-            .from("persons")
+            .from("personal_brands")
             .select("*")
             .order("created_at", { ascending: false });
 
@@ -35,28 +35,25 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// POST - Create a new person
+// POST - Create a new personal brand
 export async function POST(request: NextRequest) {
     try {
-        const body: NewPerson = await request.json();
+        const body: NewPersonalBrand = await request.json();
+
+        // Build brand_narrative object
+        if (!body.brandNarrative) {
+            return NextResponse.json(
+                { error: "brandNarrative is required" },
+                { status: 400 }
+            );
+        }
 
         const { data, error } = await supabaseAdmin
-            .from("persons")
+            .from("personal_brands")
             .insert({
                 name: body.name,
                 linkedin_profile: body.linkedinProfile || null,
-                immediate_credibility: body.immediateCredibility,
-                professional_problem_or_challenge: body.professionalProblemOrChallenge,
-                internal_struggles: body.internalStruggles,
-                external_context: body.externalContext,
-                key_microtransitions: body.keyMicrotransitions,
-                insight_or_spark: body.insightOrSpark,
-                process: body.process,
-                result_or_transformation: body.resultOrTransformation,
-                shared_beliefs: body.sharedBeliefs,
-                current_vision_or_personal_mission: body.currentVisionOrPersonalMission,
-                social_proof_or_validation: body.socialProofOrValidation,
-                call_to_action: body.callToAction,
+                brand_narrative: body.brandNarrative,
                 is_archived: body.isArchived || false,
             })
             .select()
@@ -78,10 +75,10 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// PUT - Update a person
+// PUT - Update a personal brand
 export async function PUT(request: NextRequest) {
     try {
-        const body: Partial<Person> & { id: string } =
+        const body: Partial<PersonalBrand> & { id: string } =
             await request.json();
 
         if (!body.id) {
@@ -94,18 +91,7 @@ export async function PUT(request: NextRequest) {
         const updateData: {
             name?: string;
             linkedin_profile?: string | null;
-            immediate_credibility?: string;
-            professional_problem_or_challenge?: string;
-            internal_struggles?: string;
-            external_context?: string;
-            key_microtransitions?: string;
-            insight_or_spark?: string;
-            process?: string;
-            result_or_transformation?: string;
-            shared_beliefs?: string;
-            current_vision_or_personal_mission?: string;
-            social_proof_or_validation?: string;
-            call_to_action?: string;
+            brand_narrative?: unknown;
             is_archived?: boolean;
             updated_at: string;
         } = {
@@ -115,34 +101,13 @@ export async function PUT(request: NextRequest) {
         if (body.name !== undefined) updateData.name = body.name;
         if (body.linkedinProfile !== undefined)
             updateData.linkedin_profile = body.linkedinProfile || null;
-        if (body.immediateCredibility !== undefined)
-            updateData.immediate_credibility = body.immediateCredibility;
-        if (body.professionalProblemOrChallenge !== undefined)
-            updateData.professional_problem_or_challenge = body.professionalProblemOrChallenge;
-        if (body.internalStruggles !== undefined)
-            updateData.internal_struggles = body.internalStruggles;
-        if (body.externalContext !== undefined)
-            updateData.external_context = body.externalContext;
-        if (body.keyMicrotransitions !== undefined)
-            updateData.key_microtransitions = body.keyMicrotransitions;
-        if (body.insightOrSpark !== undefined)
-            updateData.insight_or_spark = body.insightOrSpark;
-        if (body.process !== undefined) updateData.process = body.process;
-        if (body.resultOrTransformation !== undefined)
-            updateData.result_or_transformation = body.resultOrTransformation;
-        if (body.sharedBeliefs !== undefined)
-            updateData.shared_beliefs = body.sharedBeliefs;
-        if (body.currentVisionOrPersonalMission !== undefined)
-            updateData.current_vision_or_personal_mission = body.currentVisionOrPersonalMission;
-        if (body.socialProofOrValidation !== undefined)
-            updateData.social_proof_or_validation = body.socialProofOrValidation;
-        if (body.callToAction !== undefined)
-            updateData.call_to_action = body.callToAction;
+        if (body.brandNarrative !== undefined)
+            updateData.brand_narrative = body.brandNarrative;
         if (body.isArchived !== undefined)
             updateData.is_archived = body.isArchived;
 
         const { data, error } = await supabaseAdmin
-            .from("persons")
+            .from("personal_brands")
             .update(updateData)
             .eq("id", body.id)
             .select()
@@ -164,7 +129,7 @@ export async function PUT(request: NextRequest) {
     }
 }
 
-// DELETE - Delete a person (permanent delete)
+// DELETE - Delete a personal brand (permanent delete)
 export async function DELETE(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
@@ -178,7 +143,7 @@ export async function DELETE(request: NextRequest) {
         }
 
         const { error } = await supabaseAdmin
-            .from("persons")
+            .from("personal_brands")
             .delete()
             .eq("id", id);
 

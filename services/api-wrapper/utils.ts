@@ -3,7 +3,7 @@ import {
     PublicationCategory,
     StrongOpinion,
     PublicationIdea,
-    Person,
+    PersonalBrand,
     Inspiration,
     PublicationStructure,
 } from "../supabase/schemas";
@@ -11,7 +11,7 @@ import {
 // Supabase response types (snake_case)
 interface SupabasePublicationType {
     id: string;
-    person_id: string;
+    personal_brand_id: string;
     name: string;
     description: string;
     created_at: string;
@@ -21,7 +21,7 @@ interface SupabasePublicationType {
 
 interface SupabasePublicationCategory {
     id: string;
-    person_id: string;
+    personal_brand_id: string;
     name: string;
     description: string;
     created_at: string;
@@ -32,7 +32,7 @@ interface SupabasePublicationCategory {
 
 interface SupabaseStrongOpinion {
     id: string;
-    person_id: string;
+    personal_brand_id: string;
     opinion: string;
     created_at: string;
     updated_at: string;
@@ -41,7 +41,7 @@ interface SupabaseStrongOpinion {
 
 interface SupabasePublicationIdea {
     id: string;
-    person_id: string;
+    personal_brand_id: string;
     idea: string;
     description: string | null;
     link: string | null;
@@ -55,18 +55,20 @@ interface SupabasePerson {
     id: string;
     name: string;
     linkedin_profile: string | null;
-    immediate_credibility: string;
-    professional_problem_or_challenge: string;
-    internal_struggles: string;
-    external_context: string;
-    key_microtransitions: string;
-    insight_or_spark: string;
-    process: string;
-    result_or_transformation: string;
-    shared_beliefs: string;
-    current_vision_or_personal_mission: string;
-    social_proof_or_validation: string;
-    call_to_action: string;
+    brand_narrative: {
+        immediateCredibility: string;
+        professionalProblemOrChallenge: string;
+        internalStruggles: string;
+        externalContext: string;
+        keyMicrotransitions: string;
+        insightOrSpark: string;
+        process: string;
+        resultOrTransformation: string;
+        sharedBeliefs: string;
+        currentVisionOrPersonalMission: string;
+        socialProofOrValidation: string;
+        callToAction: string;
+    } | null;
     created_at: string;
     updated_at: string;
     is_archived: boolean;
@@ -78,7 +80,7 @@ export function transformPublicationType(
 ): PublicationType {
     return {
         id: data.id,
-        personId: data.person_id,
+        personalBrandId: data.personal_brand_id,
         name: data.name,
         description: data.description,
         createdAt: new Date(data.created_at) as unknown as Date,
@@ -92,7 +94,7 @@ export function transformPublicationCategory(
 ): PublicationCategory {
     return {
         id: data.id,
-        personId: data.person_id,
+        personalBrandId: data.personal_brand_id,
         name: data.name,
         description: data.description,
         createdAt: new Date(data.created_at) as unknown as Date,
@@ -107,7 +109,7 @@ export function transformStrongOpinion(
 ): StrongOpinion {
     return {
         id: data.id,
-        personId: data.person_id,
+        personalBrandId: data.personal_brand_id,
         opinion: data.opinion,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
@@ -120,7 +122,7 @@ export function transformPublicationIdea(
 ): PublicationIdea {
     return {
         id: data.id,
-        personId: data.person_id,
+        personalBrandId: data.personal_brand_id,
         idea: data.idea,
         description: data.description,
         link: data.link || null,
@@ -131,25 +133,30 @@ export function transformPublicationIdea(
     };
 }
 
-export function transformPerson(
+export function transformPersonalBrand(
     data: SupabasePerson
-): Person {
+): PersonalBrand {
+    // Extract brand narrative fields
+    const brandNarrative = data.brand_narrative || {
+        immediateCredibility: "",
+        professionalProblemOrChallenge: "",
+        internalStruggles: "",
+        externalContext: "",
+        keyMicrotransitions: "",
+        insightOrSpark: "",
+        process: "",
+        resultOrTransformation: "",
+        sharedBeliefs: "",
+        currentVisionOrPersonalMission: "",
+        socialProofOrValidation: "",
+        callToAction: "",
+    };
+
     return {
         id: data.id,
         name: data.name,
         linkedinProfile: data.linkedin_profile,
-        immediateCredibility: data.immediate_credibility,
-        professionalProblemOrChallenge: data.professional_problem_or_challenge,
-        internalStruggles: data.internal_struggles,
-        externalContext: data.external_context,
-        keyMicrotransitions: data.key_microtransitions,
-        insightOrSpark: data.insight_or_spark,
-        process: data.process,
-        resultOrTransformation: data.result_or_transformation,
-        sharedBeliefs: data.shared_beliefs,
-        currentVisionOrPersonalMission: data.current_vision_or_personal_mission,
-        socialProofOrValidation: data.social_proof_or_validation,
-        callToAction: data.call_to_action,
+        brandNarrative: brandNarrative,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,
@@ -158,7 +165,7 @@ export function transformPerson(
 
 interface SupabaseInspiration {
     id: string;
-    person_id: string;
+    personal_brand_id: string;
     text: string;
     link: string | null;
     source: string;
@@ -173,7 +180,7 @@ export function transformInspiration(
 ): Inspiration {
     return {
         id: data.id,
-        personId: data.person_id,
+        personalBrandId: data.personal_brand_id,
         text: data.text,
         link: data.link || null,
         source: data.source as "manual" | "trend_scanner" | "linkedin",
@@ -186,7 +193,7 @@ export function transformInspiration(
 
 interface SupabasePublicationStructure {
     id: string;
-    person_id: string;
+    personal_brand_id: string;
     name: string;
     description: string | null;
     structure: unknown;
@@ -210,7 +217,7 @@ export function transformPublicationStructure(
 
     return {
         id: data.id,
-        personId: data.person_id,
+        personalBrandId: data.personal_brand_id,
         name: data.name,
         description: data.description,
         structure: parsedStructure,

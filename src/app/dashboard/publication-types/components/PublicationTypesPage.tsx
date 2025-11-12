@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { usePublicationTypes } from "@/hooks/usePublicationTypes";
 import { PublicationType, NewPublicationType } from "../../../../../services/supabase/schemas";
-import { usePersonContext } from "@/contexts/PersonContext";
+import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 
 // Helper function to format dates consistently (avoiding hydration mismatch)
 function formatDate(date: Date | string): string {
@@ -19,7 +19,7 @@ function formatDate(date: Date | string): string {
 }
 
 export function PublicationTypesPage() {
-    const { selectedPersonId } = usePersonContext();
+    const { selectedPersonId } = usePersonalBrandContext();
     const [showArchived, setShowArchived] = useState(false);
     const { publicationTypes, loading, error, getPublicationTypes, create, update, remove } =
         usePublicationTypes();

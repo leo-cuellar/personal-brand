@@ -9,7 +9,7 @@ import {
     GetStrongOpinionsParams,
 } from "../../services/api-wrapper/strong-opinions";
 import { StrongOpinion, NewStrongOpinion } from "../../services/supabase/schemas";
-import { usePersonContext } from "@/contexts/PersonContext";
+import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 
 interface UseStrongOpinionsReturn {
     strongOpinions: StrongOpinion[];
@@ -22,7 +22,7 @@ interface UseStrongOpinionsReturn {
 }
 
 export function useStrongOpinions(): UseStrongOpinionsReturn {
-    const { selectedPersonId } = usePersonContext();
+    const { selectedPersonId } = usePersonalBrandContext();
     const [strongOpinions, setStrongOpinions] = useState<StrongOpinion[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -31,10 +31,10 @@ export function useStrongOpinions(): UseStrongOpinionsReturn {
         try {
             setLoading(true);
             setError(null);
-            // Merge personId from context with params
+            // Merge personalBrandId from context with params
             const mergedParams = {
                 ...params,
-                personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+                personalBrandId: params?.personalBrandId !== undefined ? params.personalBrandId : selectedPersonId,
             };
             const data = await getStrongOpinions(mergedParams);
             setStrongOpinions(data);
@@ -50,16 +50,16 @@ export function useStrongOpinions(): UseStrongOpinionsReturn {
         async (data: NewStrongOpinion): Promise<StrongOpinion> => {
             try {
                 setError(null);
-                // Ensure personId is set from context if not provided
-                const personId = data.personId || selectedPersonId;
-                if (!personId) {
-                    throw new Error("Person ID is required. Please select a person first.");
+                // Ensure personalBrandId is set from context if not provided
+                const personalBrandId = data.personalBrandId || selectedPersonId;
+                if (!personalBrandId) {
+                    throw new Error("Personal Brand ID is required. Please select a personal brand first.");
                 }
-                const dataWithPersonId = {
+                const dataWithPersonalBrandId = {
                     ...data,
-                    personId,
+                    personalBrandId,
                 };
-                const newStrongOpinion = await createStrongOpinion(dataWithPersonId);
+                const newStrongOpinion = await createStrongOpinion(dataWithPersonalBrandId);
                 setStrongOpinions((prev) => [newStrongOpinion, ...prev]);
                 return newStrongOpinion;
             } catch (err) {

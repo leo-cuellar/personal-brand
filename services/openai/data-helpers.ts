@@ -1,11 +1,11 @@
 import { supabaseAdmin } from "../supabase/client";
-import { Person, StrongOpinion } from "../supabase/schemas";
+import { PersonalBrand, StrongOpinion } from "../supabase/schemas";
 
-export async function getPersonData(personId: string): Promise<Person | null> {
+export async function getPersonalBrandData(personalBrandId: string): Promise<PersonalBrand | null> {
     const { data, error } = await supabaseAdmin
-        .from("persons")
+        .from("personal_brands")
         .select("*")
-        .eq("id", personId)
+        .eq("id", personalBrandId)
         .eq("is_archived", false)
         .single();
 
@@ -13,34 +13,39 @@ export async function getPersonData(personId: string): Promise<Person | null> {
         return null;
     }
 
+    // Extract brand narrative fields
+    const brandNarrative = (data.brand_narrative || {
+        immediateCredibility: "",
+        professionalProblemOrChallenge: "",
+        internalStruggles: "",
+        externalContext: "",
+        keyMicrotransitions: "",
+        insightOrSpark: "",
+        process: "",
+        resultOrTransformation: "",
+        sharedBeliefs: "",
+        currentVisionOrPersonalMission: "",
+        socialProofOrValidation: "",
+        callToAction: "",
+    }) as PersonalBrand["brandNarrative"];
+
     // Transform snake_case to camelCase
     return {
         id: data.id,
         name: data.name,
         linkedinProfile: data.linkedin_profile,
-        immediateCredibility: data.immediate_credibility,
-        professionalProblemOrChallenge: data.professional_problem_or_challenge,
-        internalStruggles: data.internal_struggles,
-        externalContext: data.external_context,
-        keyMicrotransitions: data.key_microtransitions,
-        insightOrSpark: data.insight_or_spark,
-        process: data.process,
-        resultOrTransformation: data.result_or_transformation,
-        sharedBeliefs: data.shared_beliefs,
-        currentVisionOrPersonalMission: data.current_vision_or_personal_mission,
-        socialProofOrValidation: data.social_proof_or_validation,
-        callToAction: data.call_to_action,
+        brandNarrative: brandNarrative,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,
     };
 }
 
-export async function getStrongOpinions(personId: string): Promise<StrongOpinion[]> {
+export async function getStrongOpinions(personalBrandId: string): Promise<StrongOpinion[]> {
     const { data, error } = await supabaseAdmin
         .from("strong_opinions")
         .select("*")
-        .eq("person_id", personId)
+        .eq("personal_brand_id", personalBrandId)
         .eq("is_archived", false)
         .order("created_at", { ascending: false });
 
@@ -51,7 +56,7 @@ export async function getStrongOpinions(personId: string): Promise<StrongOpinion
     // Transform snake_case to camelCase
     return data.map((item) => ({
         id: item.id,
-        personId: item.person_id,
+        personalBrandId: item.personal_brand_id,
         opinion: item.opinion,
         createdAt: new Date(item.created_at) as unknown as Date,
         updatedAt: new Date(item.updated_at) as unknown as Date,

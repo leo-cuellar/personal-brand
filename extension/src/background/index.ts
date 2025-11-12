@@ -25,7 +25,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 async function handleAddInspiration(data: {
   text: string;
-  personId?: string;
+  personalBrandId?: string;
   metadata?: {
     author_profile_name?: string;
     author_profile_url?: string;
@@ -45,7 +45,7 @@ async function handleAddInspiration(data: {
     body: JSON.stringify({
       text: data.text,
       link: null,
-      personId: data.personId || "00000000-0000-0000-0000-000000000001",
+      personalBrandId: data.personalBrandId || "00000000-0000-0000-0000-000000000001",
       source: "linkedin",
       metadata: data.metadata || null,
     }),

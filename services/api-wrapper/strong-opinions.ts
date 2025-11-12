@@ -5,7 +5,7 @@ const API_BASE_URL = "/api/strong-opinions";
 
 export interface GetStrongOpinionsParams {
     includeArchived?: boolean;
-    personId?: string | null;
+    personalBrandId?: string | null;
 }
 
 export async function getStrongOpinions(
@@ -15,8 +15,8 @@ export async function getStrongOpinions(
     if (params?.includeArchived) {
         queryParams.append("includeArchived", "true");
     }
-    if (params?.personId) {
-        queryParams.append("personId", params.personId);
+    if (params?.personalBrandId) {
+        queryParams.append("personalBrandId", params.personalBrandId);
     }
 
     const url = `${API_BASE_URL}${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;

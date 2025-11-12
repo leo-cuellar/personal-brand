@@ -1,11 +1,11 @@
 import { randomUUID } from "crypto";
 import { PublicationCategory } from "../schemas";
-import { MOCK_PERSON_ID } from "./persons";
+import { MOCK_PERSON_ID } from "./personal-brands";
 
 export const mockPublicationCategories: PublicationCategory[] = [
     {
         id: randomUUID(),
-        personId: MOCK_PERSON_ID as unknown as string,
+        personalBrandId: MOCK_PERSON_ID as unknown as string,
         name: "Tecnología, automatización e inteligencia aplicada",
         description: "Noticias sobre lanzamientos de software empresarial, herramientas de automatización, plataformas de desarrollo, frameworks y tecnologías que están siendo adoptadas por empresas. Incluye anuncios de productos, actualizaciones de plataformas, nuevas integraciones tecnológicas, casos de implementación exitosa, y desarrollos en ingeniería de software aplicada a contextos empresariales. Busca noticias concretas sobre soluciones tecnológicas que empresas están implementando para operar, escalar y tomar decisiones.",
         createdAt: new Date(),
@@ -15,7 +15,7 @@ export const mockPublicationCategories: PublicationCategory[] = [
     },
     {
         id: randomUUID(),
-        personId: MOCK_PERSON_ID as unknown as string,
+        personalBrandId: MOCK_PERSON_ID as unknown as string,
         name: "Talento, carrera y mentalidad tech",
         description: "Noticias sobre mercado laboral para desarrolladores, ofertas de trabajo remotas, cambios en salarios de tech, programas de capacitación técnica, bootcamps, certificaciones nuevas, oportunidades de trabajo internacional para developers, estudios sobre demanda de talento técnico, y anuncios de empresas contratando desarrolladores. Incluye también noticias sobre comunidades de developers, eventos técnicos, conferencias, y movimientos en el ecosistema de desarrollo profesional.",
         createdAt: new Date(),
@@ -25,7 +25,7 @@ export const mockPublicationCategories: PublicationCategory[] = [
     },
     {
         id: randomUUID(),
-        personId: MOCK_PERSON_ID as unknown as string,
+        personalBrandId: MOCK_PERSON_ID as unknown as string,
         name: "Intersección talento–empresa",
         description: "Noticias sobre modelos de contratación de talento técnico, staff augmentation, nearshoring, outsourcing de desarrollo de software, empresas que anuncian contrataciones masivas de developers, políticas de trabajo remoto en empresas tech, alianzas entre consultoras y empresas, lanzamientos de plataformas de matching talento-empresa, y anuncios de proyectos de desarrollo de software. Busca noticias concretas sobre cómo empresas están contratando y trabajando con talento técnico, especialmente en modelos de consultoría, staff augmentation y desarrollo de proyectos.",
         createdAt: new Date(),
@@ -35,7 +35,7 @@ export const mockPublicationCategories: PublicationCategory[] = [
     },
     {
         id: randomUUID(),
-        personId: MOCK_PERSON_ID as unknown as string,
+        personalBrandId: MOCK_PERSON_ID as unknown as string,
         name: "Cultura tecnológica y liderazgo moderno",
         description: "Noticias sobre gestión de equipos de desarrollo, anuncios de cambios organizacionales en empresas tech, lanzamientos de herramientas de gestión de equipos remotos, estudios sobre productividad de equipos de software, políticas de trabajo de empresas tecnológicas, y anuncios de programas de desarrollo de liderazgo técnico. Incluye noticias sobre transformación organizacional, cambios en estructuras de equipos, y prácticas de gestión en empresas de tecnología.",
         createdAt: new Date(),
@@ -45,7 +45,7 @@ export const mockPublicationCategories: PublicationCategory[] = [
     },
     {
         id: randomUUID(),
-        personId: MOCK_PERSON_ID as unknown as string,
+        personalBrandId: MOCK_PERSON_ID as unknown as string,
         name: "Estrategia, mercado y visión del futuro",
         description: "Noticias sobre inversiones en empresas de software, adquisiciones de empresas tech, cambios regulatorios que afectan la industria tecnológica, estudios de mercado sobre demanda de software, anuncios de nuevas empresas de tecnología, y desarrollos en el ecosistema de startups y consultorías tecnológicas. Busca noticias concretas sobre movimientos del mercado, inversiones, fusiones, adquisiciones, y cambios regulatorios que impactan el negocio de desarrollo de software y consultoría tecnológica.",
         createdAt: new Date(),
@@ -55,7 +55,7 @@ export const mockPublicationCategories: PublicationCategory[] = [
     },
     {
         id: randomUUID(),
-        personId: MOCK_PERSON_ID as unknown as string,
+        personalBrandId: MOCK_PERSON_ID as unknown as string,
         name: "Desarrollo de carrera tech",
         description: "Noticias sobre crecimiento profesional de desarrolladores, estrategias de negociación salarial, transiciones de carrera en tech, casos de éxito de developers que cambiaron de stack o rol, anuncios de programas de mentoría técnica, estudios sobre trayectorias profesionales en tecnología, y noticias sobre developers que lograron avances significativos en sus carreras. Incluye también noticias sobre habilidades técnicas en demanda, certificaciones que están ganando valor, y movimientos de developers hacia roles de liderazgo o especialización.",
         createdAt: new Date(),
@@ -65,7 +65,7 @@ export const mockPublicationCategories: PublicationCategory[] = [
     },
     {
         id: randomUUID(),
-        personId: MOCK_PERSON_ID as unknown as string,
+        personalBrandId: MOCK_PERSON_ID as unknown as string,
         name: "Front-end development",
         description: "Noticias sobre lanzamientos de frameworks y librerías front-end, actualizaciones de React, Vue, Angular, Svelte y otras tecnologías front-end, nuevas herramientas de desarrollo web, anuncios de features en navegadores, cambios en estándares web, casos de implementación de interfaces de usuario, lanzamientos de bibliotecas de componentes, y desarrollos en tecnologías como TypeScript, CSS moderno, y herramientas de build. Busca noticias concretas sobre tecnologías, herramientas y prácticas que están siendo adoptadas en el desarrollo front-end.",
         createdAt: new Date(),

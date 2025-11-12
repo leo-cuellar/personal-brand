@@ -8,7 +8,7 @@ import { mockPublicationTypes } from "../mocks/publication-types";
 import { mockPublicationCategories } from "../mocks/publication-categories";
 import { mockPublicationIdeas } from "../mocks/publication-ideas";
 import { mockPublicationStructures } from "../mocks/publication-structures";
-import { mockPersons } from "../mocks/persons";
+import { mockPersons } from "../mocks/personal-brands";
 import { mockInspirations } from "../mocks/inspirations";
 
 const pg = () => getPostgresClient();
@@ -26,10 +26,10 @@ async function seedStrongOpinions() {
         for (const opinion of mockStrongOpinions) {
             await client`
                 INSERT INTO public.strong_opinions (
-                    id, person_id, opinion, created_at, updated_at, is_archived
+                    id, personal_brand_id, opinion, created_at, updated_at, is_archived
                 ) VALUES (
                     ${opinion.id}::uuid,
-                    ${opinion.personId}::uuid,
+                    ${opinion.personalBrandId}::uuid,
                     ${opinion.opinion},
                     ${new Date(opinion.createdAt)},
                     ${new Date(opinion.updatedAt)},
@@ -60,10 +60,10 @@ async function seedPublicationTypes() {
         for (const publicationType of mockPublicationTypes) {
             await client`
                 INSERT INTO public.publication_types (
-                    id, person_id, name, description, created_at, updated_at, is_archived
+                    id, personal_brand_id, name, description, created_at, updated_at, is_archived
                 ) VALUES (
                     ${publicationType.id}::uuid,
-                    ${publicationType.personId}::uuid,
+                    ${publicationType.personalBrandId}::uuid,
                     ${publicationType.name},
                     ${publicationType.description},
                     ${new Date(publicationType.createdAt)},
@@ -95,10 +95,10 @@ async function seedPublicationCategories() {
         for (const publicationCategory of mockPublicationCategories) {
             await client`
                 INSERT INTO public.publication_categories (
-                    id, person_id, name, description, created_at, updated_at, is_archived, use_for_search
+                    id, personal_brand_id, name, description, created_at, updated_at, is_archived, use_for_search
                 ) VALUES (
                     ${publicationCategory.id}::uuid,
-                    ${publicationCategory.personId}::uuid,
+                    ${publicationCategory.personalBrandId}::uuid,
                     ${publicationCategory.name},
                     ${publicationCategory.description},
                     ${new Date(publicationCategory.createdAt)},
@@ -131,10 +131,10 @@ async function seedPublicationIdeas() {
         for (const publicationIdea of mockPublicationIdeas) {
             await client`
                 INSERT INTO public.publication_ideas (
-                    id, person_id, idea, description, link, status, created_at, updated_at, is_archived
+                    id, personal_brand_id, idea, description, link, status, created_at, updated_at, is_archived
                 ) VALUES (
                     ${publicationIdea.id}::uuid,
-                    ${publicationIdea.personId}::uuid,
+                    ${publicationIdea.personalBrandId}::uuid,
                     ${publicationIdea.idea},
                     ${publicationIdea.description || null},
                     ${publicationIdea.link || null},
@@ -158,39 +158,26 @@ async function seedPublicationIdeas() {
     }
 }
 
-async function seedPersons() {
-    console.log("🌱 Seeding persons...");
+async function seedPersonalBrands() {
+    console.log("🌱 Seeding personal brands...");
 
     try {
         const client = pg();
 
-        // Insert persons one by one using direct SQL
+        // Insert personal brands one by one using direct SQL
         for (const person of mockPersons) {
+            // Use brandNarrative object directly
+            const brandNarrative = person.brandNarrative;
+
             await client`
-                INSERT INTO public.persons (
-                    id, name, linkedin_profile,
-                    immediate_credibility, professional_problem_or_challenge,
-                    internal_struggles, external_context, key_microtransitions,
-                    insight_or_spark, process, result_or_transformation,
-                    shared_beliefs, current_vision_or_personal_mission,
-                    social_proof_or_validation, call_to_action,
+                INSERT INTO public.personal_brands (
+                    id, name, linkedin_profile, brand_narrative,
                     created_at, updated_at, is_archived
                 ) VALUES (
                     ${person.id}::uuid,
                     ${person.name},
                     ${person.linkedinProfile || null},
-                    ${person.immediateCredibility},
-                    ${person.professionalProblemOrChallenge},
-                    ${person.internalStruggles},
-                    ${person.externalContext},
-                    ${person.keyMicrotransitions},
-                    ${person.insightOrSpark},
-                    ${person.process},
-                    ${person.resultOrTransformation},
-                    ${person.sharedBeliefs},
-                    ${person.currentVisionOrPersonalMission},
-                    ${person.socialProofOrValidation},
-                    ${person.callToAction},
+                    ${JSON.stringify(brandNarrative)}::jsonb,
                     ${new Date(person.createdAt)},
                     ${new Date(person.updatedAt)},
                     ${person.isArchived}
@@ -202,10 +189,10 @@ async function seedPersons() {
         await client.end();
 
         console.log(
-            `✅ ${mockPersons.length} persons inserted successfully`
+            `✅ ${mockPersons.length} personal brands inserted successfully`
         );
     } catch (error) {
-        console.error("❌ Error seeding persons:", error);
+        console.error("❌ Error seeding personal brands:", error);
         throw error;
     }
 }
@@ -220,10 +207,10 @@ async function seedInspirations() {
         for (const inspiration of mockInspirations) {
             await client`
                 INSERT INTO public.inspirations (
-                    id, person_id, text, link, source, created_at, updated_at, is_archived
+                    id, personal_brand_id, text, link, source, created_at, updated_at, is_archived
                 ) VALUES (
                     ${inspiration.id}::uuid,
-                    ${inspiration.personId}::uuid,
+                    ${inspiration.personalBrandId}::uuid,
                     ${inspiration.text},
                     ${inspiration.link || null},
                     ${inspiration.source || "manual"}::inspiration_source,
@@ -256,10 +243,10 @@ async function seedPublicationStructures() {
         for (const structure of mockPublicationStructures) {
             await client`
                 INSERT INTO public.publication_structures (
-                    id, person_id, name, description, structure, created_at, updated_at, is_archived
+                    id, personal_brand_id, name, description, structure, created_at, updated_at, is_archived
                 ) VALUES (
                     ${structure.id}::uuid,
-                    ${structure.personId}::uuid,
+                    ${structure.personalBrandId}::uuid,
                     ${structure.name},
                     ${structure.description || null},
                     ${JSON.stringify(structure.structure)}::jsonb,
@@ -286,7 +273,7 @@ async function main() {
     console.log("🚀 Starting seed process...");
 
     try {
-        await seedPersons();
+        await seedPersonalBrands();
         await seedPublicationIdeas();
         await seedPublicationCategories();
         await seedPublicationTypes();
@@ -314,6 +301,6 @@ export {
     seedPublicationCategories,
     seedPublicationIdeas,
     seedPublicationStructures,
-    seedPersons,
+    seedPersonalBrands,
     seedInspirations,
 };

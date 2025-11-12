@@ -5,20 +5,20 @@ import { supabaseAdmin } from "../../../../../services/supabase/client";
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { personId } = body;
+        const { personalBrandId } = body;
 
-        if (!personId || typeof personId !== "string") {
+        if (!personalBrandId || typeof personalBrandId !== "string") {
             return NextResponse.json(
-                { error: "personId is required and must be a string" },
+                { error: "personalBrandId is required and must be a string" },
                 { status: 400 }
             );
         }
 
-        // Get publication categories for this person that are enabled for search
+        // Get publication categories for this personal brand that are enabled for search
         const { data: categories, error: categoriesError } = await supabaseAdmin
             .from("publication_categories")
             .select("id, name, description")
-            .eq("person_id", personId)
+            .eq("personal_brand_id", personalBrandId)
             .eq("is_archived", false)
             .eq("use_for_search", true)
             .order("created_at", { ascending: false });

@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { usePerplexity } from "@/hooks/usePerplexity";
-import { usePersonContext } from "@/contexts/PersonContext";
+import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 import { useInspirations } from "@/hooks/useInspirations";
 import type { CategoryTrendsResult } from "../../../../../../services/api-wrapper/perplexity";
 import type { TrendItem } from "../../../../../../services/perplexity/trends";
 
 export function TrendScannerPage() {
     const { searchTrendsByCategory, loading, error } = usePerplexity();
-    const { selectedPersonId } = usePersonContext();
+    const { selectedPersonId } = usePersonalBrandContext();
     const { create: createInspiration } = useInspirations();
     const [results, setResults] = useState<CategoryTrendsResult[]>([]);
     const [hasSearched, setHasSearched] = useState(false);
@@ -53,7 +53,7 @@ export function TrendScannerPage() {
             const text = `${trend.short_title}\n\n${trend.short_summary}`;
 
             await createInspiration({
-                personId: selectedPersonId,
+                personalBrandId: selectedPersonId,
                 text,
                 link: trend.source_url,
                 source: "trend_scanner",

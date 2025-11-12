@@ -1,11 +1,11 @@
 import { pgTable, text, timestamp, uuid, boolean } from "drizzle-orm/pg-core";
-import { persons } from "./person";
+import { personalBrands } from "./personal-brand";
 
 // Strong opinions table
 export const strongOpinions = pgTable("strong_opinions", {
     id: uuid("id").primaryKey().defaultRandom(),
-    personId: uuid("person_id")
-        .references(() => persons.id, { onDelete: "cascade" })
+    personalBrandId: uuid("personal_brand_id")
+        .references(() => personalBrands.id, { onDelete: "cascade" })
         .notNull(),
     opinion: text("opinion").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })

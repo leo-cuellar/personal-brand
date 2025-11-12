@@ -1,5 +1,5 @@
 import { pgTable, text, timestamp, uuid, boolean, varchar, pgEnum, jsonb } from "drizzle-orm/pg-core";
-import { persons } from "./person";
+import { personalBrands } from "./personal-brand";
 
 // Enum for inspiration source
 export const inspirationSourceEnum = pgEnum("inspiration_source", ["manual", "trend_scanner", "linkedin"]);
@@ -8,8 +8,8 @@ export const inspirationSourceEnum = pgEnum("inspiration_source", ["manual", "tr
 // This table stores inspiration content that can range from short ideas to full LinkedIn posts
 export const inspirations = pgTable("inspirations", {
     id: uuid("id").primaryKey().defaultRandom(),
-    personId: uuid("person_id")
-        .references(() => persons.id, { onDelete: "cascade" })
+    personalBrandId: uuid("personal_brand_id")
+        .references(() => personalBrands.id, { onDelete: "cascade" })
         .notNull(),
     text: text("text").notNull(),
     link: varchar("link", { length: 500 }),

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { usePublicationCategories } from "@/hooks/usePublicationCategories";
 import { PublicationCategory, NewPublicationCategory } from "../../../../../../services/supabase/schemas";
-import { usePersonContext } from "@/contexts/PersonContext";
+import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 import { useOpenAI } from "@/hooks/useOpenAI";
 
 function formatDate(date: Date | string): string {
@@ -18,7 +18,7 @@ function formatDate(date: Date | string): string {
 }
 
 export function PublicationCategoriesPage() {
-    const { selectedPersonId } = usePersonContext();
+    const { selectedPersonId } = usePersonalBrandContext();
     const [showArchived, setShowArchived] = useState(false);
     const { publicationCategories, loading, error, getPublicationCategories, create, update, remove } =
         usePublicationCategories();
@@ -320,7 +320,7 @@ function EditForm({
     onSave: (updates: Partial<PublicationCategory>) => void;
     onCancel: () => void;
 }) {
-    const { selectedPersonId } = usePersonContext();
+    const { selectedPersonId } = usePersonalBrandContext();
     const [name, setName] = useState(category.name);
     const [description, setDescription] = useState(category.description);
     const [useForSearch, setUseForSearch] = useState(category.useForSearch);
@@ -338,7 +338,7 @@ function EditForm({
         try {
             const generatedDescription = await generateCategoryDescription({
                 categoryName: name,
-                personId: selectedPersonId,
+                personalBrandId: selectedPersonId,
             });
             setDescription(generatedDescription);
         } catch (err) {

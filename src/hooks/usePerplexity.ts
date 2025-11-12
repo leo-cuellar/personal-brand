@@ -11,7 +11,7 @@ import type { TrendsByCategoryResponse } from "../../services/api-wrapper/perple
 interface UsePerplexityReturn {
     searchTrends: (query: string, maxResults?: number) => Promise<TrendSearchResponse>;
     searchTrendsByCategory: (
-        personId: string
+        personalBrandId: string
     ) => Promise<TrendsByCategoryResponse>;
     loading: boolean;
     error: string | null;
@@ -41,12 +41,12 @@ export function usePerplexity(): UsePerplexityReturn {
     );
 
     const searchTrendsByCategory = useCallback(
-        async (personId: string): Promise<TrendsByCategoryResponse> => {
+        async (personalBrandId: string): Promise<TrendsByCategoryResponse> => {
             setLoading(true);
             setError(null);
             try {
                 const result = await searchTrendsByCategoryWrapper({
-                    personId,
+                    personalBrandId,
                 });
                 return result;
             } catch (err) {

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useInspirations } from "@/hooks/useInspirations";
 import { Inspiration, NewInspiration } from "../../../../../../services/supabase/schemas";
-import { usePersonContext } from "@/contexts/PersonContext";
+import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 import { useN8nHooks } from "@/hooks/useN8nHooks";
 
 function formatDate(date: Date | string): string {
@@ -18,7 +18,7 @@ function formatDate(date: Date | string): string {
 }
 
 export function InspirationsPage() {
-    const { selectedPersonId } = usePersonContext();
+    const { selectedPersonId } = usePersonalBrandContext();
     const [showArchived, setShowArchived] = useState(false);
     const { inspirations, loading, error, getInspirations, create, update, remove } =
         useInspirations();

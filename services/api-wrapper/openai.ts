@@ -2,7 +2,7 @@ const API_BASE_URL = "/api/openai";
 
 export interface GenerateCategoryDescriptionParams {
     categoryName: string;
-    personId: string;
+    personalBrandId: string;
 }
 
 export interface GenerateCategoryDescriptionResponse {

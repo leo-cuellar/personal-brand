@@ -1,11 +1,11 @@
 import { pgTable, text, timestamp, uuid, boolean, varchar } from "drizzle-orm/pg-core";
-import { persons } from "./person";
+import { personalBrands } from "./personal-brand";
 
 // Publication types table
 export const publicationTypes = pgTable("publication_types", {
     id: uuid("id").primaryKey().defaultRandom(),
-    personId: uuid("person_id")
-        .references(() => persons.id, { onDelete: "cascade" })
+    personalBrandId: uuid("personal_brand_id")
+        .references(() => personalBrands.id, { onDelete: "cascade" })
         .notNull(),
     name: varchar("name", { length: 100 }).notNull(),
     description: text("description").notNull(),

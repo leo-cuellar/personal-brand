@@ -7,7 +7,7 @@ import {
     pgEnum,
     varchar,
 } from "drizzle-orm/pg-core";
-import { persons } from "./person";
+import { personalBrands } from "./personal-brand";
 
 // Enum for idea status
 export const ideaStatusEnum = pgEnum("idea_status", ["in_review", "accepted", "rejected", "used"]);
@@ -15,8 +15,8 @@ export const ideaStatusEnum = pgEnum("idea_status", ["in_review", "accepted", "r
 // Publication ideas table
 export const publicationIdeas = pgTable("publication_ideas", {
     id: uuid("id").primaryKey().defaultRandom(),
-    personId: uuid("person_id")
-        .references(() => persons.id, { onDelete: "cascade" })
+    personalBrandId: uuid("personal_brand_id")
+        .references(() => personalBrands.id, { onDelete: "cascade" })
         .notNull(),
     idea: text("idea").notNull(),
     description: text("description"),

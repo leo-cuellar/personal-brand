@@ -4,7 +4,7 @@
 
 export interface InspirationData {
   text: string;
-  personId?: string;
+  personalBrandId?: string;
   metadata?: {
     author_profile_name?: string;
     author_profile_url?: string;

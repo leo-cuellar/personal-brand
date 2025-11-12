@@ -1,42 +1,42 @@
 import { openai } from "./client";
-import { getPersonData, getStrongOpinions } from "./data-helpers";
+import { getPersonalBrandData, getStrongOpinions } from "./data-helpers";
 
 export interface GenerateCategoryDescriptionParams {
     categoryName: string;
-    personId: string;
+    personalBrandId: string;
 }
 
 export async function generateCategoryDescription(
     params: GenerateCategoryDescriptionParams
 ): Promise<string> {
-    const { categoryName, personId } = params;
+    const { categoryName, personalBrandId } = params;
 
-    // Get person data and strong opinions
-    const [person, strongOpinions] = await Promise.all([
-        getPersonData(personId),
-        getStrongOpinions(personId),
+    // Get personal brand data and strong opinions
+    const [personalBrand, strongOpinions] = await Promise.all([
+        getPersonalBrandData(personalBrandId),
+        getStrongOpinions(personalBrandId),
     ]);
 
-    if (!person) {
-        throw new Error("Person not found");
+    if (!personalBrand) {
+        throw new Error("Personal brand not found");
     }
 
-    // Build context from person data
+    // Build context from personal brand data
     const personContext = `
 Personal Brand Information:
-- Name: ${person.name}
-- Immediate Credibility: ${person.immediateCredibility}
-- Professional Problem/Challenge: ${person.professionalProblemOrChallenge}
-- Internal Struggles: ${person.internalStruggles}
-- External Context: ${person.externalContext}
-- Key Microtransitions: ${person.keyMicrotransitions}
-- Insight/Spark: ${person.insightOrSpark}
-- Process: ${person.process}
-- Result/Transformation: ${person.resultOrTransformation}
-- Shared Beliefs: ${person.sharedBeliefs}
-- Current Vision/Personal Mission: ${person.currentVisionOrPersonalMission}
-- Social Proof/Validation: ${person.socialProofOrValidation}
-- Call to Action: ${person.callToAction}
+- Name: ${personalBrand.name}
+- Immediate Credibility: ${personalBrand.brandNarrative.immediateCredibility}
+- Professional Problem/Challenge: ${personalBrand.brandNarrative.professionalProblemOrChallenge}
+- Internal Struggles: ${personalBrand.brandNarrative.internalStruggles}
+- External Context: ${personalBrand.brandNarrative.externalContext}
+- Key Microtransitions: ${personalBrand.brandNarrative.keyMicrotransitions}
+- Insight/Spark: ${personalBrand.brandNarrative.insightOrSpark}
+- Process: ${personalBrand.brandNarrative.process}
+- Result/Transformation: ${personalBrand.brandNarrative.resultOrTransformation}
+- Shared Beliefs: ${personalBrand.brandNarrative.sharedBeliefs}
+- Current Vision/Personal Mission: ${personalBrand.brandNarrative.currentVisionOrPersonalMission}
+- Social Proof/Validation: ${personalBrand.brandNarrative.socialProofOrValidation}
+- Call to Action: ${personalBrand.brandNarrative.callToAction}
 `.trim();
 
     // Build strong opinions context

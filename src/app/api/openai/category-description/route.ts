@@ -4,7 +4,7 @@ import { generateCategoryDescription } from "../../../../../services/openai/cate
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { categoryName, personId } = body;
+        const { categoryName, personalBrandId } = body;
 
         if (!categoryName || typeof categoryName !== "string") {
             return NextResponse.json(
@@ -13,16 +13,16 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        if (!personId || typeof personId !== "string") {
+        if (!personalBrandId || typeof personalBrandId !== "string") {
             return NextResponse.json(
-                { error: "personId is required and must be a string" },
+                { error: "personalBrandId is required and must be a string" },
                 { status: 400 }
             );
         }
 
         const description = await generateCategoryDescription({
             categoryName,
-            personId,
+            personalBrandId,
         });
 
         return NextResponse.json({ description });

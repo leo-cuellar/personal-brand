@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useStrongOpinions } from "@/hooks/useStrongOpinions";
 import { StrongOpinion, NewStrongOpinion } from "../../../../../../services/supabase/schemas";
-import { usePersonContext } from "@/contexts/PersonContext";
+import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 
 function formatDate(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
@@ -17,7 +17,7 @@ function formatDate(date: Date | string): string {
 }
 
 export function StrongOpinionsPage() {
-    const { selectedPersonId } = usePersonContext();
+    const { selectedPersonId } = usePersonalBrandContext();
     const [showArchived, setShowArchived] = useState(false);
     const { strongOpinions, loading, error, getStrongOpinions, create, update, remove } =
         useStrongOpinions();

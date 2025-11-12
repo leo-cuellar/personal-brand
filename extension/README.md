@@ -79,7 +79,7 @@ import { createInspiration } from "@services/api-wrapper/inspirations";
 await createInspiration({
   text: "Texto de la publicación",
   link: "https://linkedin.com/...",
-  personId: "...",
+  personalBrandId: "...",
   source: "manual"
 });
 ```
@@ -95,6 +95,6 @@ await createInspiration({
 - [ ] Agregar iconos de la extensión
 - [x] Configurar build process (esbuild)
 - [ ] Testing
-- [ ] Manejar selección de persona (personId) al agregar inspiración
+- [ ] Manejar selección de personal brand (personalBrandId) al agregar inspiración
 - [ ] Mejorar manejo de errores y feedback al usuario
 
