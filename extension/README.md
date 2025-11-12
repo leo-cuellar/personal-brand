@@ -86,12 +86,15 @@ await createInspiration({
 
 ## TODO
 
-- [ ] Implementar detección de posts en LinkedIn
-- [ ] Extraer texto y metadata de publicaciones
-- [ ] Agregar botón UI en posts de LinkedIn
-- [ ] Integrar con API wrapper de services
-- [ ] Manejar autenticación/API keys
+- [x] Implementar detección de posts en LinkedIn
+- [x] Extraer texto y metadata de publicaciones
+- [x] Agregar botón UI en posts de LinkedIn
+- [x] Integrar content script con background service worker
+- [x] Integrar background service worker con API del backend
+- [x] Manejar configuración de API base URL y storage
 - [ ] Agregar iconos de la extensión
-- [ ] Configurar build process (esbuild/webpack)
+- [x] Configurar build process (esbuild)
 - [ ] Testing
+- [ ] Manejar selección de persona (personId) al agregar inspiración
+- [ ] Mejorar manejo de errores y feedback al usuario
 

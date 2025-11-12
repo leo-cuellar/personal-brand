@@ -28,9 +28,12 @@ async function handleAddInspiration(data: {
   link: string;
   personId?: string;
 }) {
-  // TODO: Obtener la URL base del backend desde storage o configuración
   const apiBaseUrl = await getApiBaseUrl();
-  
+
+  if (!apiBaseUrl) {
+    throw new Error("API base URL not configured. Please set it in the extension popup.");
+  }
+
   const response = await fetch(`${apiBaseUrl}/api/inspirations`, {
     method: "POST",
     headers: {
@@ -39,17 +42,24 @@ async function handleAddInspiration(data: {
     body: JSON.stringify({
       text: data.text,
       link: data.link,
-      personId: data.personId,
+      personId: data.personId || "00000000-0000-0000-0000-000000000001",
       source: "manual",
     }),
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Failed to add inspiration");
+    let errorMessage = "Failed to add inspiration";
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.error || errorMessage;
+    } catch {
+      errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+    }
+    throw new Error(errorMessage);
   }
 
-  return await response.json();
+  const result = await response.json();
+  return result;
 }
 
 async function getApiBaseUrl(): Promise<string> {

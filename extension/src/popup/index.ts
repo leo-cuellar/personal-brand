@@ -12,6 +12,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const result = await chrome.storage.sync.get(["apiBaseUrl"]);
   if (result.apiBaseUrl) {
     apiUrlInput.value = result.apiBaseUrl;
+  } else {
+    // Valor por defecto
+    apiUrlInput.value = "http://localhost:3000";
+    apiUrlInput.placeholder = "http://localhost:3000";
   }
 
   // Guardar configuración
