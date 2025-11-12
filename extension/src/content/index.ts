@@ -47,20 +47,36 @@ function extractPostText(postElement: HTMLElement): string {
 }
 
 /**
- * Extrae el link del post
+ * Extrae el link de la publicación (no del perfil del autor)
  */
 function extractPostLink(postElement: HTMLElement): string {
-  // Buscar link en el post
-  const linkSelectors = [
-    "a[href*='/feed/update/']",
-    "a[href*='/activity-']",
-    "a.relative",
+  // Buscar link específico de la publicación
+  const publicationLinkSelectors = [
+    "a[href*='/feed/update/']", // Link directo a la publicación
+    "a[href*='/activity-']", // Link de actividad
+    "a[data-control-name='feed_update']", // Data attribute específico
+    "a[href*='/posts/']", // Posts individuales
   ];
 
-  for (const selector of linkSelectors) {
+  for (const selector of publicationLinkSelectors) {
     const linkElement = postElement.querySelector<HTMLAnchorElement>(selector);
-    if (linkElement?.href) {
-      return linkElement.href.split("?")[0]; // Remover query params
+    if (linkElement?.href && !linkElement.href.includes("/in/")) {
+      // Asegurarse de que no sea un link de perfil
+      const href = linkElement.href.split("?")[0];
+      if (href.includes("/feed/update/") || href.includes("/activity-") || href.includes("/posts/")) {
+        return href;
+      }
+    }
+  }
+
+  // Buscar en el contenedor del post por data attributes
+  const postContainer = postElement.closest("[data-urn]") || postElement;
+  const dataUrn = postContainer.getAttribute("data-urn");
+  if (dataUrn && dataUrn.includes("activity")) {
+    // Construir link desde el data-urn
+    const activityId = dataUrn.split(":activity:")[1]?.split(",")[0];
+    if (activityId) {
+      return `https://www.linkedin.com/feed/update/${activityId}`;
     }
   }
 
@@ -69,31 +85,55 @@ function extractPostLink(postElement: HTMLElement): string {
     return window.location.href.split("?")[0];
   }
 
-  return window.location.href;
+  // Último fallback: construir desde la URL actual
+  return window.location.href.split("?")[0];
 }
 
 /**
- * Extrae el autor del post
+ * Extrae el autor del post y su perfil
  */
-function extractPostAuthor(postElement: HTMLElement): string {
+function extractPostAuthor(postElement: HTMLElement): { name: string; profileUrl?: string } {
   const authorSelectors = [
     "span.feed-shared-actor__name",
     "a[data-test-id='post-actor-name']",
     "span.visually-hidden", // A veces el nombre está en aria-label
   ];
 
+  let authorName = "Unknown";
+  let profileUrl: string | undefined;
+
   for (const selector of authorSelectors) {
     const authorElement = postElement.querySelector(selector);
     if (authorElement) {
       const text = authorElement.textContent?.trim();
       if (text && text.length > 0) {
-        return text;
+        authorName = text;
+
+        // Buscar link del perfil
+        const linkElement = authorElement.closest("a") ||
+          postElement.querySelector<HTMLAnchorElement>(`a[href*='/in/']`);
+        if (linkElement?.href) {
+          const href = linkElement.href.split("?")[0];
+          if (href.includes("/in/")) {
+            profileUrl = href;
+          }
+        }
+        break;
       }
     }
   }
 
-  return "Unknown";
+  // Si no encontramos el link, buscar en el contenedor del actor
+  if (!profileUrl) {
+    const actorLink = postElement.querySelector<HTMLAnchorElement>("a.feed-shared-actor__container-link, a[data-test-id='post-actor-name']");
+    if (actorLink?.href && actorLink.href.includes("/in/")) {
+      profileUrl = actorLink.href.split("?")[0];
+    }
+  }
+
+  return { name: authorName, profileUrl };
 }
+
 
 /**
  * Genera un ID único para el post basado en su contenido y posición
@@ -129,7 +169,7 @@ function createAddButton(postElement: HTMLElement, postData: LinkedInPost): HTML
         type: "ADD_INSPIRATION",
         data: {
           text: postData.text,
-          link: postData.link,
+          metadata: postData.metadata,
         },
       });
 
@@ -202,10 +242,16 @@ function processPost(postElement: HTMLElement): void {
     return;
   }
 
+  const authorInfo = extractPostAuthor(postElement);
+
   const postData: LinkedInPost = {
     text,
     link: extractPostLink(postElement),
-    author: extractPostAuthor(postElement),
+    author: authorInfo.name,
+    metadata: {
+      author_profile_name: authorInfo.name,
+      author_profile_url: authorInfo.profileUrl,
+    },
   };
 
   // Crear y agregar botón

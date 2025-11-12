@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
                 text: body.text,
                 link: body.link || null,
                 source: body.source || "manual",
+                metadata: body.metadata || null,
                 is_archived: body.isArchived || false,
             })
             .select()

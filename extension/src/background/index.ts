@@ -25,8 +25,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 async function handleAddInspiration(data: {
   text: string;
-  link: string;
   personId?: string;
+  metadata?: {
+    author_profile_name?: string;
+    author_profile_url?: string;
+  };
 }) {
   const apiBaseUrl = await getApiBaseUrl();
 
@@ -41,9 +44,10 @@ async function handleAddInspiration(data: {
     },
     body: JSON.stringify({
       text: data.text,
-      link: data.link,
+      link: null,
       personId: data.personId || "00000000-0000-0000-0000-000000000001",
-      source: "manual",
+      source: "linkedin",
+      metadata: data.metadata || null,
     }),
   });
 

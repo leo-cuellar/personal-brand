@@ -4,8 +4,11 @@
 
 export interface InspirationData {
   text: string;
-  link: string;
   personId?: string;
+  metadata?: {
+    author_profile_name?: string;
+    author_profile_url?: string;
+  };
 }
 
 export interface Message {
@@ -18,5 +21,9 @@ export interface LinkedInPost {
   author: string;
   link: string;
   timestamp?: string;
+  metadata?: {
+    author_profile_name?: string;
+    author_profile_url?: string;
+  };
 }
 
