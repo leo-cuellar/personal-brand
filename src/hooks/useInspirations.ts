@@ -22,20 +22,28 @@ interface UseInspirationsReturn {
 }
 
 export function useInspirations(
-    params?: GetInspirationsParams
+    params?: GetInspirationsParams & { autoFetch?: boolean }
 ): UseInspirationsReturn {
     const { selectedPersonId } = usePersonContext();
     const [inspirations, setInspirations] = useState<Inspiration[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(params?.autoFetch !== false);
     const [error, setError] = useState<string | null>(null);
+    const autoFetch = params?.autoFetch !== false; // Default to true for backward compatibility
 
-    // Merge personId from context with params
+    // Merge personId from context with params (excluding autoFetch)
+    const fetchParams = useMemo(() => {
+        if (!params) return {};
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { autoFetch, ...rest } = params;
+        return rest;
+    }, [params]);
+
     const mergedParams = useMemo(() => {
         return {
-            ...params,
-            personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+            ...fetchParams,
+            personId: fetchParams?.personId !== undefined ? fetchParams.personId : selectedPersonId,
         };
-    }, [params, selectedPersonId]);
+    }, [fetchParams, selectedPersonId]);
 
     const fetchInspirations = useCallback(async () => {
         try {
@@ -51,8 +59,10 @@ export function useInspirations(
     }, [mergedParams]);
 
     useEffect(() => {
-        fetchInspirations();
-    }, [fetchInspirations]);
+        if (autoFetch) {
+            fetchInspirations();
+        }
+    }, [autoFetch, fetchInspirations]);
 
     const create = useCallback(
         async (data: NewInspiration): Promise<Inspiration> => {
