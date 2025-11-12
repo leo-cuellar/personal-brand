@@ -4,23 +4,6 @@ export interface N8nResponse {
     data: unknown;
 }
 
-export async function trendScanner(): Promise<N8nResponse> {
-    const response = await fetch(`${API_BASE_URL}/trend-scanner`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to call trend scanner");
-    }
-
-    const data: N8nResponse = await response.json();
-    return data;
-}
-
 export async function idGenTrendScanner(): Promise<N8nResponse> {
     const response = await fetch(`${API_BASE_URL}/id-gen-trend-scanner`, {
         method: "GET",
