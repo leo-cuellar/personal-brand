@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import {
     getPublicationIdeas,
     createPublicationIdea,
@@ -15,44 +15,36 @@ interface UsePublicationIdeasReturn {
     publicationIdeas: PublicationIdea[];
     loading: boolean;
     error: string | null;
-    refetch: () => Promise<void>;
+    getPublicationIdeas: (params?: GetPublicationIdeasParams) => Promise<void>;
     create: (data: NewPublicationIdea) => Promise<PublicationIdea>;
     update: (id: string, updates: Partial<PublicationIdea>) => Promise<PublicationIdea>;
     remove: (id: string) => Promise<void>;
 }
 
-export function usePublicationIdeas(
-    params?: GetPublicationIdeasParams
-): UsePublicationIdeasReturn {
+export function usePublicationIdeas(): UsePublicationIdeasReturn {
     const { selectedPersonId } = usePersonContext();
     const [publicationIdeas, setPublicationIdeas] = useState<PublicationIdea[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Merge personId from context with params
-    const mergedParams = useMemo(() => {
-        return {
-            ...params,
-            personId: params?.personId !== undefined ? params.personId : selectedPersonId,
-        };
-    }, [params, selectedPersonId]);
-
-    const fetchPublicationIdeas = useCallback(async () => {
+    const fetchPublicationIdeas = useCallback(async (params?: GetPublicationIdeasParams) => {
         try {
             setLoading(true);
             setError(null);
+            // Merge personId from context with params
+            const mergedParams = {
+                ...params,
+                personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+            };
             const data = await getPublicationIdeas(mergedParams);
             setPublicationIdeas(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An error occurred");
+            throw err;
         } finally {
             setLoading(false);
         }
-    }, [mergedParams]);
-
-    useEffect(() => {
-        fetchPublicationIdeas();
-    }, [fetchPublicationIdeas]);
+    }, [selectedPersonId]);
 
     const create = useCallback(
         async (data: NewPublicationIdea): Promise<PublicationIdea> => {
@@ -74,11 +66,10 @@ export function usePublicationIdeas(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to create publication idea";
                 setError(errorMessage);
-                await fetchPublicationIdeas();
                 throw err;
             }
         },
-        [fetchPublicationIdeas, selectedPersonId]
+        [selectedPersonId]
     );
 
     const update = useCallback(
@@ -99,11 +90,10 @@ export function usePublicationIdeas(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to update publication idea";
                 setError(errorMessage);
-                await fetchPublicationIdeas();
                 throw err;
             }
         },
-        [fetchPublicationIdeas]
+        []
     );
 
     const remove = useCallback(
@@ -116,21 +106,19 @@ export function usePublicationIdeas(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to delete publication idea";
                 setError(errorMessage);
-                await fetchPublicationIdeas();
                 throw err;
             }
         },
-        [fetchPublicationIdeas]
+        []
     );
 
     return {
         publicationIdeas,
         loading,
         error,
-        refetch: fetchPublicationIdeas,
+        getPublicationIdeas: fetchPublicationIdeas,
         create,
         update,
         remove,
     };
 }
-

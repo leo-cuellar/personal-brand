@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
 import { useN8nHooks } from "@/hooks/useN8nHooks";
 import { usePersonContext } from "@/contexts/PersonContext";
@@ -22,26 +22,37 @@ export function PublicationIdeasPage() {
     const [showArchived, setShowArchived] = useState(false);
     const [statusFilter, setStatusFilter] = useState<"in_review" | "accepted" | "rejected" | "used" | "all">("in_review");
     const [isReviewMode, setIsReviewMode] = useState(false);
+
+    const { publicationIdeas, loading, error, getPublicationIdeas, update } = usePublicationIdeas();
+    const { publicationIdeas: reviewIdeas, getPublicationIdeas: getReviewIdeas } = usePublicationIdeas();
+
     const params = useMemo(() => {
         const p: { includeArchived?: boolean; status?: "in_review" | "accepted" | "rejected" | "used" } = {};
         if (showArchived) p.includeArchived = true;
         if (statusFilter !== "all") p.status = statusFilter;
         return p;
     }, [showArchived, statusFilter]);
-    const { publicationIdeas, loading, error, update, refetch } = usePublicationIdeas(params);
 
-    // Get ideas in review for review mode
     const reviewParams = useMemo(() => {
         return { status: "in_review" as const, includeArchived: false };
     }, []);
-    const { publicationIdeas: reviewIdeas, refetch: refetchReviewIdeas } = usePublicationIdeas(reviewParams);
+
+    useEffect(() => {
+        getPublicationIdeas(params);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [params]);
+
+    useEffect(() => {
+        getReviewIdeas(reviewParams);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [reviewParams]);
     const { idGenTrendScanner, idGenContext, loading: n8nLoading, error: n8nError } = useN8nHooks();
 
     const handleAccept = async (id: string) => {
         try {
             await update(id, { status: "accepted" });
             // Refetch both lists to update everything
-            await Promise.all([refetch(), refetchReviewIdeas()]);
+            await Promise.all([getPublicationIdeas(params), getReviewIdeas(reviewParams)]);
         } catch {
             // Error handled by UI
         }
@@ -51,7 +62,7 @@ export function PublicationIdeasPage() {
         try {
             await update(id, { status: "rejected" });
             // Refetch both lists to update everything
-            await Promise.all([refetch(), refetchReviewIdeas()]);
+            await Promise.all([getPublicationIdeas(params), getReviewIdeas(reviewParams)]);
         } catch {
             // Error handled by UI
         }
@@ -67,14 +78,14 @@ export function PublicationIdeasPage() {
 
     const handleExitReview = () => {
         setIsReviewMode(false);
-        refetch(); // Refresh the list when exiting review mode
+        getPublicationIdeas(params); // Refresh the list when exiting review mode
     };
 
     const handleGenerateIdeas = async () => {
         try {
             await idGenTrendScanner();
             await idGenContext();
-            await refetch();
+            await getPublicationIdeas(params);
         } catch (err) {
             alert(`Failed to generate ideas: ${err instanceof Error ? err.message : "Unknown error"}`);
         }

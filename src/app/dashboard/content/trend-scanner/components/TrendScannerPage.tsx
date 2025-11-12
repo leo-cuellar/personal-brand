@@ -10,7 +10,7 @@ import type { TrendItem } from "../../../../../../services/perplexity/trends";
 export function TrendScannerPage() {
     const { searchTrendsByCategory, loading, error } = usePerplexity();
     const { selectedPersonId } = usePersonContext();
-    const { create: createInspiration } = useInspirations({ autoFetch: false });
+    const { create: createInspiration } = useInspirations();
     const [results, setResults] = useState<CategoryTrendsResult[]>([]);
     const [hasSearched, setHasSearched] = useState(false);
     const [addingInspiration, setAddingInspiration] = useState<string | null>(null);

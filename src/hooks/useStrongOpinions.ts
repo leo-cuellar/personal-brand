@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import {
     getStrongOpinions,
     createStrongOpinion,
@@ -15,44 +15,36 @@ interface UseStrongOpinionsReturn {
     strongOpinions: StrongOpinion[];
     loading: boolean;
     error: string | null;
-    refetch: () => Promise<void>;
+    getStrongOpinions: (params?: GetStrongOpinionsParams) => Promise<void>;
     create: (data: NewStrongOpinion) => Promise<StrongOpinion>;
     update: (id: string, updates: Partial<StrongOpinion>) => Promise<StrongOpinion>;
     remove: (id: string) => Promise<void>;
 }
 
-export function useStrongOpinions(
-    params?: GetStrongOpinionsParams
-): UseStrongOpinionsReturn {
+export function useStrongOpinions(): UseStrongOpinionsReturn {
     const { selectedPersonId } = usePersonContext();
     const [strongOpinions, setStrongOpinions] = useState<StrongOpinion[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Merge personId from context with params
-    const mergedParams = useMemo(() => {
-        return {
-            ...params,
-            personId: params?.personId !== undefined ? params.personId : selectedPersonId,
-        };
-    }, [params, selectedPersonId]);
-
-    const fetchStrongOpinions = useCallback(async () => {
+    const fetchStrongOpinions = useCallback(async (params?: GetStrongOpinionsParams) => {
         try {
             setLoading(true);
             setError(null);
+            // Merge personId from context with params
+            const mergedParams = {
+                ...params,
+                personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+            };
             const data = await getStrongOpinions(mergedParams);
             setStrongOpinions(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An error occurred");
+            throw err;
         } finally {
             setLoading(false);
         }
-    }, [mergedParams]);
-
-    useEffect(() => {
-        fetchStrongOpinions();
-    }, [fetchStrongOpinions]);
+    }, [selectedPersonId]);
 
     const create = useCallback(
         async (data: NewStrongOpinion): Promise<StrongOpinion> => {
@@ -74,11 +66,10 @@ export function useStrongOpinions(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to create strong opinion";
                 setError(errorMessage);
-                await fetchStrongOpinions();
                 throw err;
             }
         },
-        [fetchStrongOpinions, selectedPersonId]
+        [selectedPersonId]
     );
 
     const update = useCallback(
@@ -99,11 +90,10 @@ export function useStrongOpinions(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to update strong opinion";
                 setError(errorMessage);
-                await fetchStrongOpinions();
                 throw err;
             }
         },
-        [fetchStrongOpinions]
+        []
     );
 
     const remove = useCallback(
@@ -116,21 +106,19 @@ export function useStrongOpinions(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to delete strong opinion";
                 setError(errorMessage);
-                await fetchStrongOpinions();
                 throw err;
             }
         },
-        [fetchStrongOpinions]
+        []
     );
 
     return {
         strongOpinions,
         loading,
         error,
-        refetch: fetchStrongOpinions,
+        getStrongOpinions: fetchStrongOpinions,
         create,
         update,
         remove,
     };
 }
-

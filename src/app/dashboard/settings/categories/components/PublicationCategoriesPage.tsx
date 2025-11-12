@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePublicationCategories } from "@/hooks/usePublicationCategories";
 import { PublicationCategory, NewPublicationCategory } from "../../../../../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
@@ -20,12 +20,18 @@ function formatDate(date: Date | string): string {
 export function PublicationCategoriesPage() {
     const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
+    const { publicationCategories, loading, error, getPublicationCategories, create, update, remove } =
+        usePublicationCategories();
+
     const params = useMemo(
         () => ({ includeArchived: showArchived }),
         [showArchived]
     );
-    const { publicationCategories, loading, error, create, update, remove } =
-        usePublicationCategories(params);
+
+    useEffect(() => {
+        getPublicationCategories(params);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [params]);
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Partial<NewPublicationCategory>>({

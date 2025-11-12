@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useInspirations } from "@/hooks/useInspirations";
 import { Inspiration, NewInspiration } from "../../../../../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
@@ -20,12 +20,18 @@ function formatDate(date: Date | string): string {
 export function InspirationsPage() {
     const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
+    const { inspirations, loading, error, getInspirations, create, update, remove } =
+        useInspirations();
+
     const params = useMemo(
         () => ({ includeArchived: showArchived }),
         [showArchived]
     );
-    const { inspirations, loading, error, create, update, remove } =
-        useInspirations(params);
+
+    useEffect(() => {
+        getInspirations(params);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [params]);
     const { trendScanner, loading: trendScannerLoading, error: trendScannerError } = useN8nHooks();
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);

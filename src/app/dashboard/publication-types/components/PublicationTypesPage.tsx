@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePublicationTypes } from "@/hooks/usePublicationTypes";
 import { PublicationType, NewPublicationType } from "../../../../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
@@ -21,13 +21,19 @@ function formatDate(date: Date | string): string {
 export function PublicationTypesPage() {
     const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
+    const { publicationTypes, loading, error, getPublicationTypes, create, update, remove } =
+        usePublicationTypes();
+
     // Memoize params to prevent infinite loops
     const params = useMemo(
         () => ({ includeArchived: showArchived }),
         [showArchived]
     );
-    const { publicationTypes, loading, error, create, update, remove } =
-        usePublicationTypes(params);
+
+    useEffect(() => {
+        getPublicationTypes(params);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [params]);
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Partial<NewPublicationType>>({

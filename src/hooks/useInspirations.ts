@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import {
     getInspirations,
     createInspiration,
@@ -15,54 +15,36 @@ interface UseInspirationsReturn {
     inspirations: Inspiration[];
     loading: boolean;
     error: string | null;
-    refetch: () => Promise<void>;
+    getInspirations: (params?: GetInspirationsParams) => Promise<void>;
     create: (data: NewInspiration) => Promise<Inspiration>;
     update: (id: string, updates: Partial<Inspiration>) => Promise<Inspiration>;
     remove: (id: string) => Promise<void>;
 }
 
-export function useInspirations(
-    params?: GetInspirationsParams & { autoFetch?: boolean }
-): UseInspirationsReturn {
+export function useInspirations(): UseInspirationsReturn {
     const { selectedPersonId } = usePersonContext();
     const [inspirations, setInspirations] = useState<Inspiration[]>([]);
-    const [loading, setLoading] = useState(params?.autoFetch !== false);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const autoFetch = params?.autoFetch !== false; // Default to true for backward compatibility
 
-    // Merge personId from context with params (excluding autoFetch)
-    const fetchParams = useMemo(() => {
-        if (!params) return {};
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { autoFetch, ...rest } = params;
-        return rest;
-    }, [params]);
-
-    const mergedParams = useMemo(() => {
-        return {
-            ...fetchParams,
-            personId: fetchParams?.personId !== undefined ? fetchParams.personId : selectedPersonId,
-        };
-    }, [fetchParams, selectedPersonId]);
-
-    const fetchInspirations = useCallback(async () => {
+    const fetchInspirations = useCallback(async (params?: GetInspirationsParams) => {
         try {
             setLoading(true);
             setError(null);
+            // Merge personId from context with params
+            const mergedParams = {
+                ...params,
+                personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+            };
             const data = await getInspirations(mergedParams);
             setInspirations(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An error occurred");
+            throw err;
         } finally {
             setLoading(false);
         }
-    }, [mergedParams]);
-
-    useEffect(() => {
-        if (autoFetch) {
-            fetchInspirations();
-        }
-    }, [autoFetch, fetchInspirations]);
+    }, [selectedPersonId]);
 
     const create = useCallback(
         async (data: NewInspiration): Promise<Inspiration> => {
@@ -84,11 +66,10 @@ export function useInspirations(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to create inspiration";
                 setError(errorMessage);
-                await fetchInspirations();
                 throw err;
             }
         },
-        [fetchInspirations, selectedPersonId]
+        [selectedPersonId]
     );
 
     const update = useCallback(
@@ -109,11 +90,10 @@ export function useInspirations(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to update inspiration";
                 setError(errorMessage);
-                await fetchInspirations();
                 throw err;
             }
         },
-        [fetchInspirations]
+        []
     );
 
     const remove = useCallback(
@@ -126,18 +106,17 @@ export function useInspirations(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to delete inspiration";
                 setError(errorMessage);
-                await fetchInspirations();
                 throw err;
             }
         },
-        [fetchInspirations]
+        []
     );
 
     return {
         inspirations,
         loading,
         error,
-        refetch: fetchInspirations,
+        getInspirations: fetchInspirations,
         create,
         update,
         remove,

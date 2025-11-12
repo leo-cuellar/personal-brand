@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePersons } from "@/hooks/usePersons";
 import { Person, NewPerson } from "../../../../../../services/supabase/schemas";
 
@@ -33,12 +33,18 @@ function formatDate(date: Date | string): string {
 
 export function PersonsPage() {
     const [showArchived, setShowArchived] = useState(false);
+    const { persons, loading, error, getPersons, create, update, remove } =
+        usePersons();
+
     const params = useMemo(
         () => ({ includeArchived: showArchived }),
         [showArchived]
     );
-    const { persons, loading, error, create, update, remove } =
-        usePersons(params);
+
+    useEffect(() => {
+        getPersons(params);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [params]);
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
 

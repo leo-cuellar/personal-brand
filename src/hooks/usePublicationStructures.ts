@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import {
     getPublicationStructures,
     createPublicationStructure,
@@ -15,44 +15,36 @@ interface UsePublicationStructuresReturn {
     publicationStructures: PublicationStructure[];
     loading: boolean;
     error: string | null;
-    refetch: () => Promise<void>;
+    getPublicationStructures: (params?: GetPublicationStructuresParams) => Promise<void>;
     create: (data: NewPublicationStructure) => Promise<PublicationStructure>;
     update: (id: string, updates: Partial<PublicationStructure>) => Promise<PublicationStructure>;
     remove: (id: string) => Promise<void>;
 }
 
-export function usePublicationStructures(
-    params?: GetPublicationStructuresParams
-): UsePublicationStructuresReturn {
+export function usePublicationStructures(): UsePublicationStructuresReturn {
     const { selectedPersonId } = usePersonContext();
     const [publicationStructures, setPublicationStructures] = useState<PublicationStructure[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Merge personId from context with params
-    const mergedParams = useMemo(() => {
-        return {
-            ...params,
-            personId: params?.personId !== undefined ? params.personId : selectedPersonId,
-        };
-    }, [params, selectedPersonId]);
-
-    const fetchPublicationStructures = useCallback(async () => {
+    const fetchPublicationStructures = useCallback(async (params?: GetPublicationStructuresParams) => {
         try {
             setLoading(true);
             setError(null);
+            // Merge personId from context with params
+            const mergedParams = {
+                ...params,
+                personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+            };
             const data = await getPublicationStructures(mergedParams);
             setPublicationStructures(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An error occurred");
+            throw err;
         } finally {
             setLoading(false);
         }
-    }, [mergedParams]);
-
-    useEffect(() => {
-        fetchPublicationStructures();
-    }, [fetchPublicationStructures]);
+    }, [selectedPersonId]);
 
     const create = useCallback(
         async (data: NewPublicationStructure): Promise<PublicationStructure> => {
@@ -74,11 +66,10 @@ export function usePublicationStructures(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to create publication structure";
                 setError(errorMessage);
-                await fetchPublicationStructures();
                 throw err;
             }
         },
-        [fetchPublicationStructures, selectedPersonId]
+        [selectedPersonId]
     );
 
     const update = useCallback(
@@ -99,11 +90,10 @@ export function usePublicationStructures(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to update publication structure";
                 setError(errorMessage);
-                await fetchPublicationStructures();
                 throw err;
             }
         },
-        [fetchPublicationStructures]
+        []
     );
 
     const remove = useCallback(
@@ -116,21 +106,19 @@ export function usePublicationStructures(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to delete publication structure";
                 setError(errorMessage);
-                await fetchPublicationStructures();
                 throw err;
             }
         },
-        [fetchPublicationStructures]
+        []
     );
 
     return {
         publicationStructures,
         loading,
         error,
-        refetch: fetchPublicationStructures,
+        getPublicationStructures: fetchPublicationStructures,
         create,
         update,
         remove,
     };
 }
-

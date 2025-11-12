@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useStrongOpinions } from "@/hooks/useStrongOpinions";
 import { StrongOpinion, NewStrongOpinion } from "../../../../../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
@@ -19,12 +19,18 @@ function formatDate(date: Date | string): string {
 export function StrongOpinionsPage() {
     const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
+    const { strongOpinions, loading, error, getStrongOpinions, create, update, remove } =
+        useStrongOpinions();
+
     const params = useMemo(
         () => ({ includeArchived: showArchived }),
         [showArchived]
     );
-    const { strongOpinions, loading, error, create, update, remove } =
-        useStrongOpinions(params);
+
+    useEffect(() => {
+        getStrongOpinions(params);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [params]);
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Partial<NewStrongOpinion>>({

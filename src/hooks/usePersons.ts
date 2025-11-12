@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
     getPersons,
     createPerson,
@@ -14,20 +14,18 @@ interface UsePersonsReturn {
     persons: Person[];
     loading: boolean;
     error: string | null;
-    refetch: () => Promise<void>;
+    getPersons: (params?: GetPersonsParams) => Promise<void>;
     create: (data: NewPerson) => Promise<Person>;
     update: (id: string, updates: Partial<Person>) => Promise<Person>;
     remove: (id: string) => Promise<void>;
 }
 
-export function usePersons(
-    params?: GetPersonsParams
-): UsePersonsReturn {
+export function usePersons(): UsePersonsReturn {
     const [persons, setPersons] = useState<Person[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchPersons = useCallback(async () => {
+    const fetchPersons = useCallback(async (params?: GetPersonsParams) => {
         try {
             setLoading(true);
             setError(null);
@@ -35,14 +33,11 @@ export function usePersons(
             setPersons(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An error occurred");
+            throw err;
         } finally {
             setLoading(false);
         }
-    }, [params]);
-
-    useEffect(() => {
-        fetchPersons();
-    }, [fetchPersons]);
+    }, []);
 
     const create = useCallback(
         async (data: NewPerson): Promise<Person> => {
@@ -55,11 +50,10 @@ export function usePersons(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to create person";
                 setError(errorMessage);
-                await fetchPersons();
                 throw err;
             }
         },
-        [fetchPersons]
+        []
     );
 
     const update = useCallback(
@@ -80,11 +74,10 @@ export function usePersons(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to update person";
                 setError(errorMessage);
-                await fetchPersons();
                 throw err;
             }
         },
-        [fetchPersons]
+        []
     );
 
     const remove = useCallback(
@@ -97,21 +90,19 @@ export function usePersons(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to delete person";
                 setError(errorMessage);
-                await fetchPersons();
                 throw err;
             }
         },
-        [fetchPersons]
+        []
     );
 
     return {
         persons,
         loading,
         error,
-        refetch: fetchPersons,
+        getPersons: fetchPersons,
         create,
         update,
         remove,
     };
 }
-

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePublicationStructures } from "@/hooks/usePublicationStructures";
 import { PublicationStructure, NewPublicationStructure } from "../../../../../../services/supabase/schemas";
 import { usePersonContext } from "@/contexts/PersonContext";
@@ -25,12 +25,18 @@ type StructureField = {
 export function PublicationStructuresPage() {
     const { selectedPersonId } = usePersonContext();
     const [showArchived, setShowArchived] = useState(false);
+    const { publicationStructures, loading, error, getPublicationStructures, create, update, remove } =
+        usePublicationStructures();
+
     const params = useMemo(
         () => ({ includeArchived: showArchived }),
         [showArchived]
     );
-    const { publicationStructures, loading, error, create, update, remove } =
-        usePublicationStructures(params);
+
+    useEffect(() => {
+        getPublicationStructures(params);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [params]);
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<{

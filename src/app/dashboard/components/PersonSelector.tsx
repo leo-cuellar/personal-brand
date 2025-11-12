@@ -1,16 +1,19 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect } from "react";
 import { usePersonContext } from "@/contexts/PersonContext";
 import { usePersons } from "@/hooks/usePersons";
 
 export function PersonSelector() {
     const { selectedPersonId, setSelectedPersonId, clearSelection } =
         usePersonContext();
-    
-    // Memoize params to prevent infinite loop
-    const params = useMemo(() => ({ includeArchived: false }), []);
-    const { persons, loading } = usePersons(params);
+
+    const { persons, loading, getPersons } = usePersons();
+
+    useEffect(() => {
+        getPersons({ includeArchived: false });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
     getPublicationCategories,
     createPublicationCategory,
@@ -15,44 +15,36 @@ interface UsePublicationCategoriesReturn {
     publicationCategories: PublicationCategory[];
     loading: boolean;
     error: string | null;
-    refetch: () => Promise<void>;
+    getPublicationCategories: (params?: GetPublicationCategoriesParams) => Promise<void>;
     create: (data: NewPublicationCategory) => Promise<PublicationCategory>;
     update: (id: string, updates: Partial<PublicationCategory>) => Promise<PublicationCategory>;
     remove: (id: string) => Promise<void>;
 }
 
-export function usePublicationCategories(
-    params?: GetPublicationCategoriesParams
-): UsePublicationCategoriesReturn {
+export function usePublicationCategories(): UsePublicationCategoriesReturn {
     const { selectedPersonId } = usePersonContext();
     const [publicationCategories, setPublicationCategories] = useState<PublicationCategory[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Merge personId from context with params
-    const mergedParams = useMemo(() => {
-        return {
-            ...params,
-            personId: params?.personId !== undefined ? params.personId : selectedPersonId,
-        };
-    }, [params, selectedPersonId]);
-
-    const fetchPublicationCategories = useCallback(async () => {
+    const fetchPublicationCategories = useCallback(async (params?: GetPublicationCategoriesParams) => {
         try {
             setLoading(true);
             setError(null);
+            // Merge personId from context with params
+            const mergedParams = {
+                ...params,
+                personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+            };
             const data = await getPublicationCategories(mergedParams);
             setPublicationCategories(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An error occurred");
+            throw err;
         } finally {
             setLoading(false);
         }
-    }, [mergedParams]);
-
-    useEffect(() => {
-        fetchPublicationCategories();
-    }, [fetchPublicationCategories]);
+    }, [selectedPersonId]);
 
     const create = useCallback(
         async (data: NewPublicationCategory): Promise<PublicationCategory> => {
@@ -74,11 +66,10 @@ export function usePublicationCategories(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to create publication category";
                 setError(errorMessage);
-                await fetchPublicationCategories();
                 throw err;
             }
         },
-        [fetchPublicationCategories, selectedPersonId]
+        [selectedPersonId]
     );
 
     const update = useCallback(
@@ -99,11 +90,10 @@ export function usePublicationCategories(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to update publication category";
                 setError(errorMessage);
-                await fetchPublicationCategories();
                 throw err;
             }
         },
-        [fetchPublicationCategories]
+        []
     );
 
     const remove = useCallback(
@@ -116,21 +106,19 @@ export function usePublicationCategories(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to delete publication category";
                 setError(errorMessage);
-                await fetchPublicationCategories();
                 throw err;
             }
         },
-        [fetchPublicationCategories]
+        []
     );
 
     return {
         publicationCategories,
         loading,
         error,
-        refetch: fetchPublicationCategories,
+        getPublicationCategories: fetchPublicationCategories,
         create,
         update,
         remove,
     };
 }
-

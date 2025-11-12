@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import {
     getPublicationTypes,
     createPublicationType,
@@ -15,44 +15,36 @@ interface UsePublicationTypesReturn {
     publicationTypes: PublicationType[];
     loading: boolean;
     error: string | null;
-    refetch: () => Promise<void>;
+    getPublicationTypes: (params?: GetPublicationTypesParams) => Promise<void>;
     create: (data: NewPublicationType) => Promise<PublicationType>;
     update: (id: string, updates: Partial<PublicationType>) => Promise<PublicationType>;
     remove: (id: string) => Promise<void>;
 }
 
-export function usePublicationTypes(
-    params?: GetPublicationTypesParams
-): UsePublicationTypesReturn {
+export function usePublicationTypes(): UsePublicationTypesReturn {
     const { selectedPersonId } = usePersonContext();
     const [publicationTypes, setPublicationTypes] = useState<PublicationType[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Merge personId from context with params
-    const mergedParams = useMemo(() => {
-        return {
-            ...params,
-            personId: params?.personId !== undefined ? params.personId : selectedPersonId,
-        };
-    }, [params, selectedPersonId]);
-
-    const fetchPublicationTypes = useCallback(async () => {
+    const fetchPublicationTypes = useCallback(async (params?: GetPublicationTypesParams) => {
         try {
             setLoading(true);
             setError(null);
+            // Merge personId from context with params
+            const mergedParams = {
+                ...params,
+                personId: params?.personId !== undefined ? params.personId : selectedPersonId,
+            };
             const data = await getPublicationTypes(mergedParams);
             setPublicationTypes(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : "An error occurred");
+            throw err;
         } finally {
             setLoading(false);
         }
-    }, [mergedParams]);
-
-    useEffect(() => {
-        fetchPublicationTypes();
-    }, [fetchPublicationTypes]);
+    }, [selectedPersonId]);
 
     const create = useCallback(
         async (data: NewPublicationType): Promise<PublicationType> => {
@@ -68,19 +60,16 @@ export function usePublicationTypes(
                     personId,
                 };
                 const newPublicationType = await createPublicationType(dataWithPersonId);
-                // Optimistic update: add to list immediately
                 setPublicationTypes((prev) => [newPublicationType, ...prev]);
                 return newPublicationType;
             } catch (err) {
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to create publication type";
                 setError(errorMessage);
-                // Refetch on error to ensure consistency
-                await fetchPublicationTypes();
                 throw err;
             }
         },
-        [fetchPublicationTypes, selectedPersonId]
+        [selectedPersonId]
     );
 
     const update = useCallback(
@@ -91,7 +80,6 @@ export function usePublicationTypes(
             try {
                 setError(null);
                 const updatedPublicationType = await updatePublicationType(id, updates);
-                // Optimistic update: update in list immediately
                 setPublicationTypes((prev) =>
                     prev.map((type) =>
                         type.id === id ? updatedPublicationType : type
@@ -102,41 +90,35 @@ export function usePublicationTypes(
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to update publication type";
                 setError(errorMessage);
-                // Refetch on error to ensure consistency
-                await fetchPublicationTypes();
                 throw err;
             }
         },
-        [fetchPublicationTypes]
+        []
     );
 
     const remove = useCallback(
         async (id: string): Promise<void> => {
             try {
                 setError(null);
-                // Optimistic update: remove from list immediately
                 setPublicationTypes((prev) => prev.filter((type) => type.id !== id));
                 await deletePublicationType(id);
             } catch (err) {
                 const errorMessage =
                     err instanceof Error ? err.message : "Failed to delete publication type";
                 setError(errorMessage);
-                // Refetch on error to restore correct state
-                await fetchPublicationTypes();
                 throw err;
             }
         },
-        [fetchPublicationTypes]
+        []
     );
 
     return {
         publicationTypes,
         loading,
         error,
-        refetch: fetchPublicationTypes,
+        getPublicationTypes: fetchPublicationTypes,
         create,
         update,
         remove,
     };
 }
-
