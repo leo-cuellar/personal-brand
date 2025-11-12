@@ -144,7 +144,7 @@ export function PersonalBrandsPage() {
                         >
                             {editingId === brand.id ? (
                                 <EditForm
-                                    person={brand}
+                                    personalBrand={brand}
                                     onSave={async (updates) => {
                                         await update(brand.id, updates);
                                         setEditingId(null);
@@ -355,11 +355,11 @@ function CreateForm({
 }
 
 function EditForm({
-    person: personalBrand,
+    personalBrand,
     onSave,
     onCancel,
 }: {
-    person: PersonalBrand;
+    personalBrand: PersonalBrand;
     onSave: (updates: Partial<PersonalBrand>) => Promise<void>;
     onCancel: () => void;
 }) {
@@ -370,7 +370,20 @@ function EditForm({
     }>({
         name: personalBrand.name,
         linkedinProfile: personalBrand.linkedinProfile,
-        brandNarrative: personalBrand.brandNarrative,
+        brandNarrative: personalBrand.brandNarrative || {
+            immediateCredibility: "",
+            professionalProblemOrChallenge: "",
+            internalStruggles: "",
+            externalContext: "",
+            keyMicrotransitions: "",
+            insightOrSpark: "",
+            process: "",
+            resultOrTransformation: "",
+            sharedBeliefs: "",
+            currentVisionOrPersonalMission: "",
+            socialProofOrValidation: "",
+            callToAction: "",
+        },
     });
 
     const handleSubmit = async (e: React.FormEvent) => {

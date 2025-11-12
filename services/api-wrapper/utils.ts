@@ -68,7 +68,7 @@ interface SupabasePerson {
         currentVisionOrPersonalMission: string;
         socialProofOrValidation: string;
         callToAction: string;
-    } | null;
+    } | string | null;
     created_at: string;
     updated_at: string;
     is_archived: boolean;
@@ -136,21 +136,64 @@ export function transformPublicationIdea(
 export function transformPersonalBrand(
     data: SupabasePerson
 ): PersonalBrand {
-    // Extract brand narrative fields
-    const brandNarrative = data.brand_narrative || {
-        immediateCredibility: "",
-        professionalProblemOrChallenge: "",
-        internalStruggles: "",
-        externalContext: "",
-        keyMicrotransitions: "",
-        insightOrSpark: "",
-        process: "",
-        resultOrTransformation: "",
-        sharedBeliefs: "",
-        currentVisionOrPersonalMission: "",
-        socialProofOrValidation: "",
-        callToAction: "",
+    // Extract brand narrative fields - handle both string JSON and object
+    let brandNarrative: {
+        immediateCredibility: string;
+        professionalProblemOrChallenge: string;
+        internalStruggles: string;
+        externalContext: string;
+        keyMicrotransitions: string;
+        insightOrSpark: string;
+        process: string;
+        resultOrTransformation: string;
+        sharedBeliefs: string;
+        currentVisionOrPersonalMission: string;
+        socialProofOrValidation: string;
+        callToAction: string;
     };
+
+    if (!data.brand_narrative) {
+        // Default empty object
+        brandNarrative = {
+            immediateCredibility: "",
+            professionalProblemOrChallenge: "",
+            internalStruggles: "",
+            externalContext: "",
+            keyMicrotransitions: "",
+            insightOrSpark: "",
+            process: "",
+            resultOrTransformation: "",
+            sharedBeliefs: "",
+            currentVisionOrPersonalMission: "",
+            socialProofOrValidation: "",
+            callToAction: "",
+        };
+    } else if (typeof data.brand_narrative === "string") {
+        // Parse JSON string
+        try {
+            brandNarrative = JSON.parse(data.brand_narrative);
+        } catch (error) {
+            console.error("Failed to parse brand_narrative JSON:", error);
+            // Fallback to empty object if parsing fails
+            brandNarrative = {
+                immediateCredibility: "",
+                professionalProblemOrChallenge: "",
+                internalStruggles: "",
+                externalContext: "",
+                keyMicrotransitions: "",
+                insightOrSpark: "",
+                process: "",
+                resultOrTransformation: "",
+                sharedBeliefs: "",
+                currentVisionOrPersonalMission: "",
+                socialProofOrValidation: "",
+                callToAction: "",
+            };
+        }
+    } else {
+        // Already an object
+        brandNarrative = data.brand_narrative;
+    }
 
     return {
         id: data.id,
