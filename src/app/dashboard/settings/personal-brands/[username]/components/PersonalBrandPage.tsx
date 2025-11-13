@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { usePersonalBrands } from "@/hooks/usePersonalBrands";
 import { PersonalBrandNarrative } from "./PersonalBrandNarrative";
 import { PersonalBrandStrongOpinions } from "./PersonalBrandStrongOpinions";
+import { Icon } from "@/components/Icon";
 
 interface PersonalBrandPageProps {
     username: string;
@@ -101,9 +102,21 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
                 >
                     ← Back to Personal Brands
                 </button>
-                <h1 className="mb-2 text-4xl font-bold text-gray-900">
-                    {personalBrand.name}
-                </h1>
+                <div className="mb-2 flex items-end gap-3">
+                    <h1 className="text-4xl font-bold text-gray-900 leading-none">
+                        {personalBrand.name}
+                    </h1>
+                    {personalBrand.socialAccounts?.linkedin?.profile_url && (
+                        <a
+                            href={personalBrand.socialAccounts.linkedin.profile_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center transition-opacity hover:opacity-80"
+                        >
+                            <Icon name="linkedin" color="#0077b5" size={28} />
+                        </a>
+                    )}
+                </div>
                 {personalBrand.niche && (
                     <p className="text-base text-gray-700">
                         {personalBrand.niche}
