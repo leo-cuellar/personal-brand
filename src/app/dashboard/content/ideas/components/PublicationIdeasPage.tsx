@@ -208,8 +208,8 @@ export function PublicationIdeasPage() {
                     <button
                         onClick={() => setActiveTab("ready-for-review")}
                         className={`whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "ready-for-review"
-                                ? "border-blue-500 text-blue-600"
-                                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            ? "border-blue-500 text-blue-600"
+                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                             }`}
                     >
                         Ready for Review
@@ -222,8 +222,8 @@ export function PublicationIdeasPage() {
                     <button
                         onClick={() => setActiveTab("accepted")}
                         className={`whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "accepted"
-                                ? "border-blue-500 text-blue-600"
-                                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            ? "border-blue-500 text-blue-600"
+                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                             }`}
                     >
                         Accepted Ideas
