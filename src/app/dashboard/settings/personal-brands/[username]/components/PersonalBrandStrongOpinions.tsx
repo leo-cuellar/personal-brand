@@ -60,7 +60,7 @@ export function PersonalBrandStrongOpinions({
         <div>
             <ul className="space-y-4">
                 {opinions.map((opinion, index) => (
-                    <li key={index} className="flex items-start gap-2 border-b border-gray-100 pb-4 last:border-b-0">
+                    <li key={index} className="flex items-start justify-between gap-2 border-b border-gray-100 pb-4 last:border-b-0">
                         <div className="flex-1 text-sm text-gray-700 whitespace-pre-wrap">
                             {opinion}
                         </div>

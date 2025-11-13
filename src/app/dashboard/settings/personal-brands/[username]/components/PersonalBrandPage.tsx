@@ -134,7 +134,7 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
                     )}
                 </div>
                 {personalBrand.niche && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between gap-2">
                         {isEditingNiche ? (
                             <>
                                 <input
@@ -144,20 +144,22 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
                                     className="flex-1 rounded border border-gray-300 px-2 py-1 text-base text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     autoFocus
                                 />
-                                <IconButton
-                                    icon="check"
-                                    onClick={handleSaveNiche}
-                                    iconColor="#10b981"
-                                    backgroundColor="#d1fae5"
-                                    hoverBackgroundColor="#a7f3d0"
-                                />
-                                <IconButton
-                                    icon="close"
-                                    onClick={handleCancelNiche}
-                                    iconColor="#ef4444"
-                                    backgroundColor="#fee2e2"
-                                    hoverBackgroundColor="#fecaca"
-                                />
+                                <div className="flex items-center gap-2">
+                                    <IconButton
+                                        icon="check"
+                                        onClick={handleSaveNiche}
+                                        iconColor="#10b981"
+                                        backgroundColor="#d1fae5"
+                                        hoverBackgroundColor="#a7f3d0"
+                                    />
+                                    <IconButton
+                                        icon="close"
+                                        onClick={handleCancelNiche}
+                                        iconColor="#ef4444"
+                                        backgroundColor="#fee2e2"
+                                        hoverBackgroundColor="#fecaca"
+                                    />
+                                </div>
                             </>
                         ) : (
                             <>

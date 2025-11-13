@@ -74,7 +74,7 @@ export function PersonalBrandNarrative({
                 const value = narrative[key as keyof BrandNarrative] as string;
                 return (
                     <div key={key} className="border-b border-gray-100 pb-4 last:border-b-0">
-                        <div className="mb-1 flex items-center gap-2">
+                        <div className="mb-1 flex items-center justify-between">
                             <div className="text-sm font-semibold text-gray-900">
                                 {key
                                     .replace(/([A-Z])/g, " $1")
