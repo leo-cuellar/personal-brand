@@ -108,15 +108,10 @@ export function PersonalBrandsPage() {
                                     <h3 className="text-lg font-semibold text-gray-900">
                                         {brand.name}
                                     </h3>
-                                    {brand.socialAccounts.linkedin && (
-                                        <a
-                                            href={brand.socialAccounts.linkedin.profile_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                                        >
-                                            @{brand.socialAccounts.linkedin.profile_name}
-                                        </a>
+                                    {brand.username && (
+                                        <p className="text-sm text-gray-600">
+                                            @{brand.username}
+                                        </p>
                                     )}
                                 </div>
                                 <div className="ml-4 flex gap-2">
@@ -145,10 +140,12 @@ function CreateForm({
 }) {
     const [formData, setFormData] = useState<{
         name: string;
+        username: string;
         linkedinProfileUrl: string;
         linkedinProfileName: string;
     }>({
         name: "",
+        username: "",
         linkedinProfileUrl: "",
         linkedinProfileName: "",
     });
@@ -165,6 +162,7 @@ function CreateForm({
 
         await onSave({
             name: formData.name,
+            username: formData.username,
             socialAccounts: Object.keys(socialAccounts).length > 0 ? socialAccounts : undefined,
         });
     };
@@ -188,7 +186,22 @@ function CreateForm({
             </div>
             <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700">
-                    LinkedIn Profile
+                    Username *
+                </label>
+                <input
+                    type="text"
+                    value={formData.username}
+                    onChange={(e) =>
+                        setFormData({ ...formData, username: e.target.value.replace(/^@/, "") })
+                    }
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="leocuellardev (without @)"
+                    required
+                />
+            </div>
+            <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                    LinkedIn Profile URL
                 </label>
                 <input
                     type="url"

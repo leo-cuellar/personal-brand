@@ -61,6 +61,7 @@ export async function getPersonalBrandData(personalBrandId: string): Promise<Per
     return {
         id: data.id,
         name: data.name,
+        username: data.username,
         socialAccounts: socialAccounts,
         brandNarrative: brandNarrative,
         strongOpinions: strongOpinions,

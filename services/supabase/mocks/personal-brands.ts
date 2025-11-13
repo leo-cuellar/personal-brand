@@ -8,6 +8,7 @@ export const mockPersons: PersonalBrand[] = [
     {
         id: MOCK_PERSON_ID as unknown as string,
         name: "Leo Cuellar",
+        username: "leocuellardev",
         socialAccounts: {
             linkedin: {
                 profile_url: "https://linkedin.com/in/leocuellardev",

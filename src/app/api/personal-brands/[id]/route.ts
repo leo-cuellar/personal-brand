@@ -24,11 +24,11 @@ export async function GET(
         // Select fields based on what's requested
         let selectFields: string;
         if (fields === "basic") {
-            selectFields = "id, name, social_accounts, created_at, updated_at, is_archived";
+            selectFields = "id, name, username, social_accounts, created_at, updated_at, is_archived";
         } else if (fields === "narrative") {
-            selectFields = "id, name, social_accounts, brand_narrative, created_at, updated_at, is_archived";
+            selectFields = "id, name, username, social_accounts, brand_narrative, created_at, updated_at, is_archived";
         } else if (fields === "opinions") {
-            selectFields = "id, name, social_accounts, strong_opinions, created_at, updated_at, is_archived";
+            selectFields = "id, name, username, social_accounts, strong_opinions, created_at, updated_at, is_archived";
         } else {
             // Default: all fields
             selectFields = "*";
@@ -58,6 +58,7 @@ export async function GET(
         const typedData = data as unknown as {
             id: string;
             name: string;
+            username: string;
             social_accounts?: unknown;
             brand_narrative?: unknown;
             strong_opinions?: string[] | null;
@@ -109,7 +110,7 @@ export async function PATCH(
         }
 
         // Determine which fields to return based on what was updated
-        let selectFields = "id, name, social_accounts, created_at, updated_at, is_archived";
+        let selectFields = "id, name, username, social_accounts, created_at, updated_at, is_archived";
         if (body.brandNarrative !== undefined) {
             selectFields += ", brand_narrative";
         }

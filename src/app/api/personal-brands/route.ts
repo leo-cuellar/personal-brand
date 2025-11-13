@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
         // Select fields based on whether profile (brand_narrative + strong_opinions) is needed
         const selectFields = includeProfile
             ? "*"
-            : "id, name, social_accounts, created_at, updated_at, is_archived";
+            : "id, name, username, social_accounts, created_at, updated_at, is_archived";
 
         let query = supabaseAdmin
             .from("personal_brands")
@@ -66,12 +66,13 @@ export async function POST(request: NextRequest) {
             .from("personal_brands")
             .insert({
                 name: body.name,
+                username: body.username,
                 social_accounts: body.socialAccounts || {},
                 brand_narrative: body.brandNarrative || defaultBrandNarrative,
                 strong_opinions: body.strongOpinions || [],
                 is_archived: body.isArchived || false,
             })
-            .select("id, name, social_accounts, created_at, updated_at, is_archived")
+            .select("id, name, username, social_accounts, created_at, updated_at, is_archived")
             .single();
 
         if (error) {
@@ -105,6 +106,7 @@ export async function PUT(request: NextRequest) {
 
         const updateData: {
             name?: string;
+            username?: string;
             social_accounts?: unknown;
             brand_narrative?: unknown;
             is_archived?: boolean;
@@ -114,6 +116,7 @@ export async function PUT(request: NextRequest) {
         };
 
         if (body.name !== undefined) updateData.name = body.name;
+        if (body.username !== undefined) updateData.username = body.username;
         if (body.socialAccounts !== undefined) {
             updateData.social_accounts = body.socialAccounts;
         }

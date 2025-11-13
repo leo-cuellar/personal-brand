@@ -113,39 +113,73 @@ export function PersonalBrandPage({ personalBrandId }: PersonalBrandPageProps) {
                 <h1 className="mb-2 text-4xl font-bold text-gray-900">
                     {personalBrand.name}
                 </h1>
-                {personalBrand.socialAccounts.linkedin && (
-                    <a
-                        href={personalBrand.socialAccounts.linkedin.profile_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 hover:underline"
-                    >
-                        @{personalBrand.socialAccounts.linkedin.profile_name}
-                    </a>
+                {personalBrand.username && (
+                    <p className="text-lg text-gray-600">
+                        @{personalBrand.username}
+                    </p>
                 )}
             </div>
 
             {/* General Information */}
             <div className="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <h2 className="mb-4 text-xl font-semibold text-gray-900">General Information</h2>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <span className="font-medium text-gray-700">Created:</span>{" "}
-                        <span className="text-gray-600">{formatDate(personalBrand.createdAt)}</span>
+                <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span className="font-medium text-gray-700">Created:</span>{" "}
+                            <span className="text-gray-600">{formatDate(personalBrand.createdAt)}</span>
+                        </div>
+                        <div>
+                            <span className="font-medium text-gray-700">Updated:</span>{" "}
+                            <span className="text-gray-600">{formatDate(personalBrand.updatedAt)}</span>
+                        </div>
+                        <div>
+                            <span className="font-medium text-gray-700">Status:</span>{" "}
+                            <span className={`rounded-full px-2 py-1 text-xs font-medium ${personalBrand.isArchived
+                                ? "bg-gray-200 text-gray-700"
+                                : "bg-green-100 text-green-700"
+                                }`}>
+                                {personalBrand.isArchived ? "Archived" : "Active"}
+                            </span>
+                        </div>
                     </div>
-                    <div>
-                        <span className="font-medium text-gray-700">Updated:</span>{" "}
-                        <span className="text-gray-600">{formatDate(personalBrand.updatedAt)}</span>
-                    </div>
-                    <div>
-                        <span className="font-medium text-gray-700">Status:</span>{" "}
-                        <span className={`rounded-full px-2 py-1 text-xs font-medium ${personalBrand.isArchived
-                            ? "bg-gray-200 text-gray-700"
-                            : "bg-green-100 text-green-700"
-                            }`}>
-                            {personalBrand.isArchived ? "Archived" : "Active"}
-                        </span>
-                    </div>
+                    {Object.keys(personalBrand.socialAccounts).length > 0 && (
+                        <div className="mt-4 border-t border-gray-200 pt-4">
+                            <span className="mb-2 block text-sm font-medium text-gray-700">Social Accounts</span>
+                            <div className="flex flex-wrap gap-3">
+                                {personalBrand.socialAccounts.linkedin && (
+                                    <a
+                                        href={personalBrand.socialAccounts.linkedin.profile_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                    >
+                                        LinkedIn: @{personalBrand.socialAccounts.linkedin.profile_name}
+                                    </a>
+                                )}
+                                {personalBrand.socialAccounts.twitter && (
+                                    <a
+                                        href={personalBrand.socialAccounts.twitter.profile_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                    >
+                                        Twitter: @{personalBrand.socialAccounts.twitter.profile_name}
+                                    </a>
+                                )}
+                                {personalBrand.socialAccounts.instagram && (
+                                    <a
+                                        href={personalBrand.socialAccounts.instagram.profile_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                    >
+                                        Instagram: @{personalBrand.socialAccounts.instagram.profile_name}
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 

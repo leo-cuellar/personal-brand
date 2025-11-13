@@ -46,6 +46,7 @@ interface SupabasePublicationIdea {
 interface SupabasePerson {
     id: string;
     name: string;
+    username: string;
     social_accounts?: {
         linkedin?: {
             profile_url: string;
@@ -154,6 +155,7 @@ export function transformPersonalBrand(
     const result: Partial<PersonalBrand> & {
         id: string;
         name: string;
+        username: string;
         socialAccounts: SocialAccounts;
         createdAt: Date;
         updatedAt: Date;
@@ -161,6 +163,7 @@ export function transformPersonalBrand(
     } = {
         id: data.id,
         name: data.name,
+        username: data.username,
         socialAccounts: socialAccounts,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
