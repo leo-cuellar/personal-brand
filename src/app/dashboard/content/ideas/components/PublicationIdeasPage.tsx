@@ -17,8 +17,7 @@ function formatDate(date: Date | string): string {
 }
 
 export function PublicationIdeasPage() {
-    const [showArchived, setShowArchived] = useState(false);
-    const [statusFilter, setStatusFilter] = useState<"in_review" | "accepted" | "rejected" | "used" | "all">("in_review");
+    const [activeTab, setActiveTab] = useState<"ready-for-review" | "accepted">("ready-for-review");
     const [isReviewMode, setIsReviewMode] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
     const [formData, setFormData] = useState({
@@ -33,13 +32,11 @@ export function PublicationIdeasPage() {
 
     const params = useMemo(() => {
         if (!selectedPersonId) return undefined; // Return undefined if no personal brand selected
-        const p: { includeArchived?: boolean; status?: "in_review" | "accepted" | "rejected" | "used"; personalBrandId: string } = {
+        return {
             personalBrandId: selectedPersonId,
+            status: (activeTab === "ready-for-review" ? "in_review" : "accepted") as "in_review" | "accepted",
         };
-        if (showArchived) p.includeArchived = true;
-        if (statusFilter !== "all") p.status = statusFilter;
-        return p;
-    }, [showArchived, statusFilter, selectedPersonId]);
+    }, [activeTab, selectedPersonId]);
 
     const reviewParams = useMemo(() => {
         if (!selectedPersonId) return undefined; // Return undefined if no personal brand selected
@@ -79,8 +76,14 @@ export function PublicationIdeasPage() {
     const handleReject = async (id: string) => {
         try {
             await update(id, { status: "rejected" });
-            // Refetch both lists to update everything
-            await Promise.all([getPublicationIdeas(params), getReviewIdeas(reviewParams)]);
+            // Refetch current list to remove rejected idea
+            if (params) {
+                await getPublicationIdeas(params);
+            }
+            // Also refetch review list if we're on ready-for-review tab
+            if (activeTab === "ready-for-review" && reviewParams) {
+                await getReviewIdeas(reviewParams);
+            }
         } catch {
             // Error handled by UI
         }
@@ -199,33 +202,47 @@ export function PublicationIdeasPage() {
                 </div>
             )}
 
+            {/* Tabs */}
+            <div className="mb-6 border-b border-gray-200">
+                <nav className="-mb-px flex space-x-8">
+                    <button
+                        onClick={() => setActiveTab("ready-for-review")}
+                        className={`whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "ready-for-review"
+                                ? "border-blue-500 text-blue-600"
+                                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            }`}
+                    >
+                        Ready for Review
+                        {activeTab === "ready-for-review" && publicationIdeas.length > 0 && (
+                            <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
+                                {publicationIdeas.length}
+                            </span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("accepted")}
+                        className={`whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "accepted"
+                                ? "border-blue-500 text-blue-600"
+                                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            }`}
+                    >
+                        Accepted Ideas
+                        {activeTab === "accepted" && publicationIdeas.length > 0 && (
+                            <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
+                                {publicationIdeas.length}
+                            </span>
+                        )}
+                    </button>
+                </nav>
+            </div>
+
             <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            checked={showArchived}
-                            onChange={(e) => setShowArchived(e.target.checked)}
-                            className="h-4 w-4 rounded border-gray-300"
-                        />
-                        <span className="text-sm text-gray-700">Show archived</span>
-                    </label>
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value as "in_review" | "accepted" | "rejected" | "used" | "all")}
-                        className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="all">All Status</option>
-                        <option value="in_review">In Review</option>
-                        <option value="accepted">Accepted</option>
-                        <option value="rejected">Rejected</option>
-                        <option value="used">Used</option>
-                    </select>
                     <span className="text-sm text-gray-500">
                         {publicationIdeas.length} idea{publicationIdeas.length !== 1 ? "s" : ""}
-                        {reviewIdeas.length > 0 && (
+                        {activeTab === "ready-for-review" && reviewIdeas.length > 0 && (
                             <span className="ml-2 text-blue-600">
-                                ({reviewIdeas.length} in review)
+                                ({reviewIdeas.length} ready for review)
                             </span>
                         )}
                     </span>
@@ -239,7 +256,7 @@ export function PublicationIdeasPage() {
                     >
                         {isCreating ? "Cancel" : "+ Add New Idea"}
                     </button>
-                    {reviewIdeas.length > 0 && (
+                    {activeTab === "ready-for-review" && reviewIdeas.length > 0 && (
                         <button
                             onClick={handleStartReview}
                             className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
@@ -324,9 +341,9 @@ export function PublicationIdeasPage() {
                 {publicationIdeas.length === 0 ? (
                     <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
                         <p className="text-gray-500">
-                            {showArchived
-                                ? "No publication ideas found."
-                                : `No ${statusFilter === "all" ? "" : statusFilter.replace("_", " ")} publication ideas found.`}
+                            {activeTab === "ready-for-review"
+                                ? "No ideas ready for review."
+                                : "No accepted ideas found."}
                         </p>
                     </div>
                 ) : (
@@ -370,7 +387,7 @@ export function PublicationIdeasPage() {
                                     )}
                                 </div>
                             </div>
-                            {idea.status === "in_review" && (
+                            {activeTab === "ready-for-review" && idea.status === "in_review" && (
                                 <div className="mb-3 flex gap-3">
                                     <button
                                         onClick={() => handleAccept(idea.id)}
