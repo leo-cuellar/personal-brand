@@ -266,7 +266,7 @@ export function transformInspiration(
         personalBrandId: data.personal_brand_id,
         text: data.text,
         link: data.link || null,
-        source: data.source as "manual" | "trend_scanner" | "linkedin",
+        source: data.source as "trend_scanner" | "linkedin_post" | "website" | "document" | "image" | "video" | "youtube_video",
         metadata: data.metadata || null,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,

@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useInspirations } from "@/hooks/useInspirations";
-import { Inspiration, NewInspiration } from "../../../../../../services/supabase/schemas";
+import { Inspiration } from "../../../../../../services/supabase/schemas";
 import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 import { useN8nHooks } from "@/hooks/useN8nHooks";
+import { cn } from "@/lib/utils";
 
 function formatDate(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
@@ -20,7 +21,7 @@ function formatDate(date: Date | string): string {
 export function InspirationsPage() {
     const { selectedPersonId } = usePersonalBrandContext();
     const [showArchived, setShowArchived] = useState(false);
-    const { inspirations, loading, error, getInspirations, create, update, remove } =
+    const { inspirations, loading, error, getInspirations, update, remove } =
         useInspirations();
 
     const params = useMemo(
@@ -33,38 +34,7 @@ export function InspirationsPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params]);
     const { idGenTrendScanner, idGenContext, loading: n8nLoading, error: n8nError } = useN8nHooks();
-    const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
-    const [formData, setFormData] = useState<Partial<NewInspiration>>({
-        text: "",
-        link: "",
-        source: "manual",
-        isArchived: false,
-    });
-
-    const handleCreate = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!selectedPersonId) {
-            alert("Please select a person first from the header");
-            return;
-        }
-        if (!formData.text) {
-            alert("Text is required");
-            return;
-        }
-        try {
-            await create({
-                text: formData.text,
-                link: formData.link || null,
-                source: "manual",
-                isArchived: formData.isArchived || false,
-            } as NewInspiration);
-            setFormData({ text: "", link: "", source: "manual", isArchived: false });
-            setIsCreating(false);
-        } catch {
-            // Error handled by alert or UI
-        }
-    };
 
     const handleUpdate = async (id: string, updates: Partial<Inspiration>) => {
         try {
@@ -154,78 +124,8 @@ export function InspirationsPage() {
                     >
                         {n8nLoading ? "Generating..." : "Generate Ideas"}
                     </button>
-                    <button
-                        onClick={() => setIsCreating(!isCreating)}
-                        disabled={!selectedPersonId}
-                        className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        title={!selectedPersonId ? "Please select a person first" : ""}
-                    >
-                        {isCreating ? "Cancel" : "+ Add New Inspiration"}
-                    </button>
                 </div>
             </div>
-
-            {isCreating && (
-                <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-                    <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                        Create New Inspiration
-                    </h2>
-                    {!selectedPersonId && (
-                        <div className="mb-4 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-yellow-800">
-                            <strong>⚠️ Warning:</strong> Please select a person from the header before creating an inspiration.
-                        </div>
-                    )}
-                    <form onSubmit={handleCreate} className="space-y-4">
-                        <div>
-                            <label className="mb-2 block text-sm font-medium text-gray-700">
-                                Text *
-                            </label>
-                            <textarea
-                                value={formData.text}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, text: e.target.value })
-                                }
-                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                rows={8}
-                                placeholder="Enter your inspiration text here... It can be a short idea like 'hablar de x cosa' or a full LinkedIn post."
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="mb-2 block text-sm font-medium text-gray-700">
-                                Link (optional)
-                            </label>
-                            <input
-                                type="url"
-                                value={formData.link || ""}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, link: e.target.value })
-                                }
-                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="https://example.com"
-                            />
-                        </div>
-                        <div className="flex gap-3">
-                            <button
-                                type="submit"
-                                className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                            >
-                                Create
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setIsCreating(false);
-                                    setFormData({ text: "", link: "", source: "manual", isArchived: false });
-                                }}
-                                className="rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            )}
 
             <div className="space-y-4">
                 {inspirations.length === 0 ? (
@@ -233,7 +133,7 @@ export function InspirationsPage() {
                         <p className="text-gray-500">
                             {showArchived
                                 ? "No inspirations found."
-                                : "No active inspirations. Create one to get started!"}
+                                : "No active inspirations. Use the Trend Scanner or Chrome extension to add inspirations."}
                         </p>
                     </div>
                 ) : (
@@ -261,18 +161,7 @@ export function InspirationsPage() {
                                                         Archived
                                                     </span>
                                                 )}
-                                                <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${inspiration.source === "trend_scanner"
-                                                    ? "bg-purple-100 text-purple-800"
-                                                    : inspiration.source === "linkedin"
-                                                        ? "bg-blue-100 text-blue-800"
-                                                        : "bg-gray-100 text-gray-800"
-                                                    }`}>
-                                                    {inspiration.source === "trend_scanner"
-                                                        ? "Trend Scanner"
-                                                        : inspiration.source === "linkedin"
-                                                            ? "LinkedIn"
-                                                            : "Manual"}
-                                                </span>
+                                                <SourceBadge source={inspiration.source} />
                                             </div>
                                             <p className="whitespace-pre-wrap text-gray-800">{inspiration.text}</p>
                                             {inspiration.link && (
@@ -376,6 +265,54 @@ function EditForm({
                 </button>
             </div>
         </form>
+    );
+}
+
+const SOURCE_CONFIG = {
+    trend_scanner: {
+        label: "Trend Scanner",
+        className: "bg-purple-100 text-purple-800",
+    },
+    linkedin_post: {
+        label: "LinkedIn Post",
+        className: "bg-blue-100 text-blue-800",
+    },
+    website: {
+        label: "Website",
+        className: "bg-green-100 text-green-800",
+    },
+    document: {
+        label: "Document",
+        className: "bg-orange-100 text-orange-800",
+    },
+    image: {
+        label: "Image",
+        className: "bg-pink-100 text-pink-800",
+    },
+    video: {
+        label: "Video",
+        className: "bg-red-100 text-red-800",
+    },
+    youtube_video: {
+        label: "YouTube Video",
+        className: "bg-red-100 text-red-800",
+    },
+} as const;
+
+interface SourceBadgeProps {
+    source: Inspiration["source"];
+}
+
+function SourceBadge({ source }: SourceBadgeProps) {
+    const config = SOURCE_CONFIG[source] || {
+        label: source,
+        className: "bg-gray-100 text-gray-800",
+    };
+
+    return (
+        <span className={cn("inline-flex items-center rounded-full px-2 py-1 text-xs font-medium", config.className)}>
+            {config.label}
+        </span>
     );
 }
 

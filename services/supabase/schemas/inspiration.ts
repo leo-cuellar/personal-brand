@@ -2,7 +2,15 @@ import { pgTable, text, timestamp, uuid, boolean, varchar, pgEnum, jsonb } from 
 import { personalBrands } from "./personal-brand";
 
 // Enum for inspiration source
-export const inspirationSourceEnum = pgEnum("inspiration_source", ["manual", "trend_scanner", "linkedin"]);
+export const inspirationSourceEnum = pgEnum("inspiration_source", [
+    "trend_scanner",
+    "linkedin_post",
+    "website",
+    "document",
+    "image",
+    "video",
+    "youtube_video",
+]);
 
 // Inspirations table
 // This table stores inspiration content that can range from short ideas to full LinkedIn posts
@@ -13,7 +21,7 @@ export const inspirations = pgTable("inspirations", {
         .notNull(),
     text: text("text").notNull(),
     link: varchar("link", { length: 500 }),
-    source: inspirationSourceEnum("source").notNull().default("manual"),
+    source: inspirationSourceEnum("source").notNull(),
     metadata: jsonb("metadata"), // JSON field for source-specific metadata
     createdAt: timestamp("created_at", { withTimezone: true })
         .notNull()

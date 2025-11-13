@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
                 personal_brand_id: body.personalBrandId,
                 text: body.text,
                 link: body.link || null,
-                source: body.source || "manual",
+                source: body.source,
                 metadata: body.metadata || null,
                 is_archived: body.isArchived || false,
             })

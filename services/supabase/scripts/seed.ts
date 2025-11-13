@@ -182,7 +182,7 @@ async function seedInspirations() {
                     ${inspiration.personalBrandId}::uuid,
                     ${inspiration.text},
                     ${inspiration.link || null},
-                    ${inspiration.source || "manual"}::inspiration_source,
+                    ${inspiration.source || "trend_scanner"}::inspiration_source,
                     ${new Date(inspiration.createdAt)},
                     ${new Date(inspiration.updatedAt)},
                     ${inspiration.isArchived}
