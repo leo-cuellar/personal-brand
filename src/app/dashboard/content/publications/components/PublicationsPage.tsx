@@ -30,7 +30,6 @@ export function PublicationsPage() {
 
     // Filters
     const [statusFilter, setStatusFilter] = useState<"draft" | "scheduled" | "published" | "failed" | "all">("all");
-    const [platformFilter, setPlatformFilter] = useState<string>("");
     const [dateFrom, setDateFrom] = useState<string>("");
     const [dateTo, setDateTo] = useState<string>("");
     const [includeHidden, setIncludeHidden] = useState<boolean>(false);
@@ -64,7 +63,6 @@ export function PublicationsPage() {
                     page?: number;
                     limit?: number;
                     status?: "draft" | "scheduled" | "published" | "failed";
-                    platform?: string;
                     dateFrom?: string;
                     dateTo?: string;
                     includeHidden?: boolean;
@@ -90,9 +88,6 @@ export function PublicationsPage() {
                     // For list view, use regular filters
                     if (statusFilter !== "all") {
                         params.status = statusFilter;
-                    }
-                    if (platformFilter) {
-                        params.platform = platformFilter;
                     }
                     if (dateFrom) {
                         const fromDate = new Date(dateFrom);
@@ -126,7 +121,7 @@ export function PublicationsPage() {
         return () => {
             cancelled = true;
         };
-    }, [getPosts, currentPage, limit, statusFilter, platformFilter, dateFrom, dateTo, includeHidden, viewMode, calendarDateFrom, calendarDateTo]);
+    }, [getPosts, currentPage, limit, statusFilter, dateFrom, dateTo, includeHidden, viewMode, calendarDateFrom, calendarDateTo]);
 
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage);
@@ -179,22 +174,6 @@ export function PublicationsPage() {
                             <option value="published">Published</option>
                             <option value="failed">Failed</option>
                         </select>
-                    </div>
-
-                    <div>
-                        <label className="mb-1 block text-sm font-medium text-gray-700">
-                            Platform
-                        </label>
-                        <input
-                            type="text"
-                            value={platformFilter}
-                            onChange={(e) => {
-                                setPlatformFilter(e.target.value);
-                                setCurrentPage(1);
-                            }}
-                            placeholder="e.g., linkedin"
-                            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
                     </div>
 
                     <div>
@@ -279,7 +258,6 @@ export function PublicationsPage() {
                         page?: number;
                         limit?: number;
                         status?: "draft" | "scheduled" | "published" | "failed";
-                        platform?: string;
                         dateFrom?: string;
                         dateTo?: string;
                         includeHidden?: boolean;
@@ -302,9 +280,6 @@ export function PublicationsPage() {
                     } else {
                         if (statusFilter !== "all") {
                             params.status = statusFilter;
-                        }
-                        if (platformFilter) {
-                            params.platform = platformFilter;
                         }
                         if (dateFrom) {
                             const fromDate = new Date(dateFrom);
@@ -331,7 +306,6 @@ export function PublicationsPage() {
                         page?: number;
                         limit?: number;
                         status?: "draft" | "scheduled" | "published" | "failed";
-                        platform?: string;
                         dateFrom?: string;
                         dateTo?: string;
                         includeHidden?: boolean;
@@ -354,9 +328,6 @@ export function PublicationsPage() {
                     } else {
                         if (statusFilter !== "all") {
                             params.status = statusFilter;
-                        }
-                        if (platformFilter) {
-                            params.platform = platformFilter;
                         }
                         if (dateFrom) {
                             const fromDate = new Date(dateFrom);
@@ -383,7 +354,6 @@ export function PublicationsPage() {
                         page?: number;
                         limit?: number;
                         status?: "draft" | "scheduled" | "published" | "failed";
-                        platform?: string;
                         dateFrom?: string;
                         dateTo?: string;
                         includeHidden?: boolean;
@@ -406,9 +376,6 @@ export function PublicationsPage() {
                     } else {
                         if (statusFilter !== "all") {
                             params.status = statusFilter;
-                        }
-                        if (platformFilter) {
-                            params.platform = platformFilter;
                         }
                         if (dateFrom) {
                             const fromDate = new Date(dateFrom);

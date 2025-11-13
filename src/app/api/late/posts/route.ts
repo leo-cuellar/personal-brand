@@ -23,9 +23,12 @@ export async function GET(request: NextRequest) {
             params.status = status as "draft" | "scheduled" | "published" | "failed";
         }
 
+        // Always filter by LinkedIn by default if platform is not specified
         const platform = searchParams.get("platform");
         if (platform) {
             params.platform = platform;
+        } else {
+            params.platform = "linkedin";
         }
 
         const profileId = searchParams.get("profileId");
