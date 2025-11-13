@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BrandNarrative } from "../../../../../../../services/supabase/schemas";
 import { EditButton } from "@/components/EditButton";
+import { IconButton } from "@/components/IconButton";
 
 // Field descriptions matching the schema comments
 const FIELD_DESCRIPTIONS = {
@@ -26,6 +27,7 @@ interface PersonalBrandNarrativeProps {
     loading: boolean;
     error: string | null;
     onLoad: (username: string) => Promise<void>;
+    onUpdate: (username: string, narrative: BrandNarrative) => Promise<void>;
 }
 
 export function PersonalBrandNarrative({
@@ -34,7 +36,11 @@ export function PersonalBrandNarrative({
     loading,
     error,
     onLoad,
+    onUpdate,
 }: PersonalBrandNarrativeProps) {
+    const [editingField, setEditingField] = useState<keyof BrandNarrative | null>(null);
+    const [fieldValue, setFieldValue] = useState("");
+
     useEffect(() => {
         // Only fetch if narrative is not already loaded
         if (narrative === null && !loading) {
@@ -42,6 +48,34 @@ export function PersonalBrandNarrative({
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [username]);
+
+    const handleEditField = (field: keyof BrandNarrative) => {
+        if (!narrative) return;
+        setFieldValue(narrative[field] || "");
+        setEditingField(field);
+    };
+
+    const handleSaveField = async () => {
+        if (!narrative || !editingField) return;
+
+        try {
+            const updatedNarrative = {
+                ...narrative,
+                [editingField]: fieldValue,
+            };
+            await onUpdate(username, updatedNarrative);
+            setEditingField(null);
+            setFieldValue("");
+        } catch (err) {
+            console.error("Failed to update narrative field:", err);
+            // TODO: Show error message to user
+        }
+    };
+
+    const handleCancelField = () => {
+        setEditingField(null);
+        setFieldValue("");
+    };
 
     if (loading) {
         return (
@@ -71,7 +105,10 @@ export function PersonalBrandNarrative({
     return (
         <div className="space-y-4">
             {Object.entries(FIELD_DESCRIPTIONS).map(([key, description]) => {
-                const value = narrative[key as keyof BrandNarrative] as string;
+                const fieldKey = key as keyof BrandNarrative;
+                const value = narrative[fieldKey] as string;
+                const isEditing = editingField === fieldKey;
+
                 return (
                     <div key={key} className="border-b border-gray-100 pb-4 last:border-b-0">
                         <div className="mb-1 flex items-center justify-between">
@@ -81,14 +118,45 @@ export function PersonalBrandNarrative({
                                     .replace(/^./, (str) => str.toUpperCase())
                                     .trim()}
                             </div>
-                            <EditButton />
+                            {isEditing ? (
+                                <div className="flex items-center gap-2">
+                                    <IconButton
+                                        icon="check"
+                                        onClick={handleSaveField}
+                                        iconColor="#10b981"
+                                        backgroundColor="#d1fae5"
+                                        hoverBackgroundColor="#a7f3d0"
+                                    />
+                                    <IconButton
+                                        icon="close"
+                                        onClick={handleCancelField}
+                                        iconColor="#ef4444"
+                                        backgroundColor="#fee2e2"
+                                        hoverBackgroundColor="#fecaca"
+                                    />
+                                </div>
+                            ) : (
+                                <EditButton onClick={() => handleEditField(fieldKey)} />
+                            )}
                         </div>
                         <div className="mb-2 text-xs italic text-gray-500">
                             {description}
                         </div>
-                        <div className="text-sm text-gray-700 whitespace-pre-wrap">
-                            {value || <span className="text-gray-400">(empty)</span>}
-                        </div>
+                        {isEditing ? (
+                            <div className="flex flex-col gap-2">
+                                <textarea
+                                    value={fieldValue}
+                                    onChange={(e) => setFieldValue(e.target.value)}
+                                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    rows={4}
+                                    autoFocus
+                                />
+                            </div>
+                        ) : (
+                            <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                                {value || <span className="text-gray-400">(empty)</span>}
+                            </div>
+                        )}
                     </div>
                 );
             })}

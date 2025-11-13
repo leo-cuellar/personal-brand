@@ -28,6 +28,7 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
         narrativeLoading,
         narrativeError,
         getNarrative,
+        updateNarrative,
         opinions,
         opinionsLoading,
         opinionsError,
@@ -224,6 +225,7 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
                         loading={narrativeLoading}
                         error={narrativeError}
                         onLoad={getNarrative}
+                        onUpdate={updateNarrative}
                     />
                 )}
 
