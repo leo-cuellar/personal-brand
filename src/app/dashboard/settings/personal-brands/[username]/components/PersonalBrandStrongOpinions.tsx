@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { EditButton } from "@/components/EditButton";
 
 interface PersonalBrandStrongOpinionsProps {
     username: string;
@@ -59,10 +60,11 @@ export function PersonalBrandStrongOpinions({
         <div>
             <ul className="space-y-4">
                 {opinions.map((opinion, index) => (
-                    <li key={index} className="border-b border-gray-100 pb-4 last:border-b-0">
-                        <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                    <li key={index} className="flex items-start gap-2 border-b border-gray-100 pb-4 last:border-b-0">
+                        <div className="flex-1 text-sm text-gray-700 whitespace-pre-wrap">
                             {opinion}
                         </div>
+                        <EditButton />
                     </li>
                 ))}
             </ul>

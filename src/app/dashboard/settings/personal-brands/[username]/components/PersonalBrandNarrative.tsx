@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { BrandNarrative } from "../../../../../../../services/supabase/schemas";
+import { EditButton } from "@/components/EditButton";
 
 // Field descriptions matching the schema comments
 const FIELD_DESCRIPTIONS = {
@@ -73,11 +74,14 @@ export function PersonalBrandNarrative({
                 const value = narrative[key as keyof BrandNarrative] as string;
                 return (
                     <div key={key} className="border-b border-gray-100 pb-4 last:border-b-0">
-                        <div className="mb-1 text-sm font-semibold text-gray-900">
-                            {key
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())
-                                .trim()}
+                        <div className="mb-1 flex items-center gap-2">
+                            <div className="text-sm font-semibold text-gray-900">
+                                {key
+                                    .replace(/([A-Z])/g, " $1")
+                                    .replace(/^./, (str) => str.toUpperCase())
+                                    .trim()}
+                            </div>
+                            <EditButton />
                         </div>
                         <div className="mb-2 text-xs italic text-gray-500">
                             {description}

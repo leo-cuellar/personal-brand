@@ -6,6 +6,7 @@ import { usePersonalBrands } from "@/hooks/usePersonalBrands";
 import { PersonalBrandNarrative } from "./PersonalBrandNarrative";
 import { PersonalBrandStrongOpinions } from "./PersonalBrandStrongOpinions";
 import { Icon } from "@/components/Icon";
+import { EditButton } from "@/components/EditButton";
 
 interface PersonalBrandPageProps {
     username: string;
@@ -118,9 +119,12 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
                     )}
                 </div>
                 {personalBrand.niche && (
-                    <p className="text-base text-gray-700">
-                        {personalBrand.niche}
-                    </p>
+                    <div className="flex items-center gap-2">
+                        <p className="text-base text-gray-700">
+                            {personalBrand.niche}
+                        </p>
+                        <EditButton />
+                    </div>
                 )}
             </div>
 
