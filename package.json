@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@perplexity-ai/perplexity_ai": "^0.16.0",
+    "@radix-ui/react-switch": "^1.2.6",
     "@supabase/supabase-js": "^2.80.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
