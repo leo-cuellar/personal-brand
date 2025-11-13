@@ -37,20 +37,20 @@ export async function getPersonalBrands(
     return Array.isArray(data) ? data.map(transformPersonalBrand) : [];
 }
 
-export interface GetPersonalBrandByIdParams {
+export interface GetPersonalBrandByUsernameParams {
     fields?: "basic" | "narrative" | "opinions" | "all"; // What fields to include
 }
 
-export async function getPersonalBrandById(
-    id: string,
-    params?: GetPersonalBrandByIdParams
+export async function getPersonalBrandByUsername(
+    username: string,
+    params?: GetPersonalBrandByUsernameParams
 ): Promise<PersonalBrand> {
     const queryParams = new URLSearchParams();
     if (params?.fields) {
         queryParams.append("fields", params.fields);
     }
 
-    const url = `${API_BASE_URL}/${id}${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+    const url = `${API_BASE_URL}/${encodeURIComponent(username)}${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
 
     const response = await fetch(url, {
         method: "GET",
@@ -111,16 +111,16 @@ export async function updatePersonalBrand(
     return transformPersonalBrand(data);
 }
 
-export async function getPersonalBrandNarrative(id: string): Promise<PersonalBrand["brandNarrative"]> {
-    const personalBrand = await getPersonalBrandById(id, { fields: "narrative" });
+export async function getPersonalBrandNarrative(username: string): Promise<PersonalBrand["brandNarrative"]> {
+    const personalBrand = await getPersonalBrandByUsername(username, { fields: "narrative" });
     return personalBrand.brandNarrative;
 }
 
 export async function updatePersonalBrandNarrative(
-    id: string,
+    username: string,
     brandNarrative: PersonalBrand["brandNarrative"]
 ): Promise<PersonalBrand["brandNarrative"]> {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/${encodeURIComponent(username)}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",
@@ -137,16 +137,16 @@ export async function updatePersonalBrandNarrative(
     return data.brandNarrative;
 }
 
-export async function getPersonalBrandOpinions(id: string): Promise<string[]> {
-    const personalBrand = await getPersonalBrandById(id, { fields: "opinions" });
+export async function getPersonalBrandOpinions(username: string): Promise<string[]> {
+    const personalBrand = await getPersonalBrandByUsername(username, { fields: "opinions" });
     return personalBrand.strongOpinions;
 }
 
 export async function updatePersonalBrandOpinions(
-    id: string,
+    username: string,
     strongOpinions: string[]
 ): Promise<string[]> {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/${encodeURIComponent(username)}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",

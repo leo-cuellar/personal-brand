@@ -116,7 +116,7 @@ export function PersonalBrandsPage() {
                                 </div>
                                 <div className="ml-4 flex gap-2">
                                     <button
-                                        onClick={() => router.push(`/dashboard/settings/personal-brands/${brand.id}`)}
+                                        onClick={() => router.push(`/dashboard/settings/personal-brands/${brand.username}`)}
                                         className="rounded-lg bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                     >
                                         View

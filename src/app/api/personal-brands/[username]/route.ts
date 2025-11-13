@@ -2,21 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../../services/supabase/client";
 import { transformPersonalBrand } from "../../../../../services/api-wrapper/utils";
 
-// GET - Get a single personal brand by ID
+// GET - Get a single personal brand by username
 export async function GET(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> | { id: string } }
+    { params }: { params: Promise<{ username: string }> | { username: string } }
 ) {
     try {
         const resolvedParams = await Promise.resolve(params);
-        const { id } = resolvedParams;
+        let { username } = resolvedParams;
 
-        if (!id) {
+        if (!username) {
             return NextResponse.json(
-                { error: "Personal brand ID is required" },
+                { error: "Username is required" },
                 { status: 400 }
             );
         }
+
+        // Decode username in case it was URL encoded
+        username = decodeURIComponent(username);
 
         const { searchParams } = new URL(request.url);
         const fields = searchParams.get("fields"); // Can be "basic", "narrative", "opinions", "all" (default)
@@ -37,7 +40,7 @@ export async function GET(
         const { data, error } = await supabaseAdmin
             .from("personal_brands")
             .select(selectFields)
-            .eq("id", id)
+            .eq("username", username)
             .single();
 
         if (error) {
@@ -79,18 +82,21 @@ export async function GET(
 // PATCH - Update specific fields of a personal brand
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> | { id: string } }
+    { params }: { params: Promise<{ username: string }> | { username: string } }
 ) {
     try {
         const resolvedParams = await Promise.resolve(params);
-        const { id } = resolvedParams;
+        let { username } = resolvedParams;
 
-        if (!id) {
+        if (!username) {
             return NextResponse.json(
-                { error: "Personal brand ID is required" },
+                { error: "Username is required" },
                 { status: 400 }
             );
         }
+
+        // Decode username in case it was URL encoded
+        username = decodeURIComponent(username);
 
         const body = await request.json();
         const updateData: {
@@ -121,7 +127,7 @@ export async function PATCH(
         const { data, error } = await supabaseAdmin
             .from("personal_brands")
             .update(updateData)
-            .eq("id", id)
+            .eq("username", username)
             .select(selectFields)
             .single();
 

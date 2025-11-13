@@ -5,18 +5,21 @@ import { PersonalBrandPage } from "./components/PersonalBrandPage";
 
 export default function PersonalBrandDetailPage() {
     const params = useParams();
-    const personalBrandId = params["personal-brand-id"] as string;
+    const username = params["username"] as string;
 
-    if (!personalBrandId) {
+    if (!username) {
         return (
             <div className="flex min-h-screen items-center justify-center">
                 <div className="text-center">
-                    <p className="text-lg text-red-600">Personal brand ID is required</p>
+                    <p className="text-lg text-red-600">Username is required</p>
                 </div>
             </div>
         );
     }
 
-    return <PersonalBrandPage personalBrandId={personalBrandId} />;
+    // Decode username in case it was URL encoded
+    const decodedUsername = decodeURIComponent(username);
+
+    return <PersonalBrandPage username={decodedUsername} />;
 }
 

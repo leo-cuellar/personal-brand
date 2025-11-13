@@ -20,15 +20,15 @@ const FIELD_DESCRIPTIONS = {
 } as const;
 
 interface PersonalBrandNarrativeProps {
-    personalBrandId: string;
+    username: string;
     narrative: BrandNarrative | null;
     loading: boolean;
     error: string | null;
-    onLoad: (id: string) => Promise<void>;
+    onLoad: (username: string) => Promise<void>;
 }
 
 export function PersonalBrandNarrative({
-    personalBrandId,
+    username,
     narrative,
     loading,
     error,
@@ -37,10 +37,10 @@ export function PersonalBrandNarrative({
     useEffect(() => {
         // Only fetch if narrative is not already loaded
         if (narrative === null && !loading) {
-            onLoad(personalBrandId);
+            onLoad(username);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [personalBrandId]);
+    }, [username]);
 
     if (loading) {
         return (

@@ -18,10 +18,10 @@ function formatDate(date: Date | string): string {
 }
 
 interface PersonalBrandPageProps {
-    personalBrandId: string;
+    username: string;
 }
 
-export function PersonalBrandPage({ personalBrandId }: PersonalBrandPageProps) {
+export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<"narrative" | "opinions">("narrative");
 
@@ -29,7 +29,7 @@ export function PersonalBrandPage({ personalBrandId }: PersonalBrandPageProps) {
         personalBrand,
         personalBrandLoading: loading,
         personalBrandError: error,
-        getPersonalBrand,
+        getPersonalBrandByUsername,
         narrative,
         narrativeLoading,
         narrativeError,
@@ -41,12 +41,12 @@ export function PersonalBrandPage({ personalBrandId }: PersonalBrandPageProps) {
     } = usePersonalBrands();
 
     useEffect(() => {
-        if (!personalBrandId) {
+        if (!username) {
             return;
         }
 
-        getPersonalBrand(personalBrandId, "basic");
-    }, [personalBrandId, getPersonalBrand]);
+        getPersonalBrandByUsername(username, "basic");
+    }, [username, getPersonalBrandByUsername]);
 
     // Show loading if currently loading OR if we haven't loaded anything yet (no personalBrand, no error, not loading)
     const isInitialLoad = !personalBrand && !error && !loading;
@@ -211,7 +211,7 @@ export function PersonalBrandPage({ personalBrandId }: PersonalBrandPageProps) {
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 {activeTab === "narrative" && (
                     <PersonalBrandNarrative
-                        personalBrandId={personalBrand.id}
+                        username={username}
                         narrative={narrative}
                         loading={narrativeLoading}
                         error={narrativeError}
@@ -221,7 +221,7 @@ export function PersonalBrandPage({ personalBrandId }: PersonalBrandPageProps) {
 
                 {activeTab === "opinions" && (
                     <PersonalBrandStrongOpinions
-                        personalBrandId={personalBrand.id}
+                        username={username}
                         opinions={opinions}
                         loading={opinionsLoading}
                         error={opinionsError}

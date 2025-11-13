@@ -3,15 +3,15 @@
 import { useEffect } from "react";
 
 interface PersonalBrandStrongOpinionsProps {
-    personalBrandId: string;
+    username: string;
     opinions: string[] | null; // null means not loaded yet, [] means loaded but empty
     loading: boolean;
     error: string | null;
-    onLoad: (id: string) => Promise<void>;
+    onLoad: (username: string) => Promise<void>;
 }
 
 export function PersonalBrandStrongOpinions({
-    personalBrandId,
+    username,
     opinions,
     loading,
     error,
@@ -20,10 +20,10 @@ export function PersonalBrandStrongOpinions({
     useEffect(() => {
         // Only fetch if opinions are not already loaded (null means not loaded yet)
         if (opinions === null && !loading) {
-            onLoad(personalBrandId);
+            onLoad(username);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [personalBrandId]);
+    }, [username]);
 
     if (loading) {
         return (

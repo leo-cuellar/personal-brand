@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import {
     getPersonalBrands,
-    getPersonalBrandById,
+    getPersonalBrandByUsername,
     getPersonalBrandNarrative,
     getPersonalBrandOpinions,
     createPersonalBrand,
@@ -29,21 +29,21 @@ interface UsePersonalBrandsReturn {
     personalBrand: PersonalBrand | null;
     personalBrandLoading: boolean;
     personalBrandError: string | null;
-    getPersonalBrand: (id: string, fields?: "basic" | "narrative" | "opinions" | "all") => Promise<void>;
+    getPersonalBrandByUsername: (username: string, fields?: "basic" | "narrative" | "opinions" | "all") => Promise<void>;
 
     // Narrative methods
     narrative: BrandNarrative | null;
     narrativeLoading: boolean;
     narrativeError: string | null;
-    getNarrative: (id: string) => Promise<void>;
-    updateNarrative: (id: string, narrative: BrandNarrative) => Promise<void>;
+    getNarrative: (username: string) => Promise<void>;
+    updateNarrative: (username: string, narrative: BrandNarrative) => Promise<void>;
 
     // Opinions methods
     opinions: string[] | null;
     opinionsLoading: boolean;
     opinionsError: string | null;
-    getOpinions: (id: string) => Promise<void>;
-    updateOpinions: (id: string, opinions: string[]) => Promise<void>;
+    getOpinions: (username: string) => Promise<void>;
+    updateOpinions: (username: string, opinions: string[]) => Promise<void>;
 }
 
 export function usePersonalBrands(): UsePersonalBrandsReturn {
@@ -139,12 +139,12 @@ export function usePersonalBrands(): UsePersonalBrandsReturn {
     );
 
     // Single personal brand methods
-    const getPersonalBrand = useCallback(
-        async (id: string, fields?: "basic" | "narrative" | "opinions" | "all"): Promise<void> => {
+    const getPersonalBrandByUsernameCallback = useCallback(
+        async (username: string, fields?: "basic" | "narrative" | "opinions" | "all"): Promise<void> => {
             try {
                 setPersonalBrandLoading(true);
                 setPersonalBrandError(null);
-                const data = await getPersonalBrandById(id, { fields });
+                const data = await getPersonalBrandByUsername(username, { fields });
                 setPersonalBrand(data);
             } catch (err) {
                 const errorMessage =
@@ -159,7 +159,7 @@ export function usePersonalBrands(): UsePersonalBrandsReturn {
     );
 
     // Narrative methods
-    const getNarrative = useCallback(async (id: string): Promise<void> => {
+    const getNarrative = useCallback(async (username: string): Promise<void> => {
         // Only fetch if narrative is not already loaded
         if (narrative !== null) {
             return;
@@ -168,7 +168,7 @@ export function usePersonalBrands(): UsePersonalBrandsReturn {
         try {
             setNarrativeLoading(true);
             setNarrativeError(null);
-            const data = await getPersonalBrandNarrative(id);
+            const data = await getPersonalBrandNarrative(username);
             setNarrative(data);
         } catch (err) {
             const errorMessage =
@@ -181,13 +181,13 @@ export function usePersonalBrands(): UsePersonalBrandsReturn {
     }, [narrative]);
 
     const updateNarrative = useCallback(
-        async (id: string, newNarrative: BrandNarrative): Promise<void> => {
+        async (username: string, newNarrative: BrandNarrative): Promise<void> => {
             const previousNarrative = narrative;
             try {
                 setNarrativeError(null);
                 // Optimistic update
                 setNarrative(newNarrative);
-                const updated = await updatePersonalBrandNarrative(id, newNarrative);
+                const updated = await updatePersonalBrandNarrative(username, newNarrative);
                 setNarrative(updated);
             } catch (err) {
                 const errorMessage =
@@ -204,7 +204,7 @@ export function usePersonalBrands(): UsePersonalBrandsReturn {
     );
 
     // Opinions methods
-    const getOpinions = useCallback(async (id: string): Promise<void> => {
+    const getOpinions = useCallback(async (username: string): Promise<void> => {
         // Only fetch if opinions are not already loaded
         if (opinions !== null) {
             return;
@@ -213,7 +213,7 @@ export function usePersonalBrands(): UsePersonalBrandsReturn {
         try {
             setOpinionsLoading(true);
             setOpinionsError(null);
-            const data = await getPersonalBrandOpinions(id);
+            const data = await getPersonalBrandOpinions(username);
             setOpinions(data);
         } catch (err) {
             const errorMessage =
@@ -226,13 +226,13 @@ export function usePersonalBrands(): UsePersonalBrandsReturn {
     }, [opinions]);
 
     const updateOpinions = useCallback(
-        async (id: string, newOpinions: string[]): Promise<void> => {
+        async (username: string, newOpinions: string[]): Promise<void> => {
             const previousOpinions = opinions;
             try {
                 setOpinionsError(null);
                 // Optimistic update
                 setOpinions(newOpinions);
-                const updated = await updatePersonalBrandOpinions(id, newOpinions);
+                const updated = await updatePersonalBrandOpinions(username, newOpinions);
                 setOpinions(updated);
             } catch (err) {
                 const errorMessage =
@@ -261,7 +261,7 @@ export function usePersonalBrands(): UsePersonalBrandsReturn {
         personalBrand,
         personalBrandLoading,
         personalBrandError,
-        getPersonalBrand,
+        getPersonalBrandByUsername: getPersonalBrandByUsernameCallback,
         // Narrative methods
         narrative,
         narrativeLoading,
