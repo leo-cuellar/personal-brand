@@ -264,7 +264,7 @@ export function PublicationIdeasPage() {
                     Publication Ideas
                 </h1>
                 <p className="text-gray-600">
-                    Review and manage publication ideas created by n8n
+                    Review and manage publication ideas
                 </p>
             </div>
 
@@ -274,73 +274,21 @@ export function PublicationIdeasPage() {
                 </div>
             )}
 
-            {/* Tabs */}
-            <div className="mb-6 border-b border-gray-200">
-                <nav className="-mb-px flex space-x-8">
+            {/* Add New Idea button or form */}
+            {!isCreating ? (
+                <div className="mb-6">
                     <button
-                        onClick={() => setActiveTab("ready-for-review")}
-                        className={`whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "ready-for-review"
-                            ? "border-blue-500 text-blue-600"
-                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            }`}
-                    >
-                        Ready for Review
-                        {counts && counts.in_review > 0 && (
-                            <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
-                                {counts.in_review}
-                            </span>
-                        )}
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("accepted")}
-                        className={`whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "accepted"
-                            ? "border-blue-500 text-blue-600"
-                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            }`}
-                    >
-                        Accepted Ideas
-                        {counts && counts.accepted > 0 && (
-                            <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
-                                {counts.accepted}
-                            </span>
-                        )}
-                    </button>
-                </nav>
-            </div>
-
-            <div className="mb-6 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <span className="text-sm text-gray-500">
-                        {publicationIdeas.length} idea{publicationIdeas.length !== 1 ? "s" : ""}
-                        {activeTab === "ready-for-review" && reviewIdeas.length > 0 && (
-                            <span className="ml-2 text-blue-600">
-                                ({reviewIdeas.length} ready for review)
-                            </span>
-                        )}
-                    </span>
-                </div>
-                <div className="flex gap-3">
-                    <button
-                        onClick={() => setIsCreating(!isCreating)}
+                        onClick={() => setIsCreating(true)}
                         disabled={!selectedPersonId}
-                        className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         title={!selectedPersonId ? "Please select a person first" : ""}
                     >
-                        {isCreating ? "Cancel" : "+ Add New Idea"}
+                        <span className="text-xl">+</span>
+                        Add New Idea
                     </button>
-                    {activeTab === "ready-for-review" && reviewIdeas.length > 0 && (
-                        <button
-                            onClick={handleStartReview}
-                            className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                        >
-                            Start Review ({reviewIdeas.length})
-                        </button>
-                    )}
                 </div>
-            </div>
-
-            {isCreating && (
-                <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+            ) : (
+                <div className="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                     <h2 className="mb-4 text-xl font-semibold text-gray-900">
                         Create New Idea
                     </h2>
@@ -406,6 +354,51 @@ export function PublicationIdeasPage() {
                             </button>
                         </div>
                     </form>
+                </div>
+            )}
+
+            {/* Tabs */}
+            <div className="mb-6 border-b border-gray-200">
+                <nav className="-mb-px flex space-x-8">
+                    <button
+                        onClick={() => setActiveTab("ready-for-review")}
+                        className={`whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "ready-for-review"
+                            ? "border-blue-500 text-blue-600"
+                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            }`}
+                    >
+                        Ready for Review
+                        {counts && counts.in_review > 0 && (
+                            <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
+                                {counts.in_review}
+                            </span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("accepted")}
+                        className={`whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "accepted"
+                            ? "border-blue-500 text-blue-600"
+                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            }`}
+                    >
+                        Accepted Ideas
+                        {counts && counts.accepted > 0 && (
+                            <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
+                                {counts.accepted}
+                            </span>
+                        )}
+                    </button>
+                </nav>
+            </div>
+
+            {activeTab === "ready-for-review" && reviewIdeas.length > 0 && (
+                <div className="mb-6 flex items-center justify-end">
+                    <button
+                        onClick={handleStartReview}
+                        className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    >
+                        Start Review ({reviewIdeas.length})
+                    </button>
                 </div>
             )}
 
