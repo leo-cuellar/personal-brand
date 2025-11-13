@@ -48,7 +48,10 @@ export function PersonalBrandPage({ personalBrandId }: PersonalBrandPageProps) {
         getPersonalBrand(personalBrandId, "basic");
     }, [personalBrandId, getPersonalBrand]);
 
-    if (loading) {
+    // Show loading if currently loading OR if we haven't loaded anything yet (no personalBrand, no error, not loading)
+    const isInitialLoad = !personalBrand && !error && !loading;
+
+    if (loading || isInitialLoad) {
         return (
             <div className="flex min-h-screen items-center justify-center">
                 <div className="text-center">
@@ -59,11 +62,12 @@ export function PersonalBrandPage({ personalBrandId }: PersonalBrandPageProps) {
         );
     }
 
-    if (error || !personalBrand) {
+    // Only show error if we're not loading and there's actually an error
+    if (error && !loading && !isInitialLoad) {
         return (
             <div className="container mx-auto max-w-6xl p-8">
                 <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">
-                    <strong>Error:</strong> {error || "Personal brand not found"}
+                    <strong>Error:</strong> {error}
                 </div>
                 <button
                     onClick={() => router.push("/dashboard/settings/personal-brands")}
@@ -73,6 +77,28 @@ export function PersonalBrandPage({ personalBrandId }: PersonalBrandPageProps) {
                 </button>
             </div>
         );
+    }
+
+    // Only show "not found" if we're not loading, there's no error but also no personal brand
+    if (!personalBrand && !loading && !error && !isInitialLoad) {
+        return (
+            <div className="container mx-auto max-w-6xl p-8">
+                <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">
+                    <strong>Error:</strong> Personal brand not found
+                </div>
+                <button
+                    onClick={() => router.push("/dashboard/settings/personal-brands")}
+                    className="mt-4 rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700"
+                >
+                    Back to Personal Brands
+                </button>
+            </div>
+        );
+    }
+
+    // Type guard: at this point personalBrand must exist
+    if (!personalBrand) {
+        return null;
     }
 
     return (
