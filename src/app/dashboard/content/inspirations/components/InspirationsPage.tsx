@@ -20,13 +20,12 @@ function formatDate(date: Date | string): string {
 
 export function InspirationsPage() {
     const { selectedPersonId } = usePersonalBrandContext();
-    const [showArchived, setShowArchived] = useState(false);
     const { inspirations, loading, error, getInspirations, update, remove } =
         useInspirations();
 
     const params = useMemo(
-        () => ({ includeArchived: showArchived }),
-        [showArchived]
+        () => ({}),
+        []
     );
 
     useEffect(() => {
@@ -102,15 +101,6 @@ export function InspirationsPage() {
 
             <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            checked={showArchived}
-                            onChange={(e) => setShowArchived(e.target.checked)}
-                            className="h-4 w-4 rounded border-gray-300"
-                        />
-                        <span className="text-sm text-gray-700">Show archived</span>
-                    </label>
                     <span className="text-sm text-gray-500">
                         {inspirations.length} inspiration{inspirations.length !== 1 ? "s" : ""}
                     </span>
@@ -131,9 +121,7 @@ export function InspirationsPage() {
                 {inspirations.length === 0 ? (
                     <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
                         <p className="text-gray-500">
-                            {showArchived
-                                ? "No inspirations found."
-                                : "No active inspirations. Use the Trend Scanner or Chrome extension to add inspirations."}
+                            No active inspirations. Use the Trend Scanner or Chrome extension to add inspirations.
                         </p>
                     </div>
                 ) : (
