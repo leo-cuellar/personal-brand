@@ -20,9 +20,15 @@ export function PublicationIdeasPage() {
     const [showArchived, setShowArchived] = useState(false);
     const [statusFilter, setStatusFilter] = useState<"in_review" | "accepted" | "rejected" | "used" | "all">("in_review");
     const [isReviewMode, setIsReviewMode] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
+    const [formData, setFormData] = useState({
+        idea: "",
+        description: "",
+        link: "",
+    });
 
     const { selectedPersonId } = usePersonalBrandContext();
-    const { publicationIdeas, loading, error, getPublicationIdeas, update } = usePublicationIdeas();
+    const { publicationIdeas, loading, error, getPublicationIdeas, update, create } = usePublicationIdeas();
     const { publicationIdeas: reviewIdeas, getPublicationIdeas: getReviewIdeas } = usePublicationIdeas();
 
     const params = useMemo(() => {
@@ -91,6 +97,36 @@ export function PublicationIdeasPage() {
     const handleExitReview = () => {
         setIsReviewMode(false);
         if (params) getPublicationIdeas(params); // Refresh the list when exiting review mode
+    };
+
+    const handleCreate = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedPersonId) {
+            alert("Please select a person first from the header");
+            return;
+        }
+        if (!formData.idea.trim()) {
+            alert("Idea is required");
+            return;
+        }
+        try {
+            await create({
+                idea: formData.idea.trim(),
+                description: formData.description.trim() || null,
+                link: formData.link.trim() || null,
+                status: "accepted",
+                isArchived: false,
+                personalBrandId: selectedPersonId!,
+            });
+            setFormData({ idea: "", description: "", link: "" });
+            setIsCreating(false);
+            // Refresh the list
+            if (params) {
+                await getPublicationIdeas(params);
+            }
+        } catch {
+            // Error handled by UI
+        }
     };
 
     const getStatusBadgeColor = (status: string) => {
@@ -195,16 +231,94 @@ export function PublicationIdeasPage() {
                     </span>
                 </div>
                 <div className="flex gap-3">
+                    <button
+                        onClick={() => setIsCreating(!isCreating)}
+                        disabled={!selectedPersonId}
+                        className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        title={!selectedPersonId ? "Please select a person first" : ""}
+                    >
+                        {isCreating ? "Cancel" : "+ Add New Idea"}
+                    </button>
                     {reviewIdeas.length > 0 && (
                         <button
                             onClick={handleStartReview}
-                            className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                         >
                             Start Review ({reviewIdeas.length})
                         </button>
                     )}
                 </div>
             </div>
+
+            {isCreating && (
+                <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                    <h2 className="mb-4 text-xl font-semibold text-gray-900">
+                        Create New Idea
+                    </h2>
+                    {!selectedPersonId && (
+                        <div className="mb-4 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-yellow-800">
+                            <strong>⚠️ Warning:</strong> Please select a person from the header before creating an idea.
+                        </div>
+                    )}
+                    <form onSubmit={handleCreate} className="space-y-4">
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">
+                                Idea *
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.idea}
+                                onChange={(e) => setFormData({ ...formData, idea: e.target.value })}
+                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="e.g., Hablar sobre cómo la tecnología está cambiando el trabajo"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">
+                                Description (optional)
+                            </label>
+                            <textarea
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                rows={3}
+                                placeholder="Additional context or details about this idea..."
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">
+                                Link (optional)
+                            </label>
+                            <input
+                                type="url"
+                                value={formData.link}
+                                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="https://example.com"
+                            />
+                        </div>
+                        <div className="flex gap-3">
+                            <button
+                                type="submit"
+                                className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                            >
+                                Create Idea
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsCreating(false);
+                                    setFormData({ idea: "", description: "", link: "" });
+                                }}
+                                className="rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
 
             <div className="space-y-4">
                 {publicationIdeas.length === 0 ? (
