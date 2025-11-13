@@ -27,11 +27,11 @@ export async function GET(
         // Select fields based on what's requested
         let selectFields: string;
         if (fields === "basic") {
-            selectFields = "id, name, username, social_accounts, created_at, updated_at, is_archived";
+            selectFields = "id, name, username, niche, social_accounts, created_at, updated_at, is_archived";
         } else if (fields === "narrative") {
-            selectFields = "id, name, username, social_accounts, brand_narrative, created_at, updated_at, is_archived";
+            selectFields = "id, name, username, niche, social_accounts, brand_narrative, created_at, updated_at, is_archived";
         } else if (fields === "opinions") {
-            selectFields = "id, name, username, social_accounts, strong_opinions, created_at, updated_at, is_archived";
+            selectFields = "id, name, username, niche, social_accounts, strong_opinions, created_at, updated_at, is_archived";
         } else {
             // Default: all fields
             selectFields = "*";

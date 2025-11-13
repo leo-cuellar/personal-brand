@@ -9,6 +9,7 @@ export const personalBrands = pgTable("personal_brands", {
     // Basic information
     name: varchar("name", { length: 255 }).notNull(),
     username: varchar("username", { length: 100 }).notNull().unique(),
+    niche: varchar("niche", { length: 500 }),
     socialAccounts: jsonb("social_accounts").notNull().default("{}"),
 
     brandNarrative: jsonb("brand_narrative").notNull(),

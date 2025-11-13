@@ -47,6 +47,7 @@ interface SupabasePerson {
     id: string;
     name: string;
     username: string;
+    niche?: string | null;
     social_accounts?: {
         linkedin?: {
             profile_url: string;
@@ -156,6 +157,7 @@ export function transformPersonalBrand(
         id: string;
         name: string;
         username: string;
+        niche: string | null;
         socialAccounts: SocialAccounts;
         createdAt: Date;
         updatedAt: Date;
@@ -164,6 +166,7 @@ export function transformPersonalBrand(
         id: data.id,
         name: data.name,
         username: data.username,
+        niche: data.niche ?? null,
         socialAccounts: socialAccounts,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
