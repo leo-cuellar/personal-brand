@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { EditButton } from "@/components/EditButton";
 import { IconButton } from "@/components/IconButton";
 import { Icon } from "@/components/Icon";
 
@@ -212,7 +211,10 @@ export function PersonalBrandStrongOpinions({
                                                 {opinion}
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <EditButton onClick={() => handleEditOpinion(index)} />
+                                                <IconButton
+                                                    icon="edit"
+                                                    onClick={() => handleEditOpinion(index)}
+                                                />
                                                 <IconButton
                                                     icon="delete"
                                                     onClick={() => handleDeleteOpinion(index)}

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { BrandNarrative } from "../../../../../../../services/supabase/schemas";
-import { EditButton } from "@/components/EditButton";
 import { IconButton } from "@/components/IconButton";
 
 // Field descriptions matching the schema comments
@@ -136,7 +135,10 @@ export function PersonalBrandNarrative({
                                     />
                                 </div>
                             ) : (
-                                <EditButton onClick={() => handleEditField(fieldKey)} />
+                                <IconButton
+                                    icon="edit"
+                                    onClick={() => handleEditField(fieldKey)}
+                                />
                             )}
                         </div>
                         <div className="mb-2 text-xs italic text-gray-500">
