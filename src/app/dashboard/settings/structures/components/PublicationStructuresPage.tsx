@@ -393,7 +393,7 @@ export function PublicationStructuresPage() {
                                             )}
                                             <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                                                 <h4 className="mb-2 text-sm font-medium text-gray-700">Structure Fields:</h4>
-                                                <div className="flex flex-wrap gap-2">
+                                                <div className="space-y-2">
                                                     {(() => {
                                                         let structureObj = structure.structure;
                                                         if (typeof structureObj === "string") {
@@ -420,7 +420,7 @@ export function PublicationStructuresPage() {
                                                             return (
                                                                 <div
                                                                     key={key}
-                                                                    className="rounded-lg border border-blue-200 bg-blue-50 p-3"
+                                                                    className="w-full rounded-lg border border-blue-200 bg-blue-50 p-3"
                                                                 >
                                                                     <div className="font-medium text-blue-900">{key}</div>
                                                                     {description && (
