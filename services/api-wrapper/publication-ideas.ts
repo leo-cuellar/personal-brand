@@ -9,6 +9,27 @@ export interface GetPublicationIdeasParams {
     status?: "in_review" | "accepted" | "rejected" | "used";
 }
 
+export interface PublicationIdeaCounts {
+    in_review: number;
+    accepted: number;
+}
+
+export async function getPublicationIdeaCounts(
+    personalBrandId: string
+): Promise<PublicationIdeaCounts> {
+    const response = await fetch(
+        `${API_BASE_URL}/counts?personalBrandId=${encodeURIComponent(personalBrandId)}`
+    );
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to fetch publication idea counts");
+    }
+
+    const { data } = await response.json();
+    return data;
+}
+
 export async function getPublicationIdeas(
     params?: GetPublicationIdeasParams
 ): Promise<PublicationIdea[]> {

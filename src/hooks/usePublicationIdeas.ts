@@ -6,7 +6,9 @@ import {
     createPublicationIdea,
     updatePublicationIdea,
     deletePublicationIdea,
+    getPublicationIdeaCounts,
     GetPublicationIdeasParams,
+    PublicationIdeaCounts,
 } from "../../services/api-wrapper/publication-ideas";
 import { PublicationIdea, NewPublicationIdea } from "../../services/supabase/schemas";
 import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
@@ -15,7 +17,10 @@ interface UsePublicationIdeasReturn {
     publicationIdeas: PublicationIdea[];
     loading: boolean;
     error: string | null;
-    getPublicationIdeas: (params?: GetPublicationIdeasParams) => Promise<void>;
+    counts: PublicationIdeaCounts | null;
+    countsLoading: boolean;
+    getPublicationIdeas: (params?: GetPublicationIdeasParams) => Promise<PublicationIdea[]>;
+    getCounts: () => Promise<void>;
     create: (data: NewPublicationIdea) => Promise<PublicationIdea>;
     update: (id: string, updates: Partial<PublicationIdea>) => Promise<PublicationIdea>;
     remove: (id: string) => Promise<void>;
@@ -26,8 +31,10 @@ export function usePublicationIdeas(): UsePublicationIdeasReturn {
     const [publicationIdeas, setPublicationIdeas] = useState<PublicationIdea[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [counts, setCounts] = useState<PublicationIdeaCounts | null>(null);
+    const [countsLoading, setCountsLoading] = useState(false);
 
-    const fetchPublicationIdeas = useCallback(async (params?: GetPublicationIdeasParams) => {
+    const fetchPublicationIdeas = useCallback(async (params?: GetPublicationIdeasParams): Promise<PublicationIdea[]> => {
         try {
             setLoading(true);
             setError(null);
@@ -38,11 +45,27 @@ export function usePublicationIdeas(): UsePublicationIdeasReturn {
             };
             const data = await getPublicationIdeas(mergedParams);
             setPublicationIdeas(data);
+            return data;
         } catch (err) {
             setError(err instanceof Error ? err.message : "An error occurred");
             throw err;
         } finally {
             setLoading(false);
+        }
+    }, [selectedPersonId]);
+
+    const fetchCounts = useCallback(async () => {
+        if (!selectedPersonId) return;
+        try {
+            setCountsLoading(true);
+            setError(null);
+            const countsData = await getPublicationIdeaCounts(selectedPersonId);
+            setCounts(countsData);
+        } catch (err) {
+            // Silently fail for counts, not critical
+            setError(err instanceof Error ? err.message : "Failed to fetch counts");
+        } finally {
+            setCountsLoading(false);
         }
     }, [selectedPersonId]);
 
@@ -116,7 +139,10 @@ export function usePublicationIdeas(): UsePublicationIdeasReturn {
         publicationIdeas,
         loading,
         error,
+        counts,
+        countsLoading,
         getPublicationIdeas: fetchPublicationIdeas,
+        getCounts: fetchCounts,
         create,
         update,
         remove,

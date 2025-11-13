@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
 import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 import { IdeasReviewFlow } from "./IdeasReviewFlow";
+import type { PublicationIdea } from "../../../../../../services/supabase/schemas";
 
 function formatDate(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
@@ -25,40 +26,91 @@ export function PublicationIdeasPage() {
         description: "",
         link: "",
     });
+    // Local state for each tab to avoid refetching
+    const [readyForReviewIdeas, setReadyForReviewIdeas] = useState<PublicationIdea[]>([]);
+    const [acceptedIdeas, setAcceptedIdeas] = useState<PublicationIdea[]>([]);
+    const [hasFetchedReadyForReview, setHasFetchedReadyForReview] = useState(false);
+    const [hasFetchedAccepted, setHasFetchedAccepted] = useState(false);
 
     const { selectedPersonId } = usePersonalBrandContext();
-    const { publicationIdeas, loading, error, getPublicationIdeas, update, create } = usePublicationIdeas();
+    const { loading, error, update, create, counts, getPublicationIdeas, getCounts } = usePublicationIdeas();
     const { publicationIdeas: reviewIdeas, getPublicationIdeas: getReviewIdeas } = usePublicationIdeas();
 
-    const params = useMemo(() => {
-        if (!selectedPersonId) return undefined; // Return undefined if no personal brand selected
-        return {
-            personalBrandId: selectedPersonId,
-            status: (activeTab === "ready-for-review" ? "in_review" : "accepted") as "in_review" | "accepted",
-        };
-    }, [activeTab, selectedPersonId]);
+    // Current ideas based on active tab
+    const publicationIdeas = activeTab === "ready-for-review" ? readyForReviewIdeas : acceptedIdeas;
 
     const reviewParams = useMemo(() => {
-        if (!selectedPersonId) return undefined; // Return undefined if no personal brand selected
+        if (!selectedPersonId) return undefined;
         return { status: "in_review" as const, includeArchived: false, personalBrandId: selectedPersonId };
     }, [selectedPersonId]);
 
-    // Use refs to track if we've already fetched with these params to avoid duplicate calls
-    const paramsRef = useRef<string | null>(null);
     const reviewParamsRef = useRef<string | null>(null);
 
+    // Helper to fetch ideas for a specific tab
+    const fetchIdeasForTab = useCallback(async (tab: "ready-for-review" | "accepted") => {
+        if (!selectedPersonId) return;
+        const tabParams = {
+            personalBrandId: selectedPersonId,
+            status: (tab === "ready-for-review" ? "in_review" : "accepted") as "in_review" | "accepted",
+        };
+        try {
+            const ideas = await getPublicationIdeas(tabParams);
+            if (tab === "ready-for-review") {
+                setReadyForReviewIdeas(ideas);
+                setHasFetchedReadyForReview(true);
+            } else {
+                setAcceptedIdeas(ideas);
+                setHasFetchedAccepted(true);
+            }
+        } catch {
+            // Error handled by UI
+        }
+    }, [selectedPersonId, getPublicationIdeas]);
+
+    // Fetch counts on mount and when personal brand changes
     useEffect(() => {
-        if (!params) return; // Don't fetch if no params (no personal brand selected)
-        const paramsKey = JSON.stringify(params);
-        if (paramsRef.current === paramsKey) return; // Already fetched with these params
-        paramsRef.current = paramsKey;
-        getPublicationIdeas(params);
-    }, [params, getPublicationIdeas]);
+        getCounts();
+    }, [getCounts]);
+
+    // Fetch ideas for active tab only if not already fetched
+    useEffect(() => {
+        if (!selectedPersonId) return;
+        if (activeTab === "ready-for-review" && hasFetchedReadyForReview) return;
+        if (activeTab === "accepted" && hasFetchedAccepted) return;
+
+        let cancelled = false;
+        const loadIdeas = async () => {
+            const tabParams = {
+                personalBrandId: selectedPersonId,
+                status: (activeTab === "ready-for-review" ? "in_review" : "accepted") as "in_review" | "accepted",
+            };
+            try {
+                const ideas = await getPublicationIdeas(tabParams);
+                if (!cancelled) {
+                    if (activeTab === "ready-for-review") {
+                        setReadyForReviewIdeas(ideas);
+                        setHasFetchedReadyForReview(true);
+                    } else {
+                        setAcceptedIdeas(ideas);
+                        setHasFetchedAccepted(true);
+                    }
+                }
+            } catch {
+                // Error handled by UI
+            }
+        };
+
+        loadIdeas();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [activeTab, hasFetchedReadyForReview, hasFetchedAccepted, getPublicationIdeas, selectedPersonId]);
 
     useEffect(() => {
-        if (!reviewParams) return; // Don't fetch if no params (no personal brand selected)
+        if (!reviewParams) return;
         const reviewParamsKey = JSON.stringify(reviewParams);
-        if (reviewParamsRef.current === reviewParamsKey) return; // Already fetched with these params
+        if (reviewParamsRef.current === reviewParamsKey) return;
         reviewParamsRef.current = reviewParamsKey;
         getReviewIdeas(reviewParams);
     }, [reviewParams, getReviewIdeas]);
@@ -66,8 +118,18 @@ export function PublicationIdeasPage() {
     const handleAccept = async (id: string) => {
         try {
             await update(id, { status: "accepted" });
-            // Refetch both lists to update everything
-            await Promise.all([getPublicationIdeas(params), getReviewIdeas(reviewParams)]);
+            // Update local state optimistically
+            setReadyForReviewIdeas((prev) => prev.filter((idea) => idea.id !== id));
+            // Refresh counts
+            await getCounts();
+            // Refresh accepted tab if we have it cached
+            if (hasFetchedAccepted) {
+                await fetchIdeasForTab("accepted");
+            }
+            // Refresh review list
+            if (reviewParams) {
+                await getReviewIdeas(reviewParams);
+            }
         } catch {
             // Error handled by UI
         }
@@ -76,11 +138,11 @@ export function PublicationIdeasPage() {
     const handleReject = async (id: string) => {
         try {
             await update(id, { status: "rejected" });
-            // Refetch current list to remove rejected idea
-            if (params) {
-                await getPublicationIdeas(params);
-            }
-            // Also refetch review list if we're on ready-for-review tab
+            // Update local state optimistically
+            setReadyForReviewIdeas((prev) => prev.filter((idea) => idea.id !== id));
+            // Refresh counts
+            await getCounts();
+            // Refresh review list if we're on ready-for-review tab
             if (activeTab === "ready-for-review" && reviewParams) {
                 await getReviewIdeas(reviewParams);
             }
@@ -99,7 +161,13 @@ export function PublicationIdeasPage() {
 
     const handleExitReview = () => {
         setIsReviewMode(false);
-        if (params) getPublicationIdeas(params); // Refresh the list when exiting review mode
+        // Refresh the current tab when exiting review mode
+        if (activeTab === "ready-for-review") {
+            fetchIdeasForTab("ready-for-review");
+        } else {
+            fetchIdeasForTab("accepted");
+        }
+        getCounts();
     };
 
     const handleCreate = async (e: React.FormEvent) => {
@@ -113,7 +181,7 @@ export function PublicationIdeasPage() {
             return;
         }
         try {
-            await create({
+            const newIdea = await create({
                 idea: formData.idea.trim(),
                 description: formData.description.trim() || null,
                 link: formData.link.trim() || null,
@@ -123,9 +191,13 @@ export function PublicationIdeasPage() {
             });
             setFormData({ idea: "", description: "", link: "" });
             setIsCreating(false);
-            // Refresh the list
-            if (params) {
-                await getPublicationIdeas(params);
+            // Update local state optimistically
+            setAcceptedIdeas((prev) => [newIdea, ...prev]);
+            // Refresh counts
+            await getCounts();
+            // If we're on accepted tab, ensure it's marked as fetched
+            if (activeTab === "accepted") {
+                setHasFetchedAccepted(true);
             }
         } catch {
             // Error handled by UI
@@ -213,9 +285,9 @@ export function PublicationIdeasPage() {
                             }`}
                     >
                         Ready for Review
-                        {activeTab === "ready-for-review" && publicationIdeas.length > 0 && (
+                        {counts && counts.in_review > 0 && (
                             <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
-                                {publicationIdeas.length}
+                                {counts.in_review}
                             </span>
                         )}
                     </button>
@@ -227,9 +299,9 @@ export function PublicationIdeasPage() {
                             }`}
                     >
                         Accepted Ideas
-                        {activeTab === "accepted" && publicationIdeas.length > 0 && (
+                        {counts && counts.accepted > 0 && (
                             <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
-                                {publicationIdeas.length}
+                                {counts.accepted}
                             </span>
                         )}
                     </button>
