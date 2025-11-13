@@ -42,7 +42,7 @@ export function PersonalBrandProvider({ children }: { children: React.ReactNode 
 
         const selectFirstPerson = async () => {
             try {
-                const personalBrands = await getPersonalBrands({ includeArchived: false, includeNarrative: false });
+                const personalBrands = await getPersonalBrands({ includeArchived: false, includeProfile: false });
                 if (personalBrands.length > 0) {
                     setSelectedPersonId(personalBrands[0].id);
                 }

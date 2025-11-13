@@ -7,10 +7,10 @@ export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
         const includeArchived = searchParams.get("includeArchived") === "true";
-        const includeNarrative = searchParams.get("includeNarrative") !== "false"; // Default to true for backward compatibility
+        const includeProfile = searchParams.get("includeProfile") !== "false"; // Default to true for backward compatibility
 
-        // Select fields based on whether narrative is needed
-        const selectFields = includeNarrative
+        // Select fields based on whether profile (brand_narrative + strong_opinions) is needed
+        const selectFields = includeProfile
             ? "*"
             : "id, name, linkedin_profile, created_at, updated_at, is_archived";
 

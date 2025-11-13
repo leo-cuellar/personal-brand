@@ -5,7 +5,7 @@ const API_BASE_URL = "/api/personal-brands";
 
 export interface GetPersonalBrandsParams {
     includeArchived?: boolean;
-    includeNarrative?: boolean; // If false, excludes brand_narrative to reduce payload size
+    includeProfile?: boolean; // If false, excludes brand_narrative and strong_opinions to reduce payload size
 }
 
 export async function getPersonalBrands(
@@ -15,8 +15,8 @@ export async function getPersonalBrands(
     if (params?.includeArchived) {
         queryParams.append("includeArchived", "true");
     }
-    if (params?.includeNarrative === false) {
-        queryParams.append("includeNarrative", "false");
+    if (params?.includeProfile === false) {
+        queryParams.append("includeProfile", "false");
     }
 
     const url = `${API_BASE_URL}${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;

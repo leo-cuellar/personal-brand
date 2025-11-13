@@ -11,7 +11,7 @@ export function PersonalBrandSelector() {
     const { personalBrands, loading, getPersonalBrands } = usePersonalBrands();
 
     useEffect(() => {
-        getPersonalBrands({ includeArchived: false, includeNarrative: false });
+        getPersonalBrands({ includeArchived: false, includeProfile: false });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
