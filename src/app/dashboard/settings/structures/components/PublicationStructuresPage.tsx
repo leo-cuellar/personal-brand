@@ -1,20 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { usePublicationStructures } from "@/hooks/usePublicationStructures";
 import { PublicationStructure, NewPublicationStructure } from "../../../../../../services/supabase/schemas";
 import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
-
-function formatDate(date: Date | string): string {
-    const d = typeof date === "string" ? new Date(date) : date;
-    if (isNaN(d.getTime())) {
-        return "Invalid date";
-    }
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-}
+import { Icon } from "@/components/Icon";
+import { IconButton } from "@/components/IconButton";
 
 type StructureField = {
     key: string;
@@ -24,19 +15,13 @@ type StructureField = {
 
 export function PublicationStructuresPage() {
     const { selectedPersonId } = usePersonalBrandContext();
-    const [showArchived, setShowArchived] = useState(false);
     const { publicationStructures, loading, error, getPublicationStructures, create, update, remove } =
         usePublicationStructures();
 
-    const params = useMemo(
-        () => ({ includeArchived: showArchived }),
-        [showArchived]
-    );
-
     useEffect(() => {
-        getPublicationStructures(params);
+        getPublicationStructures();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [params]);
+    }, []);
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<{
@@ -201,15 +186,6 @@ export function PublicationStructuresPage() {
 
             <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            checked={showArchived}
-                            onChange={(e) => setShowArchived(e.target.checked)}
-                            className="h-4 w-4 rounded border-gray-300"
-                        />
-                        <span className="text-sm text-gray-700">Show archived</span>
-                    </label>
                     <span className="text-sm text-gray-500">
                         {publicationStructures.length} structure{publicationStructures.length !== 1 ? "s" : ""}
                     </span>
@@ -354,9 +330,7 @@ export function PublicationStructuresPage() {
                 {publicationStructures.length === 0 ? (
                     <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
                         <p className="text-gray-500">
-                            {showArchived
-                                ? "No publication structures found."
-                                : "No active publication structures. Create one to get started!"}
+                            No publication structures. Create one to get started!
                         </p>
                     </div>
                 ) : (
@@ -376,110 +350,88 @@ export function PublicationStructuresPage() {
                                 />
                             ) : (
                                 <>
-                                    <div className="mb-3 flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <div className="mb-2 flex items-center gap-2">
-                                                <h3 className="text-xl font-semibold text-gray-900">
-                                                    {structure.name}
-                                                </h3>
-                                                {structure.isArchived && (
-                                                    <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700">
-                                                        Archived
-                                                    </span>
+                                    <div className="mb-3 flex flex-col space-y-4">
+                                        {/* First row: Title/Description and Buttons */}
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="flex-1">
+                                                <div className="mb-2 flex items-center gap-2">
+                                                    <h3 className="text-xl font-semibold text-gray-900">
+                                                        {structure.name}
+                                                    </h3>
+                                                    {structure.isArchived && (
+                                                        <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700">
+                                                            Archived
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                {structure.description && (
+                                                    <p className="text-gray-600">{structure.description}</p>
                                                 )}
                                             </div>
-                                            {structure.description && (
-                                                <p className="mb-3 text-gray-600">{structure.description}</p>
-                                            )}
-                                            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                                                <h4 className="mb-2 text-sm font-medium text-gray-700">Structure Fields:</h4>
-                                                <div className="space-y-2">
-                                                    {(() => {
-                                                        let structureObj = structure.structure;
-                                                        if (typeof structureObj === "string") {
-                                                            try {
-                                                                structureObj = JSON.parse(structureObj);
-                                                            } catch {
-                                                                structureObj = {};
-                                                            }
-                                                        }
-                                                        if (typeof structureObj !== "object" || Array.isArray(structureObj) || !structureObj) {
-                                                            return <span className="text-sm text-gray-500">No fields defined</span>;
-                                                        }
-                                                        return Object.entries(structureObj as Record<string, unknown>).map(([key, value]) => {
-                                                            // Handle both old format (string) and new format (object)
-                                                            let description = "";
-                                                            let example = "";
-                                                            if (typeof value === "string") {
-                                                                description = value;
-                                                            } else if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-                                                                const obj = value as { description?: string; example?: string };
-                                                                description = obj.description || "";
-                                                                example = obj.example || "";
-                                                            }
-                                                            return (
-                                                                <div
-                                                                    key={key}
-                                                                    className="w-full rounded-lg border border-blue-200 bg-blue-50 p-3"
-                                                                >
-                                                                    <div className="font-medium text-blue-900">{key}</div>
-                                                                    {description && (
-                                                                        <div className="mt-2 text-sm text-blue-700">
-                                                                            <span className="font-medium">Description:</span>
-                                                                            <div className="mt-1">{description}</div>
-                                                                        </div>
-                                                                    )}
-                                                                    {example && (
-                                                                        <div className="mt-2 text-sm text-blue-600">
-                                                                            <span className="font-medium italic">Example:</span>
-                                                                            <div className="mt-1 whitespace-pre-wrap italic">{example}</div>
-                                                                        </div>
-                                                                    )}
-                                                                    {!description && !example && (
-                                                                        <div className="mt-1 text-sm text-gray-500">No description or example</div>
-                                                                    )}
-                                                                </div>
-                                                            );
+                                            <div className="flex gap-2">
+                                                <IconButton
+                                                    icon="edit"
+                                                    onClick={() => {
+                                                        setEditingId(structure.id);
+                                                        setFormData({
+                                                            name: structure.name,
+                                                            description: structure.description || "",
+                                                            structure: structureToFields(structure.structure),
                                                         });
-                                                    })()}
-                                                </div>
+                                                    }}
+                                                    iconColor="#d97706"
+                                                    backgroundColor="#fef3c7"
+                                                    hoverBackgroundColor="#fde68a"
+                                                />
+                                                <IconButton
+                                                    icon="delete"
+                                                    onClick={() => handleDelete(structure.id)}
+                                                    iconColor="#ef4444"
+                                                    backgroundColor="#fee2e2"
+                                                    hoverBackgroundColor="#fecaca"
+                                                />
                                             </div>
                                         </div>
-                                        <div className="ml-4 flex gap-2">
-                                            <button
-                                                onClick={() => {
-                                                    setEditingId(structure.id);
-                                                    setFormData({
-                                                        name: structure.name,
-                                                        description: structure.description || "",
-                                                        structure: structureToFields(structure.structure),
+
+                                        {/* Second row: Structure Fields container */}
+                                        <div className="w-full rounded-lg border border-gray-200 bg-gray-50 p-4">
+                                            <h4 className="mb-2 text-sm font-medium text-gray-700">Structure Fields:</h4>
+                                            <div className="space-y-2">
+                                                {(() => {
+                                                    let structureObj = structure.structure;
+                                                    if (typeof structureObj === "string") {
+                                                        try {
+                                                            structureObj = JSON.parse(structureObj);
+                                                        } catch {
+                                                            structureObj = {};
+                                                        }
+                                                    }
+                                                    if (typeof structureObj !== "object" || Array.isArray(structureObj) || !structureObj) {
+                                                        return <span className="text-sm text-gray-500">No fields defined</span>;
+                                                    }
+                                                    return Object.entries(structureObj as Record<string, unknown>).map(([key, value]) => {
+                                                        // Handle both old format (string) and new format (object)
+                                                        let description = "";
+                                                        let example = "";
+                                                        if (typeof value === "string") {
+                                                            description = value;
+                                                        } else if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+                                                            const obj = value as { description?: string; example?: string };
+                                                            description = obj.description || "";
+                                                            example = obj.example || "";
+                                                        }
+                                                        return (
+                                                            <StructureFieldCard
+                                                                key={key}
+                                                                fieldKey={key}
+                                                                description={description}
+                                                                example={example}
+                                                            />
+                                                        );
                                                     });
-                                                }}
-                                                className="rounded-lg bg-yellow-50 px-4 py-2 text-sm font-medium text-yellow-700 transition-colors hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                onClick={() =>
-                                                    handleUpdate(structure.id, {
-                                                        isArchived: !structure.isArchived,
-                                                    })
-                                                }
-                                                className="rounded-lg bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                                            >
-                                                {structure.isArchived ? "Unarchive" : "Archive"}
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(structure.id)}
-                                                className="rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                            >
-                                                Delete
-                                            </button>
+                                                })()}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="text-xs text-gray-500">
-                                        Created: {formatDate(structure.createdAt)} •
-                                        Updated: {formatDate(structure.updatedAt)}
                                     </div>
                                 </>
                             )}
@@ -683,6 +635,54 @@ function EditForm({
                 </button>
             </div>
         </form>
+    );
+}
+
+interface StructureFieldCardProps {
+    fieldKey: string;
+    description: string;
+    example: string;
+}
+
+function StructureFieldCard({ fieldKey, description, example }: StructureFieldCardProps) {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    return (
+        <div className="w-full rounded-lg border border-blue-200 bg-blue-50">
+            {/* First row: Title and Chevron */}
+            <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-blue-100"
+            >
+                <div className="font-medium text-blue-900">{fieldKey}</div>
+                <Icon
+                    name={isExpanded ? "chevronUp" : "chevronDown"}
+                    color="#1e40af"
+                    size={14}
+                />
+            </button>
+
+            {/* Collapsible content: Description and Example */}
+            {isExpanded && (
+                <div className="border-t border-blue-200 p-3 space-y-3">
+                    {description && (
+                        <div className="text-sm text-blue-700">
+                            <span className="font-medium">Description:</span>
+                            <div className="mt-1">{description}</div>
+                        </div>
+                    )}
+                    {example && (
+                        <div className="text-sm text-blue-600">
+                            <span className="font-medium italic">Example:</span>
+                            <div className="mt-1 whitespace-pre-wrap italic">{example}</div>
+                        </div>
+                    )}
+                    {!description && !example && (
+                        <div className="text-sm text-gray-500">No description or example</div>
+                    )}
+                </div>
+            )}
+        </div>
     );
 }
 

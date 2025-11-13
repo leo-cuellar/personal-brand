@@ -1,6 +1,7 @@
 "use client";
 
 import { FaLinkedin } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 import { MdModeEditOutline, MdCheck, MdClose, MdDelete, MdAdd } from "react-icons/md";
 import { ComponentProps } from "react";
 
@@ -15,6 +16,8 @@ const iconMap = {
     close: MdClose,
     delete: MdDelete,
     add: MdAdd,
+    chevronDown: FaChevronDown,
+    chevronUp: FaChevronUp,
 } as const;
 
 export type IconName = keyof typeof iconMap;
