@@ -6,6 +6,7 @@ import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 import { useInspirations } from "@/hooks/useInspirations";
 import type { CategoryTrendsResult } from "../../../../../../services/api-wrapper/perplexity";
 import type { TrendItem } from "../../../../../../services/perplexity/trends";
+import { Switch } from "@/components/Switch";
 
 export function TrendScannerPage() {
     const { searchTrendsByCategory, loading, error } = usePerplexity();
@@ -96,6 +97,15 @@ export function TrendScannerPage() {
                     <strong>Error:</strong> {error}
                 </div>
             )}
+
+            <div className="mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <Switch id="auto-run" disabled />
+                    <label htmlFor="auto-run" className="text-sm font-medium text-gray-700 cursor-not-allowed opacity-50">
+                        Auto-run
+                    </label>
+                </div>
+            </div>
 
             <button
                 onClick={handleScan}
