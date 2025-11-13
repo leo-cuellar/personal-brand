@@ -100,12 +100,17 @@ export async function PATCH(
 
         const body = await request.json();
         const updateData: {
+            niche?: string | null;
             brand_narrative?: unknown;
             strong_opinions?: string[];
             updated_at: string;
         } = {
             updated_at: new Date().toISOString(),
         };
+
+        if (body.niche !== undefined) {
+            updateData.niche = body.niche;
+        }
 
         if (body.brandNarrative !== undefined) {
             updateData.brand_narrative = body.brandNarrative;
@@ -116,7 +121,10 @@ export async function PATCH(
         }
 
         // Determine which fields to return based on what was updated
-        let selectFields = "id, name, username, social_accounts, created_at, updated_at, is_archived";
+        let selectFields = "id, name, username, niche, social_accounts, created_at, updated_at, is_archived";
+        if (body.niche !== undefined) {
+            selectFields += ", niche";
+        }
         if (body.brandNarrative !== undefined) {
             selectFields += ", brand_narrative";
         }
@@ -146,12 +154,16 @@ export async function PATCH(
         }
 
         // Return only the updated fields
-        const result: { brandNarrative?: unknown; strongOpinions?: string[] } = {};
+        const result: { niche?: string | null; brandNarrative?: unknown; strongOpinions?: string[] } = {};
         const typedData = data as {
+            niche?: string | null;
             brand_narrative?: unknown;
             strong_opinions?: string[] | null;
         };
 
+        if (body.niche !== undefined && typedData.niche !== undefined) {
+            result.niche = typedData.niche;
+        }
         if (body.brandNarrative !== undefined && typedData.brand_narrative !== undefined) {
             result.brandNarrative = typedData.brand_narrative;
         }

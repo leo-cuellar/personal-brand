@@ -23,6 +23,7 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
         personalBrandLoading: loading,
         personalBrandError: error,
         getPersonalBrandByUsername,
+        update,
         narrative,
         narrativeLoading,
         narrativeError,
@@ -99,9 +100,18 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
         setIsEditingNiche(true);
     };
 
-    const handleSaveNiche = () => {
-        // TODO: Implement save functionality
-        setIsEditingNiche(false);
+    const handleSaveNiche = async () => {
+        if (!personalBrand) return;
+
+        try {
+            await update(personalBrand.id, { niche: nicheValue });
+            setIsEditingNiche(false);
+            // Refresh the personal brand to get updated data
+            await getPersonalBrandByUsername(username, "basic");
+        } catch (err) {
+            console.error("Failed to update niche:", err);
+            // TODO: Show error message to user
+        }
     };
 
     const handleCancelNiche = () => {
