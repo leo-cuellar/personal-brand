@@ -104,11 +104,6 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
                 <h1 className="mb-2 text-4xl font-bold text-gray-900">
                     {personalBrand.name}
                 </h1>
-                {personalBrand.username && (
-                    <p className="mb-2 text-lg text-gray-600">
-                        @{personalBrand.username}
-                    </p>
-                )}
                 {personalBrand.niche && (
                     <p className="text-base text-gray-700">
                         {personalBrand.niche}
