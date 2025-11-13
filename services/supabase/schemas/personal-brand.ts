@@ -8,7 +8,7 @@ export const personalBrands = pgTable("personal_brands", {
 
     // Basic information
     name: varchar("name", { length: 255 }).notNull(),
-    linkedinProfile: varchar("linkedin_profile", { length: 500 }),
+    socialAccounts: jsonb("social_accounts").notNull().default("{}"),
 
     brandNarrative: jsonb("brand_narrative").notNull(),
     strongOpinions: jsonb("strong_opinions").notNull().default("[]"),
@@ -38,14 +38,29 @@ export interface BrandNarrative {
     callToAction: string;
 }
 
+// Social account type definition
+export interface SocialAccount {
+    profile_url: string;
+    profile_name: string; // Without the @ symbol
+}
+
+export interface SocialAccounts {
+    linkedin?: SocialAccount;
+    twitter?: SocialAccount;
+    instagram?: SocialAccount;
+    // Add more social platforms as needed
+}
+
 // TypeScript types derived from schema
-export type PersonalBrand = Omit<typeof personalBrands.$inferSelect, "brandNarrative" | "strongOpinions"> & {
+export type PersonalBrand = Omit<typeof personalBrands.$inferSelect, "brandNarrative" | "strongOpinions" | "socialAccounts"> & {
     brandNarrative: BrandNarrative;
     strongOpinions: string[];
+    socialAccounts: SocialAccounts;
 };
-export type NewPersonalBrand = Omit<typeof personalBrands.$inferInsert, "brandNarrative" | "strongOpinions"> & {
+export type NewPersonalBrand = Omit<typeof personalBrands.$inferInsert, "brandNarrative" | "strongOpinions" | "socialAccounts"> & {
     brandNarrative?: BrandNarrative;
     strongOpinions?: string[];
+    socialAccounts?: SocialAccounts;
 };
 
 // Legacy table alias for backward compatibility during migration

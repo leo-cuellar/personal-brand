@@ -108,14 +108,14 @@ export function PersonalBrandsPage() {
                                     <h3 className="text-lg font-semibold text-gray-900">
                                         {brand.name}
                                     </h3>
-                                    {brand.linkedinProfile && (
+                                    {brand.socialAccounts.linkedin && (
                                         <a
-                                            href={brand.linkedinProfile}
+                                            href={brand.socialAccounts.linkedin.profile_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
                                         >
-                                            {brand.linkedinProfile}
+                                            @{brand.socialAccounts.linkedin.profile_name}
                                         </a>
                                     )}
                                 </div>
@@ -145,17 +145,27 @@ function CreateForm({
 }) {
     const [formData, setFormData] = useState<{
         name: string;
-        linkedinProfile: string | null;
+        linkedinProfileUrl: string;
+        linkedinProfileName: string;
     }>({
         name: "",
-        linkedinProfile: null,
+        linkedinProfileUrl: "",
+        linkedinProfileName: "",
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        const socialAccounts: { linkedin?: { profile_url: string; profile_name: string } } = {};
+        if (formData.linkedinProfileUrl && formData.linkedinProfileName) {
+            socialAccounts.linkedin = {
+                profile_url: formData.linkedinProfileUrl,
+                profile_name: formData.linkedinProfileName.replace(/^@/, ""), // Remove @ if present
+            };
+        }
+
         await onSave({
             name: formData.name,
-            linkedinProfile: formData.linkedinProfile,
+            socialAccounts: Object.keys(socialAccounts).length > 0 ? socialAccounts : undefined,
         });
     };
 
@@ -182,12 +192,26 @@ function CreateForm({
                 </label>
                 <input
                     type="url"
-                    value={formData.linkedinProfile || ""}
+                    value={formData.linkedinProfileUrl}
                     onChange={(e) =>
-                        setFormData({ ...formData, linkedinProfile: e.target.value || null })
+                        setFormData({ ...formData, linkedinProfileUrl: e.target.value })
                     }
                     className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="https://linkedin.com/in/username"
+                />
+            </div>
+            <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                    LinkedIn Profile Name
+                </label>
+                <input
+                    type="text"
+                    value={formData.linkedinProfileName}
+                    onChange={(e) =>
+                        setFormData({ ...formData, linkedinProfileName: e.target.value.replace(/^@/, "") })
+                    }
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="leocuellardev (without @)"
                 />
             </div>
             <div className="flex gap-3">

@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
         // Select fields based on whether profile (brand_narrative + strong_opinions) is needed
         const selectFields = includeProfile
             ? "*"
-            : "id, name, linkedin_profile, created_at, updated_at, is_archived";
+            : "id, name, social_accounts, created_at, updated_at, is_archived";
 
         let query = supabaseAdmin
             .from("personal_brands")
@@ -66,12 +66,12 @@ export async function POST(request: NextRequest) {
             .from("personal_brands")
             .insert({
                 name: body.name,
-                linkedin_profile: body.linkedinProfile || null,
+                social_accounts: body.socialAccounts || {},
                 brand_narrative: body.brandNarrative || defaultBrandNarrative,
                 strong_opinions: body.strongOpinions || [],
                 is_archived: body.isArchived || false,
             })
-            .select("id, name, linkedin_profile, created_at, updated_at, is_archived")
+            .select("id, name, social_accounts, created_at, updated_at, is_archived")
             .single();
 
         if (error) {
@@ -105,7 +105,7 @@ export async function PUT(request: NextRequest) {
 
         const updateData: {
             name?: string;
-            linkedin_profile?: string | null;
+            social_accounts?: unknown;
             brand_narrative?: unknown;
             is_archived?: boolean;
             updated_at: string;
@@ -114,8 +114,9 @@ export async function PUT(request: NextRequest) {
         };
 
         if (body.name !== undefined) updateData.name = body.name;
-        if (body.linkedinProfile !== undefined)
-            updateData.linkedin_profile = body.linkedinProfile || null;
+        if (body.socialAccounts !== undefined) {
+            updateData.social_accounts = body.socialAccounts;
+        }
         if (body.brandNarrative !== undefined)
             updateData.brand_narrative = body.brandNarrative;
         if (body.isArchived !== undefined)

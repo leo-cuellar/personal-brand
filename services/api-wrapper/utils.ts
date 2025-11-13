@@ -6,6 +6,7 @@ import {
     Inspiration,
     PublicationStructure,
     BrandNarrative,
+    SocialAccounts,
 } from "../supabase/schemas";
 
 // Supabase response types (snake_case)
@@ -45,7 +46,24 @@ interface SupabasePublicationIdea {
 interface SupabasePerson {
     id: string;
     name: string;
-    linkedin_profile: string | null;
+    social_accounts?: {
+        linkedin?: {
+            profile_url: string;
+            profile_name: string;
+        };
+        twitter?: {
+            profile_url: string;
+            profile_name: string;
+        };
+        instagram?: {
+            profile_url: string;
+            profile_name: string;
+        };
+        [key: string]: {
+            profile_url: string;
+            profile_name: string;
+        } | undefined;
+    } | null;
     brand_narrative?: {
         immediateCredibility: string;
         professionalProblemOrChallenge: string;
@@ -115,18 +133,35 @@ export function transformPublicationIdea(
 export function transformPersonalBrand(
     data: SupabasePerson
 ): PersonalBrand {
+    // Process social_accounts
+    let socialAccounts: SocialAccounts = {};
+    if ("social_accounts" in data && data.social_accounts !== null && data.social_accounts !== undefined) {
+        if (typeof data.social_accounts === "object") {
+            socialAccounts = data.social_accounts as SocialAccounts;
+        } else if (typeof data.social_accounts === "string") {
+            try {
+                const parsed = JSON.parse(data.social_accounts);
+                if (parsed && typeof parsed === "object") {
+                    socialAccounts = parsed as SocialAccounts;
+                }
+            } catch {
+                // If parsing fails, use empty object
+            }
+        }
+    }
+
     // Build base result with required fields
     const result: Partial<PersonalBrand> & {
         id: string;
         name: string;
-        linkedinProfile: string | null;
+        socialAccounts: SocialAccounts;
         createdAt: Date;
         updatedAt: Date;
         isArchived: boolean;
     } = {
         id: data.id,
         name: data.name,
-        linkedinProfile: data.linkedin_profile,
+        socialAccounts: socialAccounts,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,
@@ -201,6 +236,7 @@ export function transformPersonalBrand(
             callToAction: "",
         },
         strongOpinions: result.strongOpinions ?? [],
+        socialAccounts: result.socialAccounts ?? {},
     } as PersonalBrand;
 }
 

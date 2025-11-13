@@ -137,12 +137,12 @@ async function seedPersonalBrands() {
 
             await client`
                 INSERT INTO public.personal_brands (
-                    id, name, linkedin_profile, brand_narrative, strong_opinions,
+                    id, name, social_accounts, brand_narrative, strong_opinions,
                     created_at, updated_at, is_archived
                 ) VALUES (
                     ${person.id}::uuid,
                     ${person.name},
-                    ${person.linkedinProfile || null},
+                    ${JSON.stringify(person.socialAccounts || {})}::jsonb,
                     ${JSON.stringify(brandNarrative)}::jsonb,
                     ${JSON.stringify(strongOpinions)}::jsonb,
                     ${new Date(person.createdAt)},

@@ -24,11 +24,11 @@ export async function GET(
         // Select fields based on what's requested
         let selectFields: string;
         if (fields === "basic") {
-            selectFields = "id, name, linkedin_profile, created_at, updated_at, is_archived";
+            selectFields = "id, name, social_accounts, created_at, updated_at, is_archived";
         } else if (fields === "narrative") {
-            selectFields = "id, name, linkedin_profile, brand_narrative, created_at, updated_at, is_archived";
+            selectFields = "id, name, social_accounts, brand_narrative, created_at, updated_at, is_archived";
         } else if (fields === "opinions") {
-            selectFields = "id, name, linkedin_profile, strong_opinions, created_at, updated_at, is_archived";
+            selectFields = "id, name, social_accounts, strong_opinions, created_at, updated_at, is_archived";
         } else {
             // Default: all fields
             selectFields = "*";
@@ -58,18 +58,14 @@ export async function GET(
         const typedData = data as unknown as {
             id: string;
             name: string;
-            linkedin_profile: string | null;
+            social_accounts?: unknown;
             brand_narrative?: unknown;
             strong_opinions?: string[] | null;
             created_at: string;
             updated_at: string;
             is_archived: boolean;
         };
-        console.log("API GET - raw data from Supabase:", JSON.stringify(typedData, null, 2));
-        console.log("API GET - data.brand_narrative:", typedData.brand_narrative);
-        console.log("API GET - data.strong_opinions:", typedData.strong_opinions);
         const transformed = transformPersonalBrand(typedData as unknown as Parameters<typeof transformPersonalBrand>[0]);
-        console.log("API GET - transformed:", JSON.stringify(transformed, null, 2));
         return NextResponse.json({ data: transformed });
     } catch {
         return NextResponse.json(
@@ -113,7 +109,7 @@ export async function PATCH(
         }
 
         // Determine which fields to return based on what was updated
-        let selectFields = "id, name, linkedin_profile, created_at, updated_at, is_archived";
+        let selectFields = "id, name, social_accounts, created_at, updated_at, is_archived";
         if (body.brandNarrative !== undefined) {
             selectFields += ", brand_narrative";
         }

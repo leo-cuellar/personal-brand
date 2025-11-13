@@ -43,11 +43,25 @@ export async function getPersonalBrandData(personalBrandId: string): Promise<Per
         }
     }
 
+    // Extract social_accounts
+    let socialAccounts: PersonalBrand["socialAccounts"] = {};
+    if (data.social_accounts) {
+        if (typeof data.social_accounts === "object") {
+            socialAccounts = data.social_accounts as PersonalBrand["socialAccounts"];
+        } else if (typeof data.social_accounts === "string") {
+            try {
+                socialAccounts = JSON.parse(data.social_accounts);
+            } catch {
+                socialAccounts = {};
+            }
+        }
+    }
+
     // Transform snake_case to camelCase
     return {
         id: data.id,
         name: data.name,
-        linkedinProfile: data.linkedin_profile,
+        socialAccounts: socialAccounts,
         brandNarrative: brandNarrative,
         strongOpinions: strongOpinions,
         createdAt: new Date(data.created_at) as unknown as Date,

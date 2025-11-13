@@ -8,7 +8,12 @@ export const mockPersons: PersonalBrand[] = [
     {
         id: MOCK_PERSON_ID as unknown as string,
         name: "Leo Cuellar",
-        linkedinProfile: "https://linkedin.com/in/leocuellardev",
+        socialAccounts: {
+            linkedin: {
+                profile_url: "https://linkedin.com/in/leocuellardev",
+                profile_name: "leocuellardev",
+            },
+        },
         brandNarrative: {
             immediateCredibility:
                 "He trabajado en empresas de tecnología que operan a nivel internacional, formando parte de equipos de alto rendimiento y liderando iniciativas clave. Llevo más de una década construyendo productos desde el front-end, explorando también tecnologías como IA, blockchain y herramientas financieras. Mis roles han tenido impacto directo en negocio, estrategia y crecimiento. También he generado ingresos de seis cifras anuales en tech, construyendo todo esto desde un camino no tradicional, pero deliberado.",

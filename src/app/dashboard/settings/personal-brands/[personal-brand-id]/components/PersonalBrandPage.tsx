@@ -113,14 +113,14 @@ export function PersonalBrandPage({ personalBrandId }: PersonalBrandPageProps) {
                 <h1 className="mb-2 text-4xl font-bold text-gray-900">
                     {personalBrand.name}
                 </h1>
-                {personalBrand.linkedinProfile && (
+                {personalBrand.socialAccounts.linkedin && (
                     <a
-                        href={personalBrand.linkedinProfile}
+                        href={personalBrand.socialAccounts.linkedin.profile_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-800 hover:underline"
                     >
-                        {personalBrand.linkedinProfile}
+                        @{personalBrand.socialAccounts.linkedin.profile_name}
                     </a>
                 )}
             </div>
