@@ -6,7 +6,7 @@ import { NewPersonalBrand } from "../../../../../../services/supabase/schemas";
 
 export function PersonalBrandsPage() {
     const [showArchived, setShowArchived] = useState(false);
-    const { personalBrands, loading, error, getPersonalBrands, create, remove } =
+    const { personalBrands, loading, error, getPersonalBrands, create } =
         usePersonalBrands();
 
     const params = useMemo(
@@ -19,16 +19,6 @@ export function PersonalBrandsPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params]);
     const [isCreating, setIsCreating] = useState(false);
-
-    const handleDelete = async (id: string) => {
-        if (confirm("Are you sure you want to permanently delete this personal brand? This action cannot be undone.")) {
-            try {
-                await remove(id);
-            } catch (err) {
-                console.error("Failed to delete:", err);
-            }
-        }
-    };
 
     if (loading) {
         return (
@@ -135,12 +125,6 @@ export function PersonalBrandsPage() {
                                         className="rounded-lg bg-yellow-50 px-4 py-2 text-sm font-medium text-yellow-700 transition-colors hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
                                     >
                                         Edit
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(brand.id)}
-                                        className="rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                    >
-                                        Delete
                                     </button>
                                 </div>
                             </div>
