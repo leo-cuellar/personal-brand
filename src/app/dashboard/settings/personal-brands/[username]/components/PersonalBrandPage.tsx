@@ -33,6 +33,7 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
         opinionsLoading,
         opinionsError,
         getOpinions,
+        updateOpinions,
     } = usePersonalBrands();
 
     useEffect(() => {
@@ -236,6 +237,7 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
                         loading={opinionsLoading}
                         error={opinionsError}
                         onLoad={getOpinions}
+                        onUpdate={updateOpinions}
                     />
                 )}
             </div>

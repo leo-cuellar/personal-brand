@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { EditButton } from "@/components/EditButton";
+import { IconButton } from "@/components/IconButton";
 
 interface PersonalBrandStrongOpinionsProps {
     username: string;
@@ -9,6 +10,7 @@ interface PersonalBrandStrongOpinionsProps {
     loading: boolean;
     error: string | null;
     onLoad: (username: string) => Promise<void>;
+    onUpdate: (username: string, opinions: string[]) => Promise<void>;
 }
 
 export function PersonalBrandStrongOpinions({
@@ -17,7 +19,11 @@ export function PersonalBrandStrongOpinions({
     loading,
     error,
     onLoad,
+    onUpdate,
 }: PersonalBrandStrongOpinionsProps) {
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [opinionValue, setOpinionValue] = useState("");
+
     useEffect(() => {
         // Only fetch if opinions are not already loaded (null means not loaded yet)
         if (opinions === null && !loading) {
@@ -25,6 +31,32 @@ export function PersonalBrandStrongOpinions({
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [username]);
+
+    const handleEditOpinion = (index: number) => {
+        if (!opinions) return;
+        setOpinionValue(opinions[index] || "");
+        setEditingIndex(index);
+    };
+
+    const handleSaveOpinion = async () => {
+        if (!opinions || editingIndex === null) return;
+
+        try {
+            const updatedOpinions = [...opinions];
+            updatedOpinions[editingIndex] = opinionValue;
+            await onUpdate(username, updatedOpinions);
+            setEditingIndex(null);
+            setOpinionValue("");
+        } catch (err) {
+            console.error("Failed to update opinion:", err);
+            // TODO: Show error message to user
+        }
+    };
+
+    const handleCancelOpinion = () => {
+        setEditingIndex(null);
+        setOpinionValue("");
+    };
 
     if (loading) {
         return (
@@ -59,14 +91,52 @@ export function PersonalBrandStrongOpinions({
     return (
         <div>
             <ul className="space-y-4">
-                {opinions.map((opinion, index) => (
-                    <li key={index} className="flex items-start justify-between gap-2 border-b border-gray-100 pb-4 last:border-b-0">
-                        <div className="flex-1 text-sm text-gray-700 whitespace-pre-wrap">
-                            {opinion}
-                        </div>
-                        <EditButton />
-                    </li>
-                ))}
+                {opinions.map((opinion, index) => {
+                    const isEditing = editingIndex === index;
+
+                    return (
+                        <li key={index} className="flex flex-col gap-2 border-b border-gray-100 pb-4 last:border-b-0">
+                            <div className="flex items-start justify-between gap-2">
+                                {isEditing ? (
+                                    <>
+                                        <div className="flex-1">
+                                            <textarea
+                                                value={opinionValue}
+                                                onChange={(e) => setOpinionValue(e.target.value)}
+                                                className="w-full rounded border border-gray-300 px-2 py-1 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                rows={3}
+                                                autoFocus
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <IconButton
+                                                icon="check"
+                                                onClick={handleSaveOpinion}
+                                                iconColor="#10b981"
+                                                backgroundColor="#d1fae5"
+                                                hoverBackgroundColor="#a7f3d0"
+                                            />
+                                            <IconButton
+                                                icon="close"
+                                                onClick={handleCancelOpinion}
+                                                iconColor="#ef4444"
+                                                backgroundColor="#fee2e2"
+                                                hoverBackgroundColor="#fecaca"
+                                            />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="flex-1 text-sm text-gray-700 whitespace-pre-wrap">
+                                            {opinion}
+                                        </div>
+                                        <EditButton onClick={() => handleEditOpinion(index)} />
+                                    </>
+                                )}
+                            </div>
+                        </li>
+                    );
+                })}
             </ul>
         </div>
     );
