@@ -3,7 +3,6 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 
 import { getPostgresClient } from "../index";
-import { mockStrongOpinions } from "../mocks/strong-opinions";
 import { mockPublicationTypes } from "../mocks/publication-types";
 import { mockPublicationCategories } from "../mocks/publication-categories";
 import { mockPublicationIdeas } from "../mocks/publication-ideas";
@@ -15,40 +14,6 @@ const pg = () => getPostgresClient();
 
 // TODO: Configure Row Level Security (RLS) for all tables in the future
 // This should include policies for SELECT, INSERT, UPDATE, and DELETE operations
-
-async function seedStrongOpinions() {
-    console.log("🌱 Seeding strong opinions...");
-
-    try {
-        const client = pg();
-
-        // Insert strong opinions one by one using direct SQL
-        for (const opinion of mockStrongOpinions) {
-            await client`
-                INSERT INTO public.strong_opinions (
-                    id, personal_brand_id, opinion, created_at, updated_at, is_archived
-                ) VALUES (
-                    ${opinion.id}::uuid,
-                    ${opinion.personalBrandId}::uuid,
-                    ${opinion.opinion},
-                    ${new Date(opinion.createdAt)},
-                    ${new Date(opinion.updatedAt)},
-                    ${opinion.isArchived}
-                )
-                ON CONFLICT (id) DO NOTHING
-            `;
-        }
-
-        await client.end();
-
-        console.log(
-            `✅ ${mockStrongOpinions.length} strong opinions inserted successfully`
-        );
-    } catch (error) {
-        console.error("❌ Error seeding strong opinions:", error);
-        throw error;
-    }
-}
 
 async function seedPublicationTypes() {
     console.log("🌱 Seeding publication types...");
@@ -168,16 +133,18 @@ async function seedPersonalBrands() {
         for (const person of mockPersons) {
             // Use brandNarrative object directly
             const brandNarrative = person.brandNarrative;
+            const strongOpinions = person.strongOpinions || [];
 
             await client`
                 INSERT INTO public.personal_brands (
-                    id, name, linkedin_profile, brand_narrative,
+                    id, name, linkedin_profile, brand_narrative, strong_opinions,
                     created_at, updated_at, is_archived
                 ) VALUES (
                     ${person.id}::uuid,
                     ${person.name},
                     ${person.linkedinProfile || null},
                     ${JSON.stringify(brandNarrative)}::jsonb,
+                    ${JSON.stringify(strongOpinions)}::jsonb,
                     ${new Date(person.createdAt)},
                     ${new Date(person.updatedAt)},
                     ${person.isArchived}
@@ -278,7 +245,6 @@ async function main() {
         await seedPublicationCategories();
         await seedPublicationTypes();
         await seedPublicationStructures();
-        await seedStrongOpinions();
         await seedInspirations();
         console.log("🎉 Seed completed successfully!");
     } catch (error) {
@@ -296,7 +262,6 @@ if (require.main === module) {
 }
 
 export {
-    seedStrongOpinions,
     seedPublicationTypes,
     seedPublicationCategories,
     seedPublicationIdeas,

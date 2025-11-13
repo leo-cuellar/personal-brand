@@ -11,6 +11,7 @@ export const personalBrands = pgTable("personal_brands", {
     linkedinProfile: varchar("linkedin_profile", { length: 500 }),
 
     brandNarrative: jsonb("brand_narrative").notNull(),
+    strongOpinions: jsonb("strong_opinions").notNull().default("[]"),
 
     createdAt: timestamp("created_at", { withTimezone: true })
         .notNull()
@@ -38,11 +39,13 @@ export interface BrandNarrative {
 }
 
 // TypeScript types derived from schema
-export type PersonalBrand = Omit<typeof personalBrands.$inferSelect, "brandNarrative"> & {
+export type PersonalBrand = Omit<typeof personalBrands.$inferSelect, "brandNarrative" | "strongOpinions"> & {
     brandNarrative: BrandNarrative;
+    strongOpinions: string[];
 };
-export type NewPersonalBrand = Omit<typeof personalBrands.$inferInsert, "brandNarrative"> & {
+export type NewPersonalBrand = Omit<typeof personalBrands.$inferInsert, "brandNarrative" | "strongOpinions"> & {
     brandNarrative?: BrandNarrative;
+    strongOpinions?: string[];
 };
 
 // Legacy table alias for backward compatibility during migration

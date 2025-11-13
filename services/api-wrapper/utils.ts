@@ -1,7 +1,6 @@
 import {
     PublicationType,
     PublicationCategory,
-    StrongOpinion,
     PublicationIdea,
     PersonalBrand,
     Inspiration,
@@ -28,15 +27,6 @@ interface SupabasePublicationCategory {
     updated_at: string;
     is_archived: boolean;
     use_for_search: boolean;
-}
-
-interface SupabaseStrongOpinion {
-    id: string;
-    personal_brand_id: string;
-    opinion: string;
-    created_at: string;
-    updated_at: string;
-    is_archived: boolean;
 }
 
 interface SupabasePublicationIdea {
@@ -69,6 +59,7 @@ interface SupabasePerson {
         socialProofOrValidation: string;
         callToAction: string;
     } | string | null;
+    strong_opinions?: string[] | null;
     created_at: string;
     updated_at: string;
     is_archived: boolean;
@@ -101,19 +92,6 @@ export function transformPublicationCategory(
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,
         useForSearch: data.use_for_search,
-    };
-}
-
-export function transformStrongOpinion(
-    data: SupabaseStrongOpinion
-): StrongOpinion {
-    return {
-        id: data.id,
-        personalBrandId: data.personal_brand_id,
-        opinion: data.opinion,
-        createdAt: new Date(data.created_at) as unknown as Date,
-        updatedAt: new Date(data.updated_at) as unknown as Date,
-        isArchived: data.is_archived,
     };
 }
 
@@ -195,11 +173,26 @@ export function transformPersonalBrand(
         brandNarrative = data.brand_narrative;
     }
 
+    // Extract strong opinions - handle both array and null/undefined
+    let strongOpinions: string[] = [];
+    if (data.strong_opinions) {
+        if (Array.isArray(data.strong_opinions)) {
+            strongOpinions = data.strong_opinions;
+        } else if (typeof data.strong_opinions === "string") {
+            try {
+                strongOpinions = JSON.parse(data.strong_opinions);
+            } catch {
+                strongOpinions = [];
+            }
+        }
+    }
+
     return {
         id: data.id,
         name: data.name,
         linkedinProfile: data.linkedin_profile,
         brandNarrative: brandNarrative,
+        strongOpinions: strongOpinions,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,

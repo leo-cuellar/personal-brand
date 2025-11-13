@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
                 name: body.name,
                 linkedin_profile: body.linkedinProfile || null,
                 brand_narrative: body.brandNarrative,
+                strong_opinions: body.strongOpinions || [],
                 is_archived: body.isArchived || false,
             })
             .select()

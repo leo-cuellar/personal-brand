@@ -222,6 +222,23 @@ export function PersonalBrandsPage() {
                                             );
                                         })}
                                     </div>
+                                    <div className="mt-6 border-t border-gray-200 pt-4">
+                                        <div className="mb-2 text-sm font-semibold text-gray-900">
+                                            Strong Opinions
+                                        </div>
+                                        <div className="mb-2 text-xs italic text-gray-500">
+                                            Strong opinions for content generation
+                                        </div>
+                                        {brand.strongOpinions && brand.strongOpinions.length > 0 ? (
+                                            <ul className="list-disc list-inside space-y-2 text-sm text-gray-700">
+                                                {brand.strongOpinions.map((opinion, index) => (
+                                                    <li key={index} className="whitespace-pre-wrap">{opinion}</li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <div className="text-sm text-gray-400">(no strong opinions)</div>
+                                        )}
+                                    </div>
                                     <div className="mt-4 text-xs text-gray-500">
                                         Created: {formatDate(brand.createdAt)} •
                                         Updated: {formatDate(brand.updatedAt)}
@@ -247,6 +264,7 @@ function CreateForm({
         name: string;
         linkedinProfile: string | null;
         brandNarrative: BrandNarrative;
+        strongOpinions: string[];
     }>({
         name: "",
         linkedinProfile: null,
@@ -264,6 +282,7 @@ function CreateForm({
             socialProofOrValidation: "",
             callToAction: "",
         },
+        strongOpinions: [],
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -272,6 +291,31 @@ function CreateForm({
             name: formData.name,
             linkedinProfile: formData.linkedinProfile,
             brandNarrative: formData.brandNarrative,
+            strongOpinions: formData.strongOpinions,
+        });
+    };
+
+    const addOpinion = () => {
+        setFormData({
+            ...formData,
+            strongOpinions: [...formData.strongOpinions, ""],
+        });
+    };
+
+    const updateOpinion = (index: number, value: string) => {
+        const newOpinions = [...formData.strongOpinions];
+        newOpinions[index] = value;
+        setFormData({
+            ...formData,
+            strongOpinions: newOpinions,
+        });
+    };
+
+    const removeOpinion = (index: number) => {
+        const newOpinions = formData.strongOpinions.filter((_, i) => i !== index);
+        setFormData({
+            ...formData,
+            strongOpinions: newOpinions,
         });
     };
 
@@ -335,6 +379,46 @@ function CreateForm({
                     />
                 </div>
             ))}
+            <div>
+                <div className="mb-2 flex items-center justify-between">
+                    <label className="block text-sm font-medium text-gray-700">
+                        Strong Opinions
+                    </label>
+                    <button
+                        type="button"
+                        onClick={addOpinion}
+                        className="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                        + Add Opinion
+                    </button>
+                </div>
+                <div className="mb-2 text-xs italic text-gray-500">
+                    Strong opinions for content generation
+                </div>
+                <div className="space-y-2">
+                    {formData.strongOpinions.map((opinion, index) => (
+                        <div key={index} className="flex gap-2">
+                            <textarea
+                                value={opinion}
+                                onChange={(e) => updateOpinion(index, e.target.value)}
+                                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                rows={2}
+                                placeholder="Enter a strong opinion..."
+                            />
+                            <button
+                                type="button"
+                                onClick={() => removeOpinion(index)}
+                                className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-100"
+                            >
+                                Remove
+                            </button>
+                        </div>
+                    ))}
+                    {formData.strongOpinions.length === 0 && (
+                        <div className="text-sm text-gray-400 italic">No strong opinions added yet</div>
+                    )}
+                </div>
+            </div>
             <div className="flex gap-3">
                 <button
                     type="submit"
@@ -367,6 +451,7 @@ function EditForm({
         name: string;
         linkedinProfile: string | null;
         brandNarrative: BrandNarrative;
+        strongOpinions: string[];
     }>({
         name: personalBrand.name,
         linkedinProfile: personalBrand.linkedinProfile,
@@ -384,6 +469,7 @@ function EditForm({
             socialProofOrValidation: "",
             callToAction: "",
         },
+        strongOpinions: personalBrand.strongOpinions || [],
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -392,6 +478,31 @@ function EditForm({
             name: formData.name,
             linkedinProfile: formData.linkedinProfile,
             brandNarrative: formData.brandNarrative,
+            strongOpinions: formData.strongOpinions,
+        });
+    };
+
+    const addOpinion = () => {
+        setFormData({
+            ...formData,
+            strongOpinions: [...formData.strongOpinions, ""],
+        });
+    };
+
+    const updateOpinion = (index: number, value: string) => {
+        const newOpinions = [...formData.strongOpinions];
+        newOpinions[index] = value;
+        setFormData({
+            ...formData,
+            strongOpinions: newOpinions,
+        });
+    };
+
+    const removeOpinion = (index: number) => {
+        const newOpinions = formData.strongOpinions.filter((_, i) => i !== index);
+        setFormData({
+            ...formData,
+            strongOpinions: newOpinions,
         });
     };
 
@@ -454,6 +565,46 @@ function EditForm({
                     />
                 </div>
             ))}
+            <div>
+                <div className="mb-2 flex items-center justify-between">
+                    <label className="block text-sm font-medium text-gray-700">
+                        Strong Opinions
+                    </label>
+                    <button
+                        type="button"
+                        onClick={addOpinion}
+                        className="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                        + Add Opinion
+                    </button>
+                </div>
+                <div className="mb-2 text-xs italic text-gray-500">
+                    Strong opinions for content generation
+                </div>
+                <div className="space-y-2">
+                    {formData.strongOpinions.map((opinion, index) => (
+                        <div key={index} className="flex gap-2">
+                            <textarea
+                                value={opinion}
+                                onChange={(e) => updateOpinion(index, e.target.value)}
+                                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                rows={2}
+                                placeholder="Enter a strong opinion..."
+                            />
+                            <button
+                                type="button"
+                                onClick={() => removeOpinion(index)}
+                                className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-100"
+                            >
+                                Remove
+                            </button>
+                        </div>
+                    ))}
+                    {formData.strongOpinions.length === 0 && (
+                        <div className="text-sm text-gray-400 italic">No strong opinions added yet</div>
+                    )}
+                </div>
+            </div>
             <div className="flex gap-3">
                 <button
                     type="submit"

@@ -35,6 +35,13 @@ export const mockPersons: PersonalBrand[] = [
             callToAction:
                 "Si alguna vez pensaste que ibas tarde, que no tienes lo que se necesita, o que no sabes cómo dar el siguiente paso… estoy construyendo para ti.",
         },
+        strongOpinions: [
+            "Remote work isn't just a trend—it's the future of how we'll work. Companies that don't adapt will lose top talent.",
+            "AI won't replace humans, but humans who use AI will replace those who don't. The question isn't if, but when you'll adapt.",
+            "The 40-hour work week is dead. Productivity isn't about hours logged—it's about results delivered. Time to rethink how we measure work.",
+            "If you're not building your personal brand online, you're invisible. Your next opportunity won't find you—you need to make yourself findable.",
+            "Networking isn't about collecting contacts—it's about building genuine relationships. Quality over quantity, always.",
+        ],
         createdAt: new Date(),
         updatedAt: new Date(),
         isArchived: false,

@@ -1,5 +1,5 @@
 import { openai } from "./client";
-import { getPersonalBrandData, getStrongOpinions } from "./data-helpers";
+import { getPersonalBrandData } from "./data-helpers";
 
 export interface GenerateCategoryDescriptionParams {
     categoryName: string;
@@ -11,11 +11,8 @@ export async function generateCategoryDescription(
 ): Promise<string> {
     const { categoryName, personalBrandId } = params;
 
-    // Get personal brand data and strong opinions
-    const [personalBrand, strongOpinions] = await Promise.all([
-        getPersonalBrandData(personalBrandId),
-        getStrongOpinions(personalBrandId),
-    ]);
+    // Get personal brand data (includes strong opinions)
+    const personalBrand = await getPersonalBrandData(personalBrandId);
 
     if (!personalBrand) {
         throw new Error("Personal brand not found");
@@ -41,8 +38,8 @@ Personal Brand Information:
 
     // Build strong opinions context
     const strongOpinionsContext =
-        strongOpinions.length > 0
-            ? `\n\nStrong Opinions:\n${strongOpinions.map((so, idx) => `${idx + 1}. ${so.opinion}`).join("\n")}`
+        personalBrand.strongOpinions && personalBrand.strongOpinions.length > 0
+            ? `\n\nStrong Opinions:\n${personalBrand.strongOpinions.map((opinion, idx) => `${idx + 1}. ${opinion}`).join("\n")}`
             : "";
 
     const completion = await openai.chat.completions.create({
@@ -74,7 +71,8 @@ GOOD: "Strategies for navigating career transitions, focusing on skill developme
 Category name: "${categoryName}"
 
 Personal brand context:
-${personContext}${strongOpinionsContext}
+Personal brand: ${personContext}
+Strong opinions: ${strongOpinionsContext}
 
 Requirements:
 - Start directly with the topic/subject matter (no introductory phrases)
