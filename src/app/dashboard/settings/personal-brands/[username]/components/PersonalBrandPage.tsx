@@ -6,7 +6,7 @@ import { usePersonalBrands } from "@/hooks/usePersonalBrands";
 import { PersonalBrandNarrative } from "./PersonalBrandNarrative";
 import { PersonalBrandStrongOpinions } from "./PersonalBrandStrongOpinions";
 import { Icon } from "@/components/Icon";
-import { EditButton } from "@/components/EditButton";
+import { IconButton } from "@/components/IconButton";
 
 interface PersonalBrandPageProps {
     username: string;
@@ -15,6 +15,8 @@ interface PersonalBrandPageProps {
 export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<"narrative" | "opinions">("narrative");
+    const [isEditingNiche, setIsEditingNiche] = useState(false);
+    const [nicheValue, setNicheValue] = useState("");
 
     const {
         personalBrand,
@@ -92,7 +94,20 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
         return null;
     }
 
-    console.log(personalBrand);
+    const handleEditNiche = () => {
+        setNicheValue(personalBrand.niche || "");
+        setIsEditingNiche(true);
+    };
+
+    const handleSaveNiche = () => {
+        // TODO: Implement save functionality
+        setIsEditingNiche(false);
+    };
+
+    const handleCancelNiche = () => {
+        setNicheValue("");
+        setIsEditingNiche(false);
+    };
 
     return (
         <div className="container mx-auto max-w-6xl p-8">
@@ -120,10 +135,38 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
                 </div>
                 {personalBrand.niche && (
                     <div className="flex items-center gap-2">
-                        <p className="text-base text-gray-700">
-                            {personalBrand.niche}
-                        </p>
-                        <EditButton />
+                        {isEditingNiche ? (
+                            <>
+                                <input
+                                    type="text"
+                                    value={nicheValue}
+                                    onChange={(e) => setNicheValue(e.target.value)}
+                                    className="flex-1 rounded border border-gray-300 px-2 py-1 text-base text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    autoFocus
+                                />
+                                <IconButton
+                                    icon="check"
+                                    onClick={handleSaveNiche}
+                                    iconColor="#10b981"
+                                    backgroundColor="#d1fae5"
+                                    hoverBackgroundColor="#a7f3d0"
+                                />
+                                <IconButton
+                                    icon="close"
+                                    onClick={handleCancelNiche}
+                                    iconColor="#ef4444"
+                                    backgroundColor="#fee2e2"
+                                    hoverBackgroundColor="#fecaca"
+                                />
+                            </>
+                        ) : (
+                            <>
+                                <p className="text-base text-gray-700">
+                                    {personalBrand.niche}
+                                </p>
+                                <IconButton icon="edit" onClick={handleEditNiche} />
+                            </>
+                        )}
                     </div>
                 )}
             </div>

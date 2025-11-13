@@ -1,6 +1,6 @@
 "use client";
 
-import { Icon } from "./Icon";
+import { IconButton } from "./IconButton";
 
 interface EditButtonProps {
     onClick?: () => void;
@@ -9,13 +9,11 @@ interface EditButtonProps {
 
 export function EditButton({ onClick, className }: EditButtonProps) {
     return (
-        <button
+        <IconButton
+            icon="edit"
             onClick={onClick}
-            className={`flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-600 transition-colors hover:bg-gray-300 cursor-pointer ${className || ""}`}
-            type="button"
-        >
-            <Icon name="edit" size={16} />
-        </button>
+            className={className}
+        />
     );
 }
 
