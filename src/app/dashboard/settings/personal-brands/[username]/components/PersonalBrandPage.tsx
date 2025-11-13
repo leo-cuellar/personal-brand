@@ -17,6 +17,8 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
     const [activeTab, setActiveTab] = useState<"narrative" | "opinions">("narrative");
     const [isEditingNiche, setIsEditingNiche] = useState(false);
     const [nicheValue, setNicheValue] = useState("");
+    const [isAddingNewOpinion, setIsAddingNewOpinion] = useState(false);
+    const [newOpinionValue, setNewOpinionValue] = useState("");
 
     const {
         personalBrand,
@@ -218,6 +220,61 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
             </div>
 
             {/* Tab Content */}
+            {activeTab === "opinions" && (
+                <>
+                    {!isAddingNewOpinion ? (
+                        <button
+                            onClick={() => setIsAddingNewOpinion(true)}
+                            className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        >
+                            <Icon name="add" color="#ffffff" size={18} />
+                            Add New
+                        </button>
+                    ) : (
+                        <div className="mb-4 flex items-start justify-between gap-2 rounded-lg border border-gray-300 bg-white p-4">
+                            <div className="flex-1">
+                                <textarea
+                                    value={newOpinionValue}
+                                    onChange={(e) => setNewOpinionValue(e.target.value)}
+                                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    rows={3}
+                                    placeholder="Enter your strong opinion..."
+                                    autoFocus
+                                />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <IconButton
+                                    icon="check"
+                                    onClick={async () => {
+                                        if (!opinions) return;
+                                        try {
+                                            const updatedOpinions = [newOpinionValue, ...opinions];
+                                            await updateOpinions(username, updatedOpinions);
+                                            setIsAddingNewOpinion(false);
+                                            setNewOpinionValue("");
+                                        } catch (err) {
+                                            console.error("Failed to add opinion:", err);
+                                        }
+                                    }}
+                                    iconColor="#10b981"
+                                    backgroundColor="#d1fae5"
+                                    hoverBackgroundColor="#a7f3d0"
+                                />
+                                <IconButton
+                                    icon="close"
+                                    onClick={() => {
+                                        setIsAddingNewOpinion(false);
+                                        setNewOpinionValue("");
+                                    }}
+                                    iconColor="#ef4444"
+                                    backgroundColor="#fee2e2"
+                                    hoverBackgroundColor="#fecaca"
+                                />
+                            </div>
+                        </div>
+                    )}
+                </>
+            )}
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 {activeTab === "narrative" && (
                     <PersonalBrandNarrative
@@ -238,6 +295,9 @@ export function PersonalBrandPage({ username }: PersonalBrandPageProps) {
                         error={opinionsError}
                         onLoad={getOpinions}
                         onUpdate={updateOpinions}
+                        onAddNewClick={() => setIsAddingNewOpinion(true)}
+                        isAddingNew={isAddingNewOpinion}
+                        onCancelAdd={() => setIsAddingNewOpinion(false)}
                     />
                 )}
             </div>

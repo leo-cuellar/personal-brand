@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { EditButton } from "@/components/EditButton";
 import { IconButton } from "@/components/IconButton";
+import { Icon } from "@/components/Icon";
 
 interface PersonalBrandStrongOpinionsProps {
     username: string;
@@ -11,6 +12,12 @@ interface PersonalBrandStrongOpinionsProps {
     error: string | null;
     onLoad: (username: string) => Promise<void>;
     onUpdate: (username: string, opinions: string[]) => Promise<void>;
+    onAddNewClick?: () => void;
+    isAddingNew?: boolean;
+    onCancelAdd?: () => void;
+    newOpinionValue?: string;
+    onNewOpinionValueChange?: (value: string) => void;
+    onSaveNew?: () => Promise<void>;
 }
 
 export function PersonalBrandStrongOpinions({
@@ -20,9 +27,28 @@ export function PersonalBrandStrongOpinions({
     error,
     onLoad,
     onUpdate,
+    onAddNewClick,
+    isAddingNew: externalIsAddingNew,
+    onCancelAdd,
+    newOpinionValue: externalNewOpinionValue,
+    onNewOpinionValueChange,
+    onSaveNew: externalOnSaveNew,
 }: PersonalBrandStrongOpinionsProps) {
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [opinionValue, setOpinionValue] = useState("");
+    const [internalIsAddingNew, setInternalIsAddingNew] = useState(false);
+    const [internalNewOpinionValue, setInternalNewOpinionValue] = useState("");
+    
+    const isAddingNew = externalIsAddingNew !== undefined ? externalIsAddingNew : internalIsAddingNew;
+    const newOpinionValue = externalNewOpinionValue !== undefined ? externalNewOpinionValue : internalNewOpinionValue;
+    
+    const setNewOpinionValue = (value: string) => {
+        if (onNewOpinionValueChange) {
+            onNewOpinionValueChange(value);
+        } else {
+            setInternalNewOpinionValue(value);
+        }
+    };
 
     useEffect(() => {
         // Only fetch if opinions are not already loaded (null means not loaded yet)
@@ -36,6 +62,9 @@ export function PersonalBrandStrongOpinions({
         if (!opinions) return;
         setOpinionValue(opinions[index] || "");
         setEditingIndex(index);
+        if (externalIsAddingNew === undefined) {
+            setInternalIsAddingNew(false);
+        }
     };
 
     const handleSaveOpinion = async () => {
@@ -56,6 +85,61 @@ export function PersonalBrandStrongOpinions({
     const handleCancelOpinion = () => {
         setEditingIndex(null);
         setOpinionValue("");
+    };
+
+    const handleAddNew = () => {
+        if (externalIsAddingNew === undefined) {
+            setInternalIsAddingNew(true);
+        }
+        if (onAddNewClick) {
+            onAddNewClick();
+        }
+        setNewOpinionValue("");
+        setEditingIndex(null);
+    };
+
+    const handleSaveNew = async () => {
+        if (externalOnSaveNew) {
+            await externalOnSaveNew();
+            return;
+        }
+        
+        if (!opinions) return;
+
+        try {
+            const updatedOpinions = [newOpinionValue, ...opinions];
+            await onUpdate(username, updatedOpinions);
+            if (externalIsAddingNew === undefined) {
+                setInternalIsAddingNew(false);
+            } else if (onCancelAdd) {
+                onCancelAdd();
+            }
+            setNewOpinionValue("");
+        } catch (err) {
+            console.error("Failed to add opinion:", err);
+            // TODO: Show error message to user
+        }
+    };
+
+    const handleCancelNew = () => {
+        if (externalIsAddingNew === undefined) {
+            setInternalIsAddingNew(false);
+        } else if (onCancelAdd) {
+            onCancelAdd();
+        }
+        setNewOpinionValue("");
+    };
+
+    const handleDeleteOpinion = async (index: number) => {
+        if (!opinions) return;
+
+        try {
+            const updatedOpinions = opinions.filter((_, i) => i !== index);
+            await onUpdate(username, updatedOpinions);
+        } catch (err) {
+            console.error("Failed to delete opinion:", err);
+            // TODO: Show error message to user
+        }
     };
 
     if (loading) {
@@ -82,63 +166,70 @@ export function PersonalBrandStrongOpinions({
         return null;
     }
 
-    if (opinions.length === 0) {
-        return (
-            <div className="text-sm text-gray-400">No strong opinions added yet</div>
-        );
-    }
-
     return (
-        <div>
-            <ul className="space-y-4">
-                {opinions.map((opinion, index) => {
-                    const isEditing = editingIndex === index;
+        <>
+            {opinions.length === 0 && !isAddingNew ? (
+                <div className="text-sm text-gray-400">No strong opinions added yet</div>
+            ) : (
+                <ul className="space-y-4">
+                    {opinions.map((opinion, index) => {
+                        const isEditing = editingIndex === index;
 
-                    return (
-                        <li key={index} className="flex flex-col gap-2 border-b border-gray-100 pb-4 last:border-b-0">
-                            <div className="flex items-start justify-between gap-2">
-                                {isEditing ? (
-                                    <>
-                                        <div className="flex-1">
-                                            <textarea
-                                                value={opinionValue}
-                                                onChange={(e) => setOpinionValue(e.target.value)}
-                                                className="w-full rounded border border-gray-300 px-2 py-1 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                                rows={3}
-                                                autoFocus
-                                            />
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <IconButton
-                                                icon="check"
-                                                onClick={handleSaveOpinion}
-                                                iconColor="#10b981"
-                                                backgroundColor="#d1fae5"
-                                                hoverBackgroundColor="#a7f3d0"
-                                            />
-                                            <IconButton
-                                                icon="close"
-                                                onClick={handleCancelOpinion}
-                                                iconColor="#ef4444"
-                                                backgroundColor="#fee2e2"
-                                                hoverBackgroundColor="#fecaca"
-                                            />
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="flex-1 text-sm text-gray-700 whitespace-pre-wrap">
-                                            {opinion}
-                                        </div>
-                                        <EditButton onClick={() => handleEditOpinion(index)} />
-                                    </>
-                                )}
-                            </div>
-                        </li>
-                    );
-                })}
-            </ul>
-        </div>
+                        return (
+                            <li key={index} className="flex flex-col gap-2 border-b border-gray-100 pb-4 last:border-b-0">
+                                <div className="flex items-start justify-between gap-2">
+                                    {isEditing ? (
+                                        <>
+                                            <div className="flex-1">
+                                                <textarea
+                                                    value={opinionValue}
+                                                    onChange={(e) => setOpinionValue(e.target.value)}
+                                                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                    rows={3}
+                                                    autoFocus
+                                                />
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <IconButton
+                                                    icon="check"
+                                                    onClick={handleSaveOpinion}
+                                                    iconColor="#10b981"
+                                                    backgroundColor="#d1fae5"
+                                                    hoverBackgroundColor="#a7f3d0"
+                                                />
+                                                <IconButton
+                                                    icon="close"
+                                                    onClick={handleCancelOpinion}
+                                                    iconColor="#ef4444"
+                                                    backgroundColor="#fee2e2"
+                                                    hoverBackgroundColor="#fecaca"
+                                                />
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="flex-1 text-sm text-gray-700 whitespace-pre-wrap">
+                                                {opinion}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <EditButton onClick={() => handleEditOpinion(index)} />
+                                                <IconButton
+                                                    icon="delete"
+                                                    onClick={() => handleDeleteOpinion(index)}
+                                                    iconColor="#ef4444"
+                                                    backgroundColor="#fee2e2"
+                                                    hoverBackgroundColor="#fecaca"
+                                                />
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </li>
+                        );
+                    })}
+                </ul>
+            )}
+        </>
     );
 }
 

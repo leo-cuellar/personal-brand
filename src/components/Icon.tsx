@@ -1,7 +1,7 @@
 "use client";
 
 import { FaLinkedin } from "react-icons/fa";
-import { MdModeEditOutline, MdCheck, MdClose } from "react-icons/md";
+import { MdModeEditOutline, MdCheck, MdClose, MdDelete, MdAdd } from "react-icons/md";
 import { ComponentProps } from "react";
 
 // Type for any react-icons component
@@ -13,6 +13,8 @@ const iconMap = {
     edit: MdModeEditOutline,
     check: MdCheck,
     close: MdClose,
+    delete: MdDelete,
+    add: MdAdd,
 } as const;
 
 export type IconName = keyof typeof iconMap;
