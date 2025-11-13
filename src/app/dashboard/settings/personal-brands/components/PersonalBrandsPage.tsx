@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { usePersonalBrands } from "@/hooks/usePersonalBrands";
 import { NewPersonalBrand } from "../../../../../../services/supabase/schemas";
 
 export function PersonalBrandsPage() {
+    const router = useRouter();
     const [showArchived, setShowArchived] = useState(false);
     const { personalBrands, loading, error, getPersonalBrands, create } =
         usePersonalBrands();
@@ -119,12 +121,10 @@ export function PersonalBrandsPage() {
                                 </div>
                                 <div className="ml-4 flex gap-2">
                                     <button
-                                        onClick={() => {
-                                            // Empty function for now
-                                        }}
-                                        className="rounded-lg bg-yellow-50 px-4 py-2 text-sm font-medium text-yellow-700 transition-colors hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
+                                        onClick={() => router.push(`/dashboard/settings/personal-brands/${brand.id}`)}
+                                        className="rounded-lg bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                     >
-                                        Edit
+                                        View
                                     </button>
                                 </div>
                             </div>

@@ -3,14 +3,20 @@
 import { useState, useCallback } from "react";
 import {
     getPersonalBrands,
+    getPersonalBrandById,
+    getPersonalBrandNarrative,
+    getPersonalBrandOpinions,
     createPersonalBrand,
     updatePersonalBrand,
+    updatePersonalBrandNarrative,
+    updatePersonalBrandOpinions,
     deletePersonalBrand,
     GetPersonalBrandsParams,
 } from "../../services/api-wrapper/personal-brands";
-import { PersonalBrand, NewPersonalBrand } from "../../services/supabase/schemas";
+import { PersonalBrand, NewPersonalBrand, BrandNarrative } from "../../services/supabase/schemas";
 
 interface UsePersonalBrandsReturn {
+    // List methods
     personalBrands: PersonalBrand[];
     loading: boolean;
     error: string | null;
@@ -18,12 +24,48 @@ interface UsePersonalBrandsReturn {
     create: (data: NewPersonalBrand) => Promise<PersonalBrand>;
     update: (id: string, updates: Partial<PersonalBrand>) => Promise<PersonalBrand>;
     remove: (id: string) => Promise<void>;
+
+    // Single personal brand methods
+    personalBrand: PersonalBrand | null;
+    personalBrandLoading: boolean;
+    personalBrandError: string | null;
+    getPersonalBrand: (id: string, fields?: "basic" | "narrative" | "opinions" | "all") => Promise<void>;
+
+    // Narrative methods
+    narrative: BrandNarrative | null;
+    narrativeLoading: boolean;
+    narrativeError: string | null;
+    getNarrative: (id: string) => Promise<void>;
+    updateNarrative: (id: string, narrative: BrandNarrative) => Promise<void>;
+
+    // Opinions methods
+    opinions: string[] | null;
+    opinionsLoading: boolean;
+    opinionsError: string | null;
+    getOpinions: (id: string) => Promise<void>;
+    updateOpinions: (id: string, opinions: string[]) => Promise<void>;
 }
 
 export function usePersonalBrands(): UsePersonalBrandsReturn {
+    // List state
     const [personalBrands, setPersonalBrands] = useState<PersonalBrand[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Single personal brand state
+    const [personalBrand, setPersonalBrand] = useState<PersonalBrand | null>(null);
+    const [personalBrandLoading, setPersonalBrandLoading] = useState(false);
+    const [personalBrandError, setPersonalBrandError] = useState<string | null>(null);
+
+    // Narrative state
+    const [narrative, setNarrative] = useState<BrandNarrative | null>(null);
+    const [narrativeLoading, setNarrativeLoading] = useState(false);
+    const [narrativeError, setNarrativeError] = useState<string | null>(null);
+
+    // Opinions state
+    const [opinions, setOpinions] = useState<string[] | null>(null);
+    const [opinionsLoading, setOpinionsLoading] = useState(false);
+    const [opinionsError, setOpinionsError] = useState<string | null>(null);
 
     const fetchPersonalBrands = useCallback(async (params?: GetPersonalBrandsParams) => {
         try {
@@ -96,7 +138,118 @@ export function usePersonalBrands(): UsePersonalBrandsReturn {
         []
     );
 
+    // Single personal brand methods
+    const getPersonalBrand = useCallback(
+        async (id: string, fields?: "basic" | "narrative" | "opinions" | "all"): Promise<void> => {
+            try {
+                setPersonalBrandLoading(true);
+                setPersonalBrandError(null);
+                const data = await getPersonalBrandById(id, { fields });
+                setPersonalBrand(data);
+            } catch (err) {
+                const errorMessage =
+                    err instanceof Error ? err.message : "Failed to fetch personal brand";
+                setPersonalBrandError(errorMessage);
+                throw err;
+            } finally {
+                setPersonalBrandLoading(false);
+            }
+        },
+        []
+    );
+
+    // Narrative methods
+    const getNarrative = useCallback(async (id: string): Promise<void> => {
+        // Only fetch if narrative is not already loaded
+        if (narrative !== null) {
+            return;
+        }
+
+        try {
+            setNarrativeLoading(true);
+            setNarrativeError(null);
+            const data = await getPersonalBrandNarrative(id);
+            setNarrative(data);
+        } catch (err) {
+            const errorMessage =
+                err instanceof Error ? err.message : "Failed to fetch narrative";
+            setNarrativeError(errorMessage);
+            throw err;
+        } finally {
+            setNarrativeLoading(false);
+        }
+    }, [narrative]);
+
+    const updateNarrative = useCallback(
+        async (id: string, newNarrative: BrandNarrative): Promise<void> => {
+            const previousNarrative = narrative;
+            try {
+                setNarrativeError(null);
+                // Optimistic update
+                setNarrative(newNarrative);
+                const updated = await updatePersonalBrandNarrative(id, newNarrative);
+                setNarrative(updated);
+            } catch (err) {
+                const errorMessage =
+                    err instanceof Error ? err.message : "Failed to update narrative";
+                setNarrativeError(errorMessage);
+                // Revert optimistic update on error
+                if (previousNarrative) {
+                    setNarrative(previousNarrative);
+                }
+                throw err;
+            }
+        },
+        [narrative]
+    );
+
+    // Opinions methods
+    const getOpinions = useCallback(async (id: string): Promise<void> => {
+        // Only fetch if opinions are not already loaded
+        if (opinions !== null) {
+            return;
+        }
+
+        try {
+            setOpinionsLoading(true);
+            setOpinionsError(null);
+            const data = await getPersonalBrandOpinions(id);
+            setOpinions(data);
+        } catch (err) {
+            const errorMessage =
+                err instanceof Error ? err.message : "Failed to fetch opinions";
+            setOpinionsError(errorMessage);
+            throw err;
+        } finally {
+            setOpinionsLoading(false);
+        }
+    }, [opinions]);
+
+    const updateOpinions = useCallback(
+        async (id: string, newOpinions: string[]): Promise<void> => {
+            const previousOpinions = opinions;
+            try {
+                setOpinionsError(null);
+                // Optimistic update
+                setOpinions(newOpinions);
+                const updated = await updatePersonalBrandOpinions(id, newOpinions);
+                setOpinions(updated);
+            } catch (err) {
+                const errorMessage =
+                    err instanceof Error ? err.message : "Failed to update opinions";
+                setOpinionsError(errorMessage);
+                // Revert optimistic update on error
+                if (previousOpinions !== null) {
+                    setOpinions(previousOpinions);
+                }
+                throw err;
+            }
+        },
+        [opinions]
+    );
+
     return {
+        // List methods
         personalBrands,
         loading,
         error,
@@ -104,6 +257,23 @@ export function usePersonalBrands(): UsePersonalBrandsReturn {
         create,
         update,
         remove,
+        // Single personal brand methods
+        personalBrand,
+        personalBrandLoading,
+        personalBrandError,
+        getPersonalBrand,
+        // Narrative methods
+        narrative,
+        narrativeLoading,
+        narrativeError,
+        getNarrative,
+        updateNarrative,
+        // Opinions methods
+        opinions,
+        opinionsLoading,
+        opinionsError,
+        getOpinions,
+        updateOpinions,
     };
 }
 

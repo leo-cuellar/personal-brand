@@ -5,6 +5,7 @@ import {
     PersonalBrand,
     Inspiration,
     PublicationStructure,
+    BrandNarrative,
 } from "../supabase/schemas";
 
 // Supabase response types (snake_case)
@@ -45,7 +46,7 @@ interface SupabasePerson {
     id: string;
     name: string;
     linkedin_profile: string | null;
-    brand_narrative: {
+    brand_narrative?: {
         immediateCredibility: string;
         professionalProblemOrChallenge: string;
         internalStruggles: string;
@@ -114,25 +115,78 @@ export function transformPublicationIdea(
 export function transformPersonalBrand(
     data: SupabasePerson
 ): PersonalBrand {
-    // Extract brand narrative fields - handle both string JSON and object
-    let brandNarrative: {
-        immediateCredibility: string;
-        professionalProblemOrChallenge: string;
-        internalStruggles: string;
-        externalContext: string;
-        keyMicrotransitions: string;
-        insightOrSpark: string;
-        process: string;
-        resultOrTransformation: string;
-        sharedBeliefs: string;
-        currentVisionOrPersonalMission: string;
-        socialProofOrValidation: string;
-        callToAction: string;
+    // Build base result with required fields
+    const result: Partial<PersonalBrand> & {
+        id: string;
+        name: string;
+        linkedinProfile: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        isArchived: boolean;
+    } = {
+        id: data.id,
+        name: data.name,
+        linkedinProfile: data.linkedin_profile,
+        createdAt: new Date(data.created_at) as unknown as Date,
+        updatedAt: new Date(data.updated_at) as unknown as Date,
+        isArchived: data.is_archived,
     };
 
-    if (!data.brand_narrative) {
-        // Default empty object
-        brandNarrative = {
+    // Only process brand_narrative if it exists in the response
+    if ("brand_narrative" in data && data.brand_narrative !== null && data.brand_narrative !== undefined) {
+        let brandNarrative: BrandNarrative | null = null;
+
+        if (typeof data.brand_narrative === "string") {
+            // Parse JSON string
+            try {
+                const parsed = JSON.parse(data.brand_narrative);
+                if (parsed && typeof parsed === "object" && Object.keys(parsed).length > 0) {
+                    brandNarrative = parsed as BrandNarrative;
+                }
+            } catch {
+                // If parsing fails, leave as null
+            }
+        } else if (typeof data.brand_narrative === "object" && data.brand_narrative !== null) {
+            // Already an object
+            const obj = data.brand_narrative as Record<string, unknown>;
+            if (Object.keys(obj).length > 0) {
+                brandNarrative = obj as unknown as BrandNarrative;
+            }
+        }
+
+        // Only include brandNarrative if we successfully parsed it
+        if (brandNarrative) {
+            result.brandNarrative = brandNarrative;
+        }
+    }
+
+    // Only process strong_opinions if it exists in the response
+    if ("strong_opinions" in data && data.strong_opinions !== null && data.strong_opinions !== undefined) {
+        let strongOpinions: string[] | null = null;
+
+        if (Array.isArray(data.strong_opinions)) {
+            strongOpinions = data.strong_opinions;
+        } else if (typeof data.strong_opinions === "string") {
+            try {
+                const parsed = JSON.parse(data.strong_opinions);
+                if (Array.isArray(parsed)) {
+                    strongOpinions = parsed;
+                }
+            } catch {
+                // If parsing fails, leave as null
+            }
+        }
+
+        // Only include strongOpinions if we successfully parsed it
+        if (strongOpinions !== null) {
+            result.strongOpinions = strongOpinions;
+        }
+    }
+
+    // Return with defaults for fields that weren't present
+    return {
+        ...result,
+        brandNarrative: result.brandNarrative ?? {
             immediateCredibility: "",
             professionalProblemOrChallenge: "",
             internalStruggles: "",
@@ -145,58 +199,9 @@ export function transformPersonalBrand(
             currentVisionOrPersonalMission: "",
             socialProofOrValidation: "",
             callToAction: "",
-        };
-    } else if (typeof data.brand_narrative === "string") {
-        // Parse JSON string
-        try {
-            brandNarrative = JSON.parse(data.brand_narrative);
-        } catch (error) {
-            console.error("Failed to parse brand_narrative JSON:", error);
-            // Fallback to empty object if parsing fails
-            brandNarrative = {
-                immediateCredibility: "",
-                professionalProblemOrChallenge: "",
-                internalStruggles: "",
-                externalContext: "",
-                keyMicrotransitions: "",
-                insightOrSpark: "",
-                process: "",
-                resultOrTransformation: "",
-                sharedBeliefs: "",
-                currentVisionOrPersonalMission: "",
-                socialProofOrValidation: "",
-                callToAction: "",
-            };
-        }
-    } else {
-        // Already an object
-        brandNarrative = data.brand_narrative;
-    }
-
-    // Extract strong opinions - handle both array and null/undefined
-    let strongOpinions: string[] = [];
-    if (data.strong_opinions) {
-        if (Array.isArray(data.strong_opinions)) {
-            strongOpinions = data.strong_opinions;
-        } else if (typeof data.strong_opinions === "string") {
-            try {
-                strongOpinions = JSON.parse(data.strong_opinions);
-            } catch {
-                strongOpinions = [];
-            }
-        }
-    }
-
-    return {
-        id: data.id,
-        name: data.name,
-        linkedinProfile: data.linkedin_profile,
-        brandNarrative: brandNarrative,
-        strongOpinions: strongOpinions,
-        createdAt: new Date(data.created_at) as unknown as Date,
-        updatedAt: new Date(data.updated_at) as unknown as Date,
-        isArchived: data.is_archived,
-    };
+        },
+        strongOpinions: result.strongOpinions ?? [],
+    } as PersonalBrand;
 }
 
 interface SupabaseInspiration {
@@ -262,4 +267,6 @@ export function transformPublicationStructure(
         isArchived: data.is_archived,
     };
 }
+
+
 
