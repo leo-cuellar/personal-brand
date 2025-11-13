@@ -97,15 +97,13 @@ export function TrendScannerPage() {
                 </div>
             )}
 
-            <div className="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-                <button
-                    onClick={handleScan}
-                    disabled={loading || !selectedPersonId}
-                    className="w-full rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    {loading ? "Escaneando tendencias..." : "Escanear Tendencias"}
-                </button>
-            </div>
+            <button
+                onClick={handleScan}
+                disabled={loading || !selectedPersonId}
+                className="mb-6 w-full rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                {loading ? "Escaneando tendencias..." : "Escanear Tendencias"}
+            </button>
 
             {loading && (
                 <div className="flex min-h-[200px] items-center justify-center">
