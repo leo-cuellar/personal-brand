@@ -46,24 +46,32 @@ export async function POST(request: NextRequest) {
     try {
         const body: NewPersonalBrand = await request.json();
 
-        // Build brand_narrative object
-        if (!body.brandNarrative) {
-            return NextResponse.json(
-                { error: "brandNarrative is required" },
-                { status: 400 }
-            );
-        }
+        // Build default brand_narrative object if not provided
+        const defaultBrandNarrative = {
+            immediateCredibility: "",
+            professionalProblemOrChallenge: "",
+            internalStruggles: "",
+            externalContext: "",
+            keyMicrotransitions: "",
+            insightOrSpark: "",
+            process: "",
+            resultOrTransformation: "",
+            sharedBeliefs: "",
+            currentVisionOrPersonalMission: "",
+            socialProofOrValidation: "",
+            callToAction: "",
+        };
 
         const { data, error } = await supabaseAdmin
             .from("personal_brands")
             .insert({
                 name: body.name,
                 linkedin_profile: body.linkedinProfile || null,
-                brand_narrative: body.brandNarrative,
+                brand_narrative: body.brandNarrative || defaultBrandNarrative,
                 strong_opinions: body.strongOpinions || [],
                 is_archived: body.isArchived || false,
             })
-            .select()
+            .select("id, name, linkedin_profile, created_at, updated_at, is_archived")
             .single();
 
         if (error) {
