@@ -38,7 +38,7 @@ interface SupabasePublicationIdea {
     description: string | null;
     link: string | null;
     status: string;
-    web_summary: string | null;
+    source_summary: string | null;
     created_at: string;
     updated_at: string;
     is_archived: boolean;
@@ -127,7 +127,7 @@ export function transformPublicationIdea(
         description: data.description,
         link: data.link || null,
         status: data.status as "in_review" | "accepted" | "rejected" | "used" | "incomplete",
-        webSummary: data.web_summary || null,
+        sourceSummary: data.source_summary || null,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,

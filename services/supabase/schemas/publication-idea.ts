@@ -22,7 +22,7 @@ export const publicationIdeas = pgTable("publication_ideas", {
     description: text("description"),
     link: varchar("link", { length: 500 }),
     status: ideaStatusEnum("status").notNull().default("in_review"),
-    webSummary: text("web_summary"),
+    sourceSummary: text("source_summary"),
     createdAt: timestamp("created_at", { withTimezone: true })
         .notNull()
         .defaultNow(),
