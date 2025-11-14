@@ -214,6 +214,8 @@ export function PublicationIdeasPage() {
                 return "bg-yellow-100 text-yellow-700";
             case "used":
                 return "bg-blue-100 text-blue-700";
+            case "incomplete":
+                return "bg-orange-100 text-orange-700";
             default:
                 return "bg-gray-100 text-gray-700";
         }
@@ -229,6 +231,8 @@ export function PublicationIdeasPage() {
                 return "In Review";
             case "used":
                 return "Used";
+            case "incomplete":
+                return "Incomplete";
             default:
                 return status;
         }

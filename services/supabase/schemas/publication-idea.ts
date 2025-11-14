@@ -10,7 +10,7 @@ import {
 import { personalBrands } from "./personal-brand";
 
 // Enum for idea status
-export const ideaStatusEnum = pgEnum("idea_status", ["in_review", "accepted", "rejected", "used"]);
+export const ideaStatusEnum = pgEnum("idea_status", ["in_review", "accepted", "rejected", "used", "incomplete"]);
 
 // Publication ideas table
 export const publicationIdeas = pgTable("publication_ideas", {
@@ -22,6 +22,8 @@ export const publicationIdeas = pgTable("publication_ideas", {
     description: text("description"),
     link: varchar("link", { length: 500 }),
     status: ideaStatusEnum("status").notNull().default("in_review"),
+    systemMessage: text("system_message"),
+    webSummary: text("web_summary"),
     createdAt: timestamp("created_at", { withTimezone: true })
         .notNull()
         .defaultNow(),
