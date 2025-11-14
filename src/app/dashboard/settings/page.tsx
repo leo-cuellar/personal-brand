@@ -62,6 +62,17 @@ export default function SettingsPage() {
                         Manage personal brands for content generation
                     </div>
                 </Link>
+                <Link
+                    href="/dashboard/settings/buyer-personas"
+                    className="block rounded-lg border border-gray-300 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50"
+                >
+                    <div className="font-medium text-gray-900">
+                        Buyer Personas
+                    </div>
+                    <div className="text-sm text-gray-500">
+                        Manage buyer personas for content targeting
+                    </div>
+                </Link>
             </div>
         </div>
     );

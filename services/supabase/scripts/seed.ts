@@ -9,6 +9,7 @@ import { mockPublicationIdeas } from "../mocks/publication-ideas";
 import { mockPublicationStructures } from "../mocks/publication-structures";
 import { mockPersons } from "../mocks/personal-brands";
 import { mockInspirations } from "../mocks/inspirations";
+import { mockBuyerPersonas } from "../mocks/buyer-personas";
 
 const pg = () => getPostgresClient();
 
@@ -205,6 +206,49 @@ async function seedInspirations() {
     }
 }
 
+async function seedBuyerPersonas() {
+    console.log("🌱 Seeding buyer personas...");
+
+    try {
+        const client = pg();
+
+        // Insert buyer personas one by one using direct SQL
+        for (const persona of mockBuyerPersonas) {
+            const goals = persona.goals || [];
+            const frustrations = persona.frustrations || [];
+            const desires = persona.desires || [];
+
+            await client`
+                INSERT INTO public.buyer_personas (
+                    id, name, description, goals, frustrations, desires, knowledge_level,
+                    created_at, updated_at, is_archived
+                ) VALUES (
+                    ${persona.id}::uuid,
+                    ${persona.name},
+                    ${persona.description || null},
+                    ${JSON.stringify(goals)}::jsonb,
+                    ${JSON.stringify(frustrations)}::jsonb,
+                    ${JSON.stringify(desires)}::jsonb,
+                    ${persona.knowledgeLevel}::knowledge_level,
+                    ${new Date(persona.createdAt)},
+                    ${new Date(persona.updatedAt)},
+                    ${persona.isArchived}
+                )
+                ON CONFLICT (id) DO NOTHING
+            `;
+        }
+
+        await client.end();
+
+        console.log(
+            `✅ ${mockBuyerPersonas.length} buyer personas inserted successfully`
+        );
+    } catch (error) {
+        console.error("❌ Error seeding buyer personas:", error);
+        throw error;
+    }
+}
+
 async function seedPublicationStructures() {
     console.log("🌱 Seeding publication structures...");
 
@@ -251,6 +295,7 @@ async function main() {
         await seedPublicationTypes();
         await seedPublicationStructures();
         await seedInspirations();
+        await seedBuyerPersonas();
         console.log("🎉 Seed completed successfully!");
     } catch (error) {
         console.error("💥 Error in seed process:", error);
@@ -273,4 +318,5 @@ export {
     seedPublicationStructures,
     seedPersonalBrands,
     seedInspirations,
+    seedBuyerPersonas,
 };

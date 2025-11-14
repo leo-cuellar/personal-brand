@@ -7,6 +7,7 @@ import {
     PublicationStructure,
     BrandNarrative,
     SocialAccounts,
+    BuyerPersona,
 } from "../supabase/schemas";
 
 // Supabase response types (snake_case)
@@ -83,6 +84,19 @@ interface SupabasePerson {
     } | string | null;
     strong_opinions?: string[] | null;
     values?: string[] | null;
+    created_at: string;
+    updated_at: string;
+    is_archived: boolean;
+}
+
+interface SupabaseBuyerPersona {
+    id: string;
+    name: string;
+    description: string | null;
+    goals?: string[] | null;
+    frustrations?: string[] | null;
+    desires?: string[] | null;
+    knowledge_level?: string | null;
     created_at: string;
     updated_at: string;
     is_archived: boolean;
@@ -331,6 +345,74 @@ export function transformPublicationStructure(
         name: data.name,
         description: data.description,
         structure: parsedStructure,
+        createdAt: new Date(data.created_at) as unknown as Date,
+        updatedAt: new Date(data.updated_at) as unknown as Date,
+        isArchived: data.is_archived,
+    };
+}
+
+export function transformBuyerPersona(
+    data: SupabaseBuyerPersona
+): BuyerPersona {
+    // Process goals - handle both array and null/undefined
+    let goals: string[] = [];
+    if (data.goals !== null && data.goals !== undefined) {
+        if (Array.isArray(data.goals)) {
+            goals = data.goals;
+        } else if (typeof data.goals === "string") {
+            try {
+                const parsed = JSON.parse(data.goals);
+                if (Array.isArray(parsed)) {
+                    goals = parsed;
+                }
+            } catch {
+                goals = [];
+            }
+        }
+    }
+
+    // Process frustrations - handle both array and null/undefined
+    let frustrations: string[] = [];
+    if (data.frustrations !== null && data.frustrations !== undefined) {
+        if (Array.isArray(data.frustrations)) {
+            frustrations = data.frustrations;
+        } else if (typeof data.frustrations === "string") {
+            try {
+                const parsed = JSON.parse(data.frustrations);
+                if (Array.isArray(parsed)) {
+                    frustrations = parsed;
+                }
+            } catch {
+                frustrations = [];
+            }
+        }
+    }
+
+    // Process desires - handle both array and null/undefined
+    let desires: string[] = [];
+    if (data.desires !== null && data.desires !== undefined) {
+        if (Array.isArray(data.desires)) {
+            desires = data.desires;
+        } else if (typeof data.desires === "string") {
+            try {
+                const parsed = JSON.parse(data.desires);
+                if (Array.isArray(parsed)) {
+                    desires = parsed;
+                }
+            } catch {
+                desires = [];
+            }
+        }
+    }
+
+    return {
+        id: data.id,
+        name: data.name,
+        description: data.description || null,
+        goals: goals,
+        frustrations: frustrations,
+        desires: desires,
+        knowledgeLevel: (data.knowledge_level || "medium") as "low" | "medium" | "high",
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,
