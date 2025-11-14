@@ -43,6 +43,20 @@ export async function getPersonalBrandData(personalBrandId: string): Promise<Per
         }
     }
 
+    // Extract values - handle both array and null/undefined
+    let values: string[] = [];
+    if (data.values) {
+        if (Array.isArray(data.values)) {
+            values = data.values;
+        } else if (typeof data.values === "string") {
+            try {
+                values = JSON.parse(data.values);
+            } catch {
+                values = [];
+            }
+        }
+    }
+
     // Extract social_accounts
     let socialAccounts: PersonalBrand["socialAccounts"] = {};
     if (data.social_accounts) {
@@ -66,6 +80,7 @@ export async function getPersonalBrandData(personalBrandId: string): Promise<Per
         socialAccounts: socialAccounts,
         brandNarrative: brandNarrative,
         strongOpinions: strongOpinions,
+        values: values,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,

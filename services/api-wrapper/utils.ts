@@ -82,6 +82,7 @@ interface SupabasePerson {
         callToAction: string;
     } | string | null;
     strong_opinions?: string[] | null;
+    values?: string[] | null;
     created_at: string;
     updated_at: string;
     is_archived: boolean;
@@ -226,6 +227,29 @@ export function transformPersonalBrand(
         }
     }
 
+    // Only process values if it exists in the response
+    if ("values" in data && data.values !== null && data.values !== undefined) {
+        let values: string[] | null = null;
+
+        if (Array.isArray(data.values)) {
+            values = data.values;
+        } else if (typeof data.values === "string") {
+            try {
+                const parsed = JSON.parse(data.values);
+                if (Array.isArray(parsed)) {
+                    values = parsed;
+                }
+            } catch {
+                // If parsing fails, leave as null
+            }
+        }
+
+        // Only include values if we successfully parsed it
+        if (values !== null) {
+            result.values = values;
+        }
+    }
+
     // Return with defaults for fields that weren't present
     return {
         ...result,
@@ -244,6 +268,7 @@ export function transformPersonalBrand(
             callToAction: "",
         },
         strongOpinions: result.strongOpinions ?? [],
+        values: result.values ?? [],
         socialAccounts: result.socialAccounts ?? {},
     } as PersonalBrand;
 }

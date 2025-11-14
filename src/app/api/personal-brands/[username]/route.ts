@@ -65,6 +65,7 @@ export async function GET(
             social_accounts?: unknown;
             brand_narrative?: unknown;
             strong_opinions?: string[] | null;
+            values?: string[] | null;
             created_at: string;
             updated_at: string;
             is_archived: boolean;
@@ -103,6 +104,7 @@ export async function PATCH(
             niche?: string | null;
             brand_narrative?: unknown;
             strong_opinions?: string[];
+            values?: string[];
             updated_at: string;
         } = {
             updated_at: new Date().toISOString(),
@@ -120,6 +122,10 @@ export async function PATCH(
             updateData.strong_opinions = body.strongOpinions;
         }
 
+        if (body.values !== undefined) {
+            updateData.values = body.values;
+        }
+
         // Determine which fields to return based on what was updated
         let selectFields = "id, name, username, niche, social_accounts, created_at, updated_at, is_archived";
         if (body.niche !== undefined) {
@@ -130,6 +136,9 @@ export async function PATCH(
         }
         if (body.strongOpinions !== undefined) {
             selectFields += ", strong_opinions";
+        }
+        if (body.values !== undefined) {
+            selectFields += ", values";
         }
 
         const { data, error } = await supabaseAdmin
@@ -154,11 +163,12 @@ export async function PATCH(
         }
 
         // Return only the updated fields
-        const result: { niche?: string | null; brandNarrative?: unknown; strongOpinions?: string[] } = {};
+        const result: { niche?: string | null; brandNarrative?: unknown; strongOpinions?: string[]; values?: string[] } = {};
         const typedData = data as {
             niche?: string | null;
             brand_narrative?: unknown;
             strong_opinions?: string[] | null;
+            values?: string[] | null;
         };
 
         if (body.niche !== undefined && typedData.niche !== undefined) {
@@ -170,6 +180,11 @@ export async function PATCH(
         if (body.strongOpinions !== undefined && typedData.strong_opinions !== undefined) {
             result.strongOpinions = Array.isArray(typedData.strong_opinions)
                 ? typedData.strong_opinions
+                : [];
+        }
+        if (body.values !== undefined && typedData.values !== undefined) {
+            result.values = Array.isArray(typedData.values)
+                ? typedData.values
                 : [];
         }
 

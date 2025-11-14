@@ -49,6 +49,13 @@ export const mockPersons: PersonalBrand[] = [
             "If you're not building your personal brand online, you're invisible. Your next opportunity won't find you—you need to make yourself findable.",
             "Networking isn't about collecting contacts—it's about building genuine relationships. Quality over quantity, always.",
         ],
+        values: [
+            "Autenticidad",
+            "Excelencia técnica",
+            "Mentoría y crecimiento",
+            "Trabajo remoto y flexibilidad",
+            "Innovación constante",
+        ],
         createdAt: new Date(),
         updatedAt: new Date(),
         isArchived: false,

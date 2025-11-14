@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
                 social_accounts: body.socialAccounts || {},
                 brand_narrative: body.brandNarrative || defaultBrandNarrative,
                 strong_opinions: body.strongOpinions || [],
+                values: body.values || [],
                 is_archived: body.isArchived || false,
             })
             .select("id, name, username, niche, social_accounts, created_at, updated_at, is_archived")

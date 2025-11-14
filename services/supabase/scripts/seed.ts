@@ -135,9 +135,11 @@ async function seedPersonalBrands() {
             const brandNarrative = person.brandNarrative;
             const strongOpinions = person.strongOpinions || [];
 
+            const values = person.values || [];
+
             await client`
                 INSERT INTO public.personal_brands (
-                    id, name, username, niche, social_accounts, brand_narrative, strong_opinions,
+                    id, name, username, niche, social_accounts, brand_narrative, strong_opinions, values,
                     created_at, updated_at, is_archived
                 ) VALUES (
                     ${person.id}::uuid,
@@ -147,6 +149,7 @@ async function seedPersonalBrands() {
                     ${JSON.stringify(person.socialAccounts || {})}::jsonb,
                     ${JSON.stringify(brandNarrative)}::jsonb,
                     ${JSON.stringify(strongOpinions)}::jsonb,
+                    ${JSON.stringify(values)}::jsonb,
                     ${new Date(person.createdAt)},
                     ${new Date(person.updatedAt)},
                     ${person.isArchived}
