@@ -38,7 +38,6 @@ interface SupabasePublicationIdea {
     description: string | null;
     link: string | null;
     status: string;
-    system_message: string | null;
     web_summary: string | null;
     created_at: string;
     updated_at: string;
@@ -128,7 +127,6 @@ export function transformPublicationIdea(
         description: data.description,
         link: data.link || null,
         status: data.status as "in_review" | "accepted" | "rejected" | "used" | "incomplete",
-        systemMessage: data.system_message || null,
         webSummary: data.web_summary || null,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
