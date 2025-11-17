@@ -241,19 +241,41 @@ export function PublicationsPage() {
                 onPageChange={handlePageChange}
                 onUpdate={async (postId, updates) => {
                     await updatePostHook(postId, updates);
+                    // Refetch current tab after update
                     await refetchCurrentTab();
                 }}
                 onSchedule={async (postId, scheduleData) => {
                     await schedulePostHook(postId, scheduleData);
                     await refetchCurrentTab();
+                    // Invalidate queue tab since a post was scheduled
+                    if (activeTab !== "queue") {
+                        setTabsState((prev) => ({
+                            ...prev,
+                            queue: { ...prev.queue, hasFetched: false },
+                        }));
+                    }
                 }}
                 onDelete={async (postId) => {
                     await deletePostHook(postId);
                     await refetchCurrentTab();
+                    // Invalidate all tabs since deletion could affect any tab
+                    setTabsState((prev) => ({
+                        ...prev,
+                        draft: { ...prev.draft, hasFetched: false },
+                        queue: { ...prev.queue, hasFetched: false },
+                        sent: { ...prev.sent, hasFetched: false },
+                    }));
                 }}
                 onAddToQueue={async (postId) => {
                     await addPostToQueueHook(postId);
                     await refetchCurrentTab();
+                    // Invalidate queue tab since a post was added to queue
+                    if (activeTab !== "queue") {
+                        setTabsState((prev) => ({
+                            ...prev,
+                            queue: { ...prev.queue, hasFetched: false },
+                        }));
+                    }
                 }}
                 loading={isLoading}
             />

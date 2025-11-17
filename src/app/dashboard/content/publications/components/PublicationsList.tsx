@@ -18,6 +18,85 @@ function formatDate(date: Date | string): string {
     return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
+function formatTime(date: Date | string): string {
+    const d = typeof date === "string" ? new Date(date) : date;
+    if (isNaN(d.getTime())) {
+        return "Invalid time";
+    }
+    const hours = d.getHours();
+    const minutes = d.getMinutes();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const displayHours = hours % 12 || 12;
+    const displayMinutes = String(minutes).padStart(2, "0");
+    return `${displayHours}:${displayMinutes} ${ampm}`;
+}
+
+function getPostTime(post: LatePost): string | null {
+    // For scheduled/published posts, use scheduledFor if available
+    if (post.scheduledFor) {
+        return formatTime(post.scheduledFor);
+    }
+    // For drafts, use createdAt
+    return formatTime(post.createdAt);
+}
+
+function getDateKey(post: LatePost): string {
+    // For scheduled/published posts, use scheduledFor if available
+    if (post.scheduledFor) {
+        const date = new Date(post.scheduledFor);
+        return date.toISOString().split("T")[0]; // YYYY-MM-DD
+    }
+    // For drafts, use createdAt
+    const date = new Date(post.createdAt);
+    return date.toISOString().split("T")[0]; // YYYY-MM-DD
+}
+
+function formatDateHeader(dateKey: string): string {
+    const date = new Date(dateKey);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const dateStr = date.toISOString().split("T")[0];
+    const todayStr = today.toISOString().split("T")[0];
+    const yesterdayStr = yesterday.toISOString().split("T")[0];
+    
+    if (dateStr === todayStr) {
+        return "Today";
+    }
+    if (dateStr === yesterdayStr) {
+        return "Yesterday";
+    }
+    
+    // Format as "Monday, January 15, 2024"
+    return date.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    });
+}
+
+function groupPostsByDate(posts: LatePost[]): Map<string, LatePost[]> {
+    const grouped = new Map<string, LatePost[]>();
+    
+    for (const post of posts) {
+        const dateKey = getDateKey(post);
+        if (!grouped.has(dateKey)) {
+            grouped.set(dateKey, []);
+        }
+        grouped.get(dateKey)!.push(post);
+    }
+    
+    // Sort dates in ascending order (oldest first)
+    // This ensures "Today" appears before future dates
+    const sortedEntries = Array.from(grouped.entries()).sort((a, b) => {
+        return a[0].localeCompare(b[0]);
+    });
+    
+    return new Map(sortedEntries);
+}
+
 function getStatusBadgeColor(status: string) {
     switch (status) {
         case "published":
@@ -164,15 +243,12 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                         >
                             {post.status}
                         </span>
+                        {getPostTime(post) && (
+                            <span className="text-sm font-medium text-gray-700">
+                                {getPostTime(post)}
+                            </span>
+                        )}
                     </div>
-                    {post.scheduledFor && (
-                        <div className="space-y-1 text-xs text-gray-500">
-                            <p>
-                                <span className="font-medium">Scheduled:</span> {formatDate(post.scheduledFor)}
-                                {post.timezone && ` (${post.timezone})`}
-                            </p>
-                        </div>
-                    )}
                 </div>
             </div>
 
@@ -513,24 +589,37 @@ export function PublicationsList({
     onAddToQueue,
     loading,
 }: PublicationsListProps) {
+    const groupedPosts = groupPostsByDate(posts);
+    
     return (
         <>
             {/* Posts List */}
-            <div className="space-y-4">
+            <div className="space-y-6">
                 {posts.length === 0 ? (
                     <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
                         <p className="text-gray-500">No publications found</p>
                     </div>
                 ) : (
-                    posts.map((post) => (
-                        <PostCard
-                            key={post._id}
-                            post={post}
-                            onUpdate={onUpdate}
-                            onSchedule={onSchedule}
-                            onDelete={onDelete}
-                            onAddToQueue={onAddToQueue}
-                        />
+                    Array.from(groupedPosts.entries()).map(([dateKey, dayPosts]) => (
+                        <div key={dateKey} className="space-y-4">
+                            <div className="sticky top-0 z-10 bg-gray-50 py-2">
+                                <h2 className="text-lg font-semibold text-gray-900">
+                                    {formatDateHeader(dateKey)}
+                                </h2>
+                            </div>
+                            <div className="space-y-4">
+                                {dayPosts.map((post) => (
+                                    <PostCard
+                                        key={post._id}
+                                        post={post}
+                                        onUpdate={onUpdate}
+                                        onSchedule={onSchedule}
+                                        onDelete={onDelete}
+                                        onAddToQueue={onAddToQueue}
+                                    />
+                                ))}
+                            </div>
+                        </div>
                     ))
                 )}
             </div>
