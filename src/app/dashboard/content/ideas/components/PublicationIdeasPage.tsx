@@ -385,7 +385,7 @@ export function PublicationIdeasPage() {
                             : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                             }`}
                     >
-                        Accepted Ideas
+                        Publication Queue
                         {counts && counts.accepted > 0 && (
                             <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
                                 {counts.accepted}
@@ -412,7 +412,7 @@ export function PublicationIdeasPage() {
                         <p className="text-gray-500">
                             {activeTab === "ready-for-review"
                                 ? "No ideas ready for review."
-                                : "No accepted ideas found."}
+                                : "No ideas in publication queue."}
                         </p>
                     </div>
                 ) : (
