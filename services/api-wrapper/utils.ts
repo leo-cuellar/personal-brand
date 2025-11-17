@@ -3,7 +3,6 @@ import {
     PublicationCategory,
     PublicationIdea,
     PersonalBrand,
-    Inspiration,
     PublicationStructure,
     BrandNarrative,
     SocialAccounts,
@@ -291,33 +290,6 @@ export function transformPersonalBrand(
     } as PersonalBrand;
 }
 
-interface SupabaseInspiration {
-    id: string;
-    personal_brand_id: string;
-    text: string;
-    link: string | null;
-    source: string;
-    metadata: unknown;
-    created_at: string;
-    updated_at: string;
-    is_archived: boolean;
-}
-
-export function transformInspiration(
-    data: SupabaseInspiration
-): Inspiration {
-    return {
-        id: data.id,
-        personalBrandId: data.personal_brand_id,
-        text: data.text,
-        link: data.link || null,
-        source: data.source as "trend_scanner" | "linkedin_post" | "website" | "document" | "image" | "video" | "youtube_video",
-        metadata: data.metadata || null,
-        createdAt: new Date(data.created_at) as unknown as Date,
-        updatedAt: new Date(data.updated_at) as unknown as Date,
-        isArchived: data.is_archived,
-    };
-}
 
 interface SupabasePublicationStructure {
     id: string;

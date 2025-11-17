@@ -3,19 +3,14 @@
 import { useState } from "react";
 import { usePerplexity } from "@/hooks/usePerplexity";
 import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
-import { useInspirations } from "@/hooks/useInspirations";
 import type { CategoryTrendsResult } from "../../../../../../services/api-wrapper/perplexity";
-import type { TrendItem } from "../../../../../../services/perplexity/trends";
 import { Switch } from "@/components/Switch";
 
 export function TrendScannerPage() {
     const { searchTrendsByCategory, loading, error } = usePerplexity();
     const { selectedPersonId } = usePersonalBrandContext();
-    const { create: createInspiration } = useInspirations();
     const [results, setResults] = useState<CategoryTrendsResult[]>([]);
     const [hasSearched, setHasSearched] = useState(false);
-    const [addingInspiration, setAddingInspiration] = useState<string | null>(null);
-    const [addedInspirations, setAddedInspirations] = useState<Set<string>>(new Set());
 
     const handleScan = async () => {
         if (!selectedPersonId) {
@@ -35,45 +30,6 @@ export function TrendScannerPage() {
 
     const totalTrends = results.reduce((sum, result) => sum + result.trends.length, 0);
     const categoriesWithErrors = results.filter((r) => r.error).length;
-
-    const handleAddInspiration = async (
-        trend: TrendItem,
-        categoryName: string,
-        categoryId: string
-    ) => {
-        if (!selectedPersonId) {
-            alert("Por favor selecciona una persona primero");
-            return;
-        }
-
-        const trendKey = `${categoryId}-${trend.source_url}`;
-        setAddingInspiration(trendKey);
-
-        try {
-            // Combine title and summary for the text
-            const text = `${trend.short_title}\n\n${trend.short_summary}`;
-
-            await createInspiration({
-                personalBrandId: selectedPersonId,
-                text,
-                link: trend.source_url,
-                source: "trend_scanner",
-                metadata: {
-                    category_name: categoryName,
-                    category_id: categoryId,
-                    trend_title: trend.short_title,
-                    trend_summary: trend.short_summary,
-                },
-            });
-
-            setAddedInspirations((prev) => new Set(prev).add(trendKey));
-        } catch (err) {
-            console.error("Error adding inspiration:", err);
-            alert("Error al agregar la inspiración. Por favor intenta de nuevo.");
-        } finally {
-            setAddingInspiration(null);
-        }
-    };
 
     return (
         <div className="container mx-auto max-w-6xl p-8">
@@ -162,78 +118,32 @@ export function TrendScannerPage() {
                                         <p className="text-gray-500">No se encontraron tendencias para esta categoría.</p>
                                     ) : (
                                         <div className="space-y-4">
-                                            {categoryResult.trends.map((trend, index) => {
-                                                const trendKey = `${categoryResult.categoryId}-${trend.source_url}`;
-                                                const isAdding = addingInspiration === trendKey;
-                                                const isAdded = addedInspirations.has(trendKey);
-
-                                                return (
-                                                    <div
-                                                        key={index}
-                                                        className="rounded-lg border border-gray-100 bg-gray-50 p-4 transition-shadow hover:shadow-md"
-                                                    >
-                                                        <div className="mb-2 flex items-start justify-between gap-4">
-                                                            <a
-                                                                href={trend.source_url}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="flex-1 text-lg font-semibold text-blue-600 hover:text-blue-800 hover:underline"
-                                                            >
-                                                                {trend.short_title}
-                                                            </a>
-                                                            <button
-                                                                onClick={() =>
-                                                                    handleAddInspiration(
-                                                                        trend,
-                                                                        categoryResult.categoryName,
-                                                                        categoryResult.categoryId
-                                                                    )
-                                                                }
-                                                                disabled={isAdding || isAdded || !selectedPersonId}
-                                                                className={`shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed ${isAdded
-                                                                    ? "bg-green-100 text-green-700 hover:bg-green-200"
-                                                                    : "bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-                                                                    }`}
-                                                            >
-                                                                {isAdding ? (
-                                                                    <span className="flex items-center gap-2">
-                                                                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                                                                        Agregando...
-                                                                    </span>
-                                                                ) : isAdded ? (
-                                                                    <span className="flex items-center gap-2">
-                                                                        <svg
-                                                                            className="h-4 w-4"
-                                                                            fill="none"
-                                                                            stroke="currentColor"
-                                                                            viewBox="0 0 24 24"
-                                                                        >
-                                                                            <path
-                                                                                strokeLinecap="round"
-                                                                                strokeLinejoin="round"
-                                                                                strokeWidth={2}
-                                                                                d="M5 13l4 4L19 7"
-                                                                            />
-                                                                        </svg>
-                                                                        Agregada
-                                                                    </span>
-                                                                ) : (
-                                                                    "Agregar como inspiración"
-                                                                )}
-                                                            </button>
-                                                        </div>
-                                                        <p className="mb-2 text-gray-700">{trend.short_summary}</p>
+                                            {categoryResult.trends.map((trend, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="rounded-lg border border-gray-100 bg-gray-50 p-4 transition-shadow hover:shadow-md"
+                                                >
+                                                    <div className="mb-2">
                                                         <a
                                                             href={trend.source_url}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="text-sm text-gray-500 hover:text-blue-600 hover:underline"
+                                                            className="text-lg font-semibold text-blue-600 hover:text-blue-800 hover:underline"
                                                         >
-                                                            {trend.source_url}
+                                                            {trend.short_title}
                                                         </a>
                                                     </div>
-                                                );
-                                            })}
+                                                    <p className="mb-2 text-gray-700">{trend.short_summary}</p>
+                                                    <a
+                                                        href={trend.source_url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-sm text-gray-500 hover:text-blue-600 hover:underline"
+                                                    >
+                                                        {trend.source_url}
+                                                    </a>
+                                                </div>
+                                            ))}
                                         </div>
                                     )}
                                 </div>

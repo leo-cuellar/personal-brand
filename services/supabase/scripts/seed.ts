@@ -8,7 +8,6 @@ import { mockPublicationCategories } from "../mocks/publication-categories";
 import { mockPublicationIdeas } from "../mocks/publication-ideas";
 import { mockPublicationStructures } from "../mocks/publication-structures";
 import { mockPersons } from "../mocks/personal-brands";
-import { mockInspirations } from "../mocks/inspirations";
 import { mockBuyerPersonas } from "../mocks/buyer-personas";
 
 const pg = () => getPostgresClient();
@@ -105,7 +104,7 @@ async function seedPublicationIdeas() {
                     ${publicationIdea.description || null},
                     ${publicationIdea.link || null},
                     ${publicationIdea.status}::idea_status,
-                    ${publicationIdea.source || null}::inspiration_source,
+                    ${publicationIdea.source || null}::idea_source,
                     ${publicationIdea.sourceSummary || null},
                     ${publicationIdea.metadata ? JSON.stringify(publicationIdea.metadata) : null}::jsonb,
                     ${new Date(publicationIdea.createdAt)},
@@ -169,42 +168,6 @@ async function seedPersonalBrands() {
         );
     } catch (error) {
         console.error("❌ Error seeding personal brands:", error);
-        throw error;
-    }
-}
-
-async function seedInspirations() {
-    console.log("🌱 Seeding inspirations...");
-
-    try {
-        const client = pg();
-
-        // Insert inspirations one by one using direct SQL
-        for (const inspiration of mockInspirations) {
-            await client`
-                INSERT INTO public.inspirations (
-                    id, personal_brand_id, text, link, source, created_at, updated_at, is_archived
-                ) VALUES (
-                    ${inspiration.id}::uuid,
-                    ${inspiration.personalBrandId}::uuid,
-                    ${inspiration.text},
-                    ${inspiration.link || null},
-                    ${inspiration.source || "trend_scanner"}::inspiration_source,
-                    ${new Date(inspiration.createdAt)},
-                    ${new Date(inspiration.updatedAt)},
-                    ${inspiration.isArchived}
-                )
-                ON CONFLICT (id) DO NOTHING
-            `;
-        }
-
-        await client.end();
-
-        console.log(
-            `✅ ${mockInspirations.length} inspirations inserted successfully`
-        );
-    } catch (error) {
-        console.error("❌ Error seeding inspirations:", error);
         throw error;
     }
 }
@@ -297,7 +260,6 @@ async function main() {
         await seedPublicationCategories();
         await seedPublicationTypes();
         await seedPublicationStructures();
-        await seedInspirations();
         await seedBuyerPersonas();
         console.log("🎉 Seed completed successfully!");
     } catch (error) {
@@ -320,6 +282,5 @@ export {
     seedPublicationIdeas,
     seedPublicationStructures,
     seedPersonalBrands,
-    seedInspirations,
     seedBuyerPersonas,
 };
