@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/Dialog";
+import { useOpenAI } from "@/hooks/useOpenAI";
 import type { LatePost } from "../../../../../../services/late/posts";
 
 function formatDate(date: Date | string): string {
@@ -57,7 +58,7 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
     // AI Chat states
     const [aiGeneratedText, setAiGeneratedText] = useState<string | null>(null);
     const [chatInput, setChatInput] = useState("");
-    const [isGenerating, setIsGenerating] = useState(false);
+    const { improveText: improveTextWithAI, loading: aiLoading } = useOpenAI();
 
     // Update edited values when post changes or dialog opens
     const handleOpenChange = (open: boolean) => {
@@ -77,19 +78,21 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
         }
     };
 
-    const handleSendChatMessage = () => {
-        if (!chatInput.trim() || isGenerating) return;
+    const handleSendChatMessage = async () => {
+        if (!chatInput.trim() || aiLoading) return;
 
+        const userInstruction = chatInput.trim();
         setChatInput("");
-        setIsGenerating(true);
 
-        // TODO: Aquí se llamará al servicio de OpenAI
-        // Por ahora simulamos una respuesta
-        setTimeout(() => {
-            const mockResponse = `Aquí está el texto mejorado:\n\n${post.content}\n\n[Texto mejorado aparecerá aquí cuando se integre OpenAI]`;
-            setAiGeneratedText(mockResponse);
-            setIsGenerating(false);
-        }, 1000);
+        try {
+            const improvedText = await improveTextWithAI({
+                currentText: editedContent,
+                userInstruction,
+            });
+            setAiGeneratedText(improvedText);
+        } catch (error) {
+            alert(`Failed to improve text: ${error instanceof Error ? error.message : "Unknown error"}`);
+        }
     };
 
     const CONTENT_PREVIEW_LENGTH = 300;
@@ -431,7 +434,7 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
 
                         {/* Generated Text */}
                         <div className="flex-1 flex flex-col overflow-hidden min-h-0">
-                            {isGenerating ? (
+                            {aiLoading ? (
                                 <div className="flex items-center justify-center py-8">
                                     <div className="flex gap-1">
                                         <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
@@ -476,16 +479,16 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                                             handleSendChatMessage();
                                         }
                                     }}
-                                    disabled={isGenerating}
+                                    disabled={aiLoading}
                                     placeholder="Ask AI to improve the text..."
                                     className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                                 />
                                 <button
                                     onClick={handleSendChatMessage}
-                                    disabled={!chatInput.trim() || isGenerating}
+                                    disabled={!chatInput.trim() || aiLoading}
                                     className="rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                    {isGenerating ? "Sending..." : "Send"}
+                                    {aiLoading ? "Sending..." : "Send"}
                                 </button>
                             </div>
                         </div>
