@@ -173,44 +173,14 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                             </span>
                         )}
                     </div>
-                    <div className="space-y-1 text-xs text-gray-500">
-                        <p>
-                            <span className="font-medium">ID:</span> {post._id}
-                        </p>
-                        {post.userId && (
-                            <p>
-                                <span className="font-medium">Author:</span> {post.userId.name} ({post.userId.id})
-                            </p>
-                        )}
-                        {post.scheduledFor && (
+                    {post.scheduledFor && (
+                        <div className="space-y-1 text-xs text-gray-500">
                             <p>
                                 <span className="font-medium">Scheduled:</span> {formatDate(post.scheduledFor)}
                                 {post.timezone && ` (${post.timezone})`}
                             </p>
-                        )}
-                        <p>
-                            <span className="font-medium">Created:</span> {formatDate(post.createdAt)}
-                        </p>
-                        <p>
-                            <span className="font-medium">Updated:</span> {formatDate(post.updatedAt)}
-                        </p>
-                        {post.analytics && (
-                            <div className="mt-2 flex flex-wrap gap-3">
-                                <span>
-                                    <span className="font-medium">Impressions:</span> {post.analytics.impressions}
-                                </span>
-                                <span>
-                                    <span className="font-medium">Likes:</span> {post.analytics.likes}
-                                </span>
-                                <span>
-                                    <span className="font-medium">Comments:</span> {post.analytics.comments}
-                                </span>
-                                <span>
-                                    <span className="font-medium">Shares:</span> {post.analytics.shares}
-                                </span>
-                            </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -232,10 +202,10 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
             {/* Actions */}
             {!isEditing && (
                 <div className="mt-4 space-y-4">
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row">
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                            className="rounded-lg border border-gray-300 bg-white px-4 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
                         >
                             Edit
                         </button>
@@ -251,21 +221,21 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                                 }
                             }}
                             disabled={isAddingToQueue || post.status === "published" || post.status === "scheduled"}
-                            className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="rounded-lg bg-green-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             {isAddingToQueue ? "Adding..." : "Add to Queue"}
                         </button>
                         <button
                             onClick={() => setShowScheduleForm(!showScheduleForm)}
                             disabled={post.status === "published"}
-                            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             {showScheduleForm ? "Cancel Schedule" : "Schedule"}
                         </button>
                         <button
                             onClick={() => setShowDeleteConfirm(true)}
                             disabled={isDeleting}
-                            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="rounded-lg bg-red-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             Delete
                         </button>
@@ -277,7 +247,7 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                             <p className="mb-3 text-sm font-medium text-red-800">
                                 Are you sure you want to delete this post? This action cannot be undone.
                             </p>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col gap-2 sm:flex-row">
                                 <button
                                     onClick={async () => {
                                         setIsDeleting(true);
@@ -291,14 +261,14 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                                         }
                                     }}
                                     disabled={isDeleting}
-                                    className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="rounded-lg bg-red-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     {isDeleting ? "Deleting..." : "Confirm Delete"}
                                 </button>
                                 <button
                                     onClick={() => setShowDeleteConfirm(false)}
                                     disabled={isDeleting}
-                                    className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="rounded-lg border border-gray-300 bg-white px-4 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     Cancel
                                 </button>

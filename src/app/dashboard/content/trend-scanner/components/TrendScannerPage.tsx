@@ -3,14 +3,17 @@
 import { useState } from "react";
 import { usePerplexity } from "@/hooks/usePerplexity";
 import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
+import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
 import type { CategoryTrendsResult } from "../../../../../../services/api-wrapper/perplexity";
 import { Switch } from "@/components/Switch";
 
 export function TrendScannerPage() {
     const { searchTrendsByCategory, loading, error } = usePerplexity();
     const { selectedPersonId } = usePersonalBrandContext();
+    const { create } = usePublicationIdeas();
     const [results, setResults] = useState<CategoryTrendsResult[]>([]);
     const [hasSearched, setHasSearched] = useState(false);
+    const [addingIdeas, setAddingIdeas] = useState<Set<string>>(new Set());
 
     const handleScan = async () => {
         if (!selectedPersonId) {
@@ -30,6 +33,38 @@ export function TrendScannerPage() {
 
     const totalTrends = results.reduce((sum, result) => sum + result.trends.length, 0);
     const categoriesWithErrors = results.filter((r) => r.error).length;
+
+    const handleAddIdea = async (trend: CategoryTrendsResult["trends"][0], categoryId: string) => {
+        if (!selectedPersonId) {
+            alert("Please select a person first");
+            return;
+        }
+
+        const trendKey = `${categoryId}-${trend.source_url}`;
+        setAddingIdeas((prev) => new Set(prev).add(trendKey));
+
+        try {
+            await create({
+                personalBrandId: selectedPersonId!,
+                title: trend.short_title,
+                description: trend.short_summary,
+                link: trend.source_url,
+                status: "accepted",
+                source: "trend_scanner",
+                sourceSummary: null,
+                metadata: null,
+                isArchived: false,
+            });
+        } catch (error) {
+            alert(`Failed to add idea: ${error instanceof Error ? error.message : "Unknown error"}`);
+        } finally {
+            setAddingIdeas((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(trendKey);
+                return newSet;
+            });
+        }
+    };
 
     return (
         <div className="container mx-auto max-w-6xl p-8">
@@ -118,32 +153,52 @@ export function TrendScannerPage() {
                                         <p className="text-gray-500">No se encontraron tendencias para esta categoría.</p>
                                     ) : (
                                         <div className="space-y-4">
-                                            {categoryResult.trends.map((trend, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="rounded-lg border border-gray-100 bg-gray-50 p-4 transition-shadow hover:shadow-md"
-                                                >
-                                                    <div className="mb-2">
-                                                        <a
-                                                            href={trend.source_url}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-lg font-semibold text-blue-600 hover:text-blue-800 hover:underline"
-                                                        >
-                                                            {trend.short_title}
-                                                        </a>
-                                                    </div>
-                                                    <p className="mb-2 text-gray-700">{trend.short_summary}</p>
-                                                    <a
-                                                        href={trend.source_url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="block break-all text-sm text-gray-500 hover:text-blue-600 hover:underline"
+                                            {categoryResult.trends.map((trend, index) => {
+                                                const trendKey = `${categoryResult.categoryId}-${trend.source_url}`;
+                                                const isAdding = addingIdeas.has(trendKey);
+                                                return (
+                                                    <div
+                                                        key={index}
+                                                        className="rounded-lg border border-gray-100 bg-gray-50 p-4 transition-shadow hover:shadow-md"
                                                     >
-                                                        {trend.source_url}
-                                                    </a>
-                                                </div>
-                                            ))}
+                                                        <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                                            <a
+                                                                href={trend.source_url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-lg font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+                                                            >
+                                                                {trend.short_title}
+                                                            </a>
+                                                            <button
+                                                                onClick={() => handleAddIdea(trend, categoryResult.categoryId)}
+                                                                disabled={isAdding || !selectedPersonId}
+                                                                className="hidden rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:block whitespace-nowrap"
+                                                            >
+                                                                {isAdding ? "Adding..." : "Add Idea"}
+                                                            </button>
+                                                        </div>
+                                                        <p className="mb-2 text-gray-700">{trend.short_summary}</p>
+                                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                                            <a
+                                                                href={trend.source_url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="block break-all text-sm text-gray-500 hover:text-blue-600 hover:underline"
+                                                            >
+                                                                {trend.source_url}
+                                                            </a>
+                                                            <button
+                                                                onClick={() => handleAddIdea(trend, categoryResult.categoryId)}
+                                                                disabled={isAdding || !selectedPersonId}
+                                                                className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:hidden"
+                                                            >
+                                                                {isAdding ? "Adding..." : "Add Idea"}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     )}
                                 </div>

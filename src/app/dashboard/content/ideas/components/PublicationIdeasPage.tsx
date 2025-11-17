@@ -340,7 +340,7 @@ export function PublicationIdeasPage() {
             )}
 
             {/* Quick Add Idea Input */}
-            <div className="mb-6 flex gap-2">
+            <div className="mb-6 flex flex-col gap-2 sm:flex-row">
                 <input
                     type="text"
                     value={quickDescription}
@@ -348,12 +348,12 @@ export function PublicationIdeasPage() {
                     onKeyPress={handleQuickCreateKeyPress}
                     disabled={!selectedPersonId || isCreating}
                     placeholder={selectedPersonId ? "Add a new idea description..." : "Please select a person first"}
-                    className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-1"
                 />
                 <button
                     onClick={handleQuickCreate}
                     disabled={!selectedPersonId || isCreating || !quickDescription.trim()}
-                    className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                     title={!selectedPersonId ? "Please select a person first" : ""}
                 >
                     {isCreating ? (
@@ -372,35 +372,37 @@ export function PublicationIdeasPage() {
 
             {/* Tabs */}
             <div className="mb-6 border-b border-gray-200">
-                <nav className="-mb-px flex space-x-8">
-                    <button
-                        onClick={() => setActiveTab("ready-for-review")}
-                        className={`whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "ready-for-review"
-                            ? "border-blue-500 text-blue-600"
-                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            }`}
-                    >
-                        Ready for Review
-                        {counts && counts.in_review > 0 && (
-                            <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
-                                {counts.in_review}
-                            </span>
-                        )}
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("accepted")}
-                        className={`whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "accepted"
-                            ? "border-blue-500 text-blue-600"
-                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            }`}
-                    >
-                        Publication Queue
-                        {counts && counts.accepted > 0 && (
-                            <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
-                                {counts.accepted}
-                            </span>
-                        )}
-                    </button>
+                <nav className="-mb-px -mx-4 px-4 overflow-x-auto scrollbar-hide">
+                    <div className="flex space-x-8 whitespace-nowrap">
+                        <button
+                            onClick={() => setActiveTab("ready-for-review")}
+                            className={`border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "ready-for-review"
+                                ? "border-blue-500 text-blue-600"
+                                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                                }`}
+                        >
+                            Ready for Review
+                            {counts && counts.in_review > 0 && (
+                                <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
+                                    {counts.in_review}
+                                </span>
+                            )}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("accepted")}
+                            className={`border-b-2 px-1 py-4 text-sm font-medium transition-colors ${activeTab === "accepted"
+                                ? "border-blue-500 text-blue-600"
+                                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                                }`}
+                        >
+                            Publication Queue
+                            {counts && counts.accepted > 0 && (
+                                <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
+                                    {counts.accepted}
+                                </span>
+                            )}
+                        </button>
+                    </div>
                 </nav>
             </div>
 
@@ -420,7 +422,7 @@ export function PublicationIdeasPage() {
                     <button
                         onClick={handleGeneratePublications}
                         disabled={n8nLoading || !selectedPersonId}
-                        className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="w-full rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                         title={!selectedPersonId ? "Please select a person first" : ""}
                     >
                         {n8nLoading ? (
@@ -453,80 +455,98 @@ export function PublicationIdeasPage() {
                                 : "border-gray-200 bg-white"
                                 }`}
                         >
-                            <div className="mb-3 flex items-start justify-between">
-                                <div className="flex-1">
-                                    {editingId === idea.id ? (
-                                        <>
-                                            <input
-                                                type="text"
-                                                value={editedTitle}
-                                                onChange={(e) => setEditedTitle(e.target.value)}
-                                                className="mb-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xl font-semibold text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                placeholder="Idea title"
-                                            />
-                                            <textarea
-                                                value={editedDescription}
-                                                onChange={(e) => setEditedDescription(e.target.value)}
-                                                rows={3}
-                                                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                placeholder="Idea description"
-                                            />
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div className="mb-2 flex items-center gap-2 flex-wrap">
-                                                <h3 className="text-xl font-semibold text-gray-900">
-                                                    {idea.title}
-                                                </h3>
-                                                {activeTab !== "accepted" && (
-                                                    <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusBadgeColor(idea.status)}`}>
-                                                        {getStatusLabel(idea.status)}
-                                                    </span>
-                                                )}
-                                                {idea.isArchived && (
-                                                    <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700">
-                                                        Archived
-                                                    </span>
-                                                )}
-                                            </div>
-                                            {idea.description && (
-                                                <p className="text-gray-600">{idea.description}</p>
-                                            )}
-                                            {idea.link && (
-                                                <div className="mt-2">
-                                                    <a
-                                                        href={idea.link}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                                                    >
-                                                        {idea.link}
-                                                    </a>
+                            <div className="mb-3">
+                                <div className="flex items-start justify-between gap-2 mb-2">
+                                    <div className="flex-1 min-w-0">
+                                        {editingId === idea.id ? (
+                                            <>
+                                                <input
+                                                    type="text"
+                                                    value={editedTitle}
+                                                    onChange={(e) => setEditedTitle(e.target.value)}
+                                                    className="mb-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xl font-semibold text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    placeholder="Idea title"
+                                                />
+                                                <textarea
+                                                    value={editedDescription}
+                                                    onChange={(e) => setEditedDescription(e.target.value)}
+                                                    rows={3}
+                                                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    placeholder="Idea description"
+                                                />
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className="mb-2 flex items-center gap-2 flex-wrap">
+                                                    <h3 className="text-xl font-semibold text-gray-900">
+                                                        {idea.title}
+                                                    </h3>
+                                                    {activeTab !== "accepted" && (
+                                                        <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusBadgeColor(idea.status)}`}>
+                                                            {getStatusLabel(idea.status)}
+                                                        </span>
+                                                    )}
+                                                    {idea.isArchived && (
+                                                        <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700">
+                                                            Archived
+                                                        </span>
+                                                    )}
                                                 </div>
-                                            )}
-                                        </>
-                                    )}
+                                                {idea.description && (
+                                                    <p className="text-gray-600">{idea.description}</p>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                    <div className="hidden gap-2 shrink-0 sm:flex sm:ml-4">
+                                        {editingId === idea.id ? (
+                                            <>
+                                                <IconButton
+                                                    icon="check"
+                                                    onClick={() => handleSaveEdit(idea.id)}
+                                                    iconColor="#10b981"
+                                                    backgroundColor="#d1fae5"
+                                                    hoverBackgroundColor="#a7f3d0"
+                                                />
+                                                <IconButton
+                                                    icon="close"
+                                                    onClick={handleCancelEdit}
+                                                    iconColor="#ef4444"
+                                                    backgroundColor="#fee2e2"
+                                                    hoverBackgroundColor="#fecaca"
+                                                />
+                                            </>
+                                        ) : (
+                                            <>
+                                                <IconButton
+                                                    icon="edit"
+                                                    onClick={() => handleEdit(idea)}
+                                                    iconColor="#d97706"
+                                                    backgroundColor="#fef3c7"
+                                                    hoverBackgroundColor="#fde68a"
+                                                />
+                                                <IconButton
+                                                    icon="delete"
+                                                    onClick={() => handleDelete(idea.id)}
+                                                    iconColor="#ef4444"
+                                                    backgroundColor="#fee2e2"
+                                                    hoverBackgroundColor="#fecaca"
+                                                />
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="flex gap-2 ml-4">
-                                    {editingId === idea.id ? (
-                                        <>
-                                            <IconButton
-                                                icon="check"
-                                                onClick={() => handleSaveEdit(idea.id)}
-                                                iconColor="#10b981"
-                                                backgroundColor="#d1fae5"
-                                                hoverBackgroundColor="#a7f3d0"
-                                            />
-                                            <IconButton
-                                                icon="close"
-                                                onClick={handleCancelEdit}
-                                                iconColor="#ef4444"
-                                                backgroundColor="#fee2e2"
-                                                hoverBackgroundColor="#fecaca"
-                                            />
-                                        </>
-                                    ) : (
-                                        <>
+                                {editingId !== idea.id && idea.link && (
+                                    <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <a
+                                            href={idea.link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-sm text-blue-600 hover:text-blue-800 hover:underline break-all"
+                                        >
+                                            {idea.link}
+                                        </a>
+                                        <div className="flex gap-2 sm:hidden">
                                             <IconButton
                                                 icon="edit"
                                                 onClick={() => handleEdit(idea)}
@@ -541,9 +561,9 @@ export function PublicationIdeasPage() {
                                                 backgroundColor="#fee2e2"
                                                 hoverBackgroundColor="#fecaca"
                                             />
-                                        </>
-                                    )}
-                                </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             {editingId !== idea.id && (
                                 <>
