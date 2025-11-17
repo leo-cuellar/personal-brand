@@ -48,7 +48,7 @@ export async function PUT(request: NextRequest) {
     }
 }
 
-// GET - Get queue slots configuration
+// GET - Get queue slots configuration (not next-slot, that's in a separate route)
 export async function GET(request: NextRequest) {
     try {
         const searchParams = request.nextUrl.searchParams;

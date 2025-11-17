@@ -11,6 +11,7 @@ export async function PUT(
         const body: LateUpdatePostRequest | LateSchedulePostRequest = await request.json();
 
         if (!id) {
+            console.error("[API /late/posts/[id]] PUT Error: Post ID is required");
             return NextResponse.json(
                 { error: "Post ID is required" },
                 { status: 400 }
@@ -19,12 +20,14 @@ export async function PUT(
 
         // If this is a schedule request (has scheduledFor and timezone, but no title/content)
         // Use schedulePost instead of updatePost
-        if (
+        const isScheduleRequest = (
             "scheduledFor" in body &&
             "timezone" in body &&
             !("title" in body) &&
             !("content" in body)
-        ) {
+        );
+
+        if (isScheduleRequest) {
             const scheduledPost = await schedulePost(id, body as LateSchedulePostRequest);
             return NextResponse.json(scheduledPost);
         }
@@ -33,6 +36,13 @@ export async function PUT(
         const updatedPost = await updatePost(id, body as LateUpdatePostRequest);
         return NextResponse.json(updatedPost);
     } catch (error) {
+        console.error("[API /late/posts/[id]] PUT Error:", error);
+        console.error("[API /late/posts/[id]] PUT Error details:", {
+            message: error instanceof Error ? error.message : "Unknown error",
+            stack: error instanceof Error ? error.stack : undefined,
+            name: error instanceof Error ? error.name : undefined,
+        });
+
         return NextResponse.json(
             {
                 error:

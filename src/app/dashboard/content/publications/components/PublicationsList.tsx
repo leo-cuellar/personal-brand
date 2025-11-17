@@ -36,9 +36,10 @@ interface PostCardProps {
     onUpdate: (postId: string, updates: { title?: string; content?: string }) => Promise<void>;
     onSchedule: (postId: string, scheduleData: { scheduledFor: string; timezone: string }) => Promise<void>;
     onDelete: (postId: string) => Promise<void>;
+    onAddToQueue: (postId: string) => Promise<void>;
 }
 
-function PostCard({ post, onUpdate, onSchedule, onDelete }: PostCardProps) {
+function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(post.title || "");
@@ -50,6 +51,7 @@ function PostCard({ post, onUpdate, onSchedule, onDelete }: PostCardProps) {
     const [isScheduling, setIsScheduling] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isAddingToQueue, setIsAddingToQueue] = useState(false);
 
     const CONTENT_PREVIEW_LENGTH = 300;
     const shouldTruncate = post.content.length > CONTENT_PREVIEW_LENGTH;
@@ -249,6 +251,22 @@ function PostCard({ post, onUpdate, onSchedule, onDelete }: PostCardProps) {
                             Edit
                         </button>
                         <button
+                            onClick={async () => {
+                                setIsAddingToQueue(true);
+                                try {
+                                    await onAddToQueue(post._id);
+                                } catch (error) {
+                                    alert(`Failed to add post to queue: ${error instanceof Error ? error.message : "Unknown error"}`);
+                                } finally {
+                                    setIsAddingToQueue(false);
+                                }
+                            }}
+                            disabled={isAddingToQueue || post.status === "published" || post.status === "scheduled"}
+                            className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {isAddingToQueue ? "Adding..." : "Add to Queue"}
+                        </button>
+                        <button
                             onClick={() => setShowScheduleForm(!showScheduleForm)}
                             disabled={post.status === "published"}
                             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
@@ -381,6 +399,7 @@ interface PublicationsListProps {
     onUpdate: (postId: string, updates: { title?: string; content?: string }) => Promise<void>;
     onSchedule: (postId: string, scheduleData: { scheduledFor: string; timezone: string }) => Promise<void>;
     onDelete: (postId: string) => Promise<void>;
+    onAddToQueue: (postId: string) => Promise<void>;
     loading: boolean;
 }
 
@@ -392,6 +411,7 @@ export function PublicationsList({
     onUpdate,
     onSchedule,
     onDelete,
+    onAddToQueue,
     loading,
 }: PublicationsListProps) {
     return (
@@ -410,6 +430,7 @@ export function PublicationsList({
                             onUpdate={onUpdate}
                             onSchedule={onSchedule}
                             onDelete={onDelete}
+                            onAddToQueue={onAddToQueue}
                         />
                     ))
                 )}

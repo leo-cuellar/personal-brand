@@ -47,6 +47,12 @@ export interface DeleteQueueSlotsResponse {
     deleted: boolean;
 }
 
+export interface NextSlotResponse {
+    profileId: string;
+    nextSlot: string; // ISO 8601 format
+    timezone: string;
+}
+
 /**
  * Update queue slots in Late.dev
  * @param requestData - The queue slots configuration
@@ -63,9 +69,6 @@ export async function updateQueueSlots(
 
     const url = "https://getlate.dev/api/v1/queue/slots";
 
-    console.log("[Late.dev Queue] Request URL:", url);
-    console.log("[Late.dev Queue] Request data:", JSON.stringify(requestData, null, 2));
-
     const response = await fetch(url, {
         method: "PUT",
         headers: {
@@ -75,18 +78,13 @@ export async function updateQueueSlots(
         body: JSON.stringify(requestData),
     });
 
-    console.log("[Late.dev Queue] Response status:", response.status);
-
     if (!response.ok) {
         let errorData: { error?: string; message?: string };
         let errorText = "";
         try {
             errorText = await response.text();
-            console.log("[Late.dev Queue] Error response text:", errorText);
             errorData = JSON.parse(errorText);
-            console.log("[Late.dev Queue] Error response parsed:", JSON.stringify(errorData, null, 2));
-        } catch (parseError) {
-            console.log("[Late.dev Queue] Failed to parse error response:", parseError);
+        } catch {
             throw new Error(
                 `Failed to update queue slots (${response.status}): ${errorText || response.statusText}`
             );
@@ -104,7 +102,6 @@ export async function updateQueueSlots(
     }
 
     const data = await response.json();
-    console.log("[Late.dev Queue] Success response:", data);
     return data;
 }
 
@@ -124,8 +121,6 @@ export async function getQueueSlots(
 
     const url = `https://getlate.dev/api/v1/queue/slots?profileId=${encodeURIComponent(profileId)}`;
 
-    console.log("[Late.dev Queue] GET Request URL:", url);
-
     const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -134,18 +129,13 @@ export async function getQueueSlots(
         },
     });
 
-    console.log("[Late.dev Queue] GET Response status:", response.status);
-
     if (!response.ok) {
         let errorData: { error?: string; message?: string };
         let errorText = "";
         try {
             errorText = await response.text();
-            console.log("[Late.dev Queue] GET Error response text:", errorText);
             errorData = JSON.parse(errorText);
-            console.log("[Late.dev Queue] GET Error response parsed:", JSON.stringify(errorData, null, 2));
-        } catch (parseError) {
-            console.log("[Late.dev Queue] GET Failed to parse error response:", parseError);
+        } catch {
             throw new Error(
                 `Failed to get queue slots (${response.status}): ${errorText || response.statusText}`
             );
@@ -163,7 +153,6 @@ export async function getQueueSlots(
     }
 
     const data = await response.json();
-    console.log("[Late.dev Queue] GET Success response:", data);
     return data;
 }
 
@@ -183,8 +172,6 @@ export async function deleteQueueSlots(
 
     const url = `https://getlate.dev/api/v1/queue/slots?profileId=${encodeURIComponent(profileId)}`;
 
-    console.log("[Late.dev Queue] DELETE Request URL:", url);
-
     const response = await fetch(url, {
         method: "DELETE",
         headers: {
@@ -193,18 +180,13 @@ export async function deleteQueueSlots(
         },
     });
 
-    console.log("[Late.dev Queue] DELETE Response status:", response.status);
-
     if (!response.ok) {
         let errorData: { error?: string; message?: string };
         let errorText = "";
         try {
             errorText = await response.text();
-            console.log("[Late.dev Queue] DELETE Error response text:", errorText);
             errorData = JSON.parse(errorText);
-            console.log("[Late.dev Queue] DELETE Error response parsed:", JSON.stringify(errorData, null, 2));
-        } catch (parseError) {
-            console.log("[Late.dev Queue] DELETE Failed to parse error response:", parseError);
+        } catch {
             throw new Error(
                 `Failed to delete queue slots (${response.status}): ${errorText || response.statusText}`
             );
@@ -222,7 +204,62 @@ export async function deleteQueueSlots(
     }
 
     const data = await response.json();
-    console.log("[Late.dev Queue] DELETE Success response:", data);
+    return data;
+}
+
+/**
+ * Get next available slot from queue
+ * Always uses LATE_PROFILE_ID from environment variables (ignores profileId parameter)
+ * @returns Next available slot information
+ */
+export async function getNextSlot(): Promise<NextSlotResponse> {
+    const apiKey = process.env.LATE_SECRET_KEY;
+
+    if (!apiKey) {
+        throw new Error("LATE_SECRET_KEY is not configured");
+    }
+
+    // Always use profileId from environment variables
+    const profileId = process.env.LATE_PROFILE_ID;
+
+    if (!profileId) {
+        throw new Error("LATE_PROFILE_ID is not configured");
+    }
+
+    const url = `https://getlate.dev/api/v1/queue/next-slot?profileId=${encodeURIComponent(profileId)}`;
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+        },
+    });
+
+    if (!response.ok) {
+        let errorData: { error?: string; message?: string };
+        let errorText = "";
+        try {
+            errorText = await response.text();
+            errorData = JSON.parse(errorText);
+        } catch {
+            throw new Error(
+                `Failed to get next slot (${response.status}): ${errorText || response.statusText}`
+            );
+        }
+
+        console.error("[Late.dev Queue] GET Next Slot Error details:", {
+            status: response.status,
+            errorData,
+            url,
+        });
+
+        const errorMessage =
+            errorData.message || errorData.error || `Failed to get next slot: ${response.statusText}`;
+        throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
     return data;
 }
 

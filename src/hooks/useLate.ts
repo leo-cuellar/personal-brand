@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { getPosts as getPostsWrapper, updatePost as updatePostWrapper, schedulePost as schedulePostWrapper, deletePost as deletePostWrapper, updateQueueSlots as updateQueueSlotsWrapper, getQueueSlots as getQueueSlotsWrapper, deleteQueueSlots as deleteQueueSlotsWrapper } from "../../services/api-wrapper/late";
+import { getPosts as getPostsWrapper, updatePost as updatePostWrapper, schedulePost as schedulePostWrapper, deletePost as deletePostWrapper, updateQueueSlots as updateQueueSlotsWrapper, getQueueSlots as getQueueSlotsWrapper, deleteQueueSlots as deleteQueueSlotsWrapper, getNextSlot as getNextSlotWrapper, addPostToQueue as addPostToQueueWrapper } from "../../services/api-wrapper/late";
 import type {
     LateGetPostsParams,
     LateGetPostsResponse,
@@ -12,6 +12,7 @@ import type {
     QueueSlotsResponse,
     GetQueueSlotsResponse,
     DeleteQueueSlotsResponse,
+    NextSlotResponse,
 } from "../../services/late/queue";
 
 interface UseLateReturn {
@@ -36,6 +37,10 @@ interface UseLateReturn {
     deleteQueueSlots: (
         profileId?: string
     ) => Promise<DeleteQueueSlotsResponse>;
+    getNextSlot: () => Promise<NextSlotResponse>;
+    addPostToQueue: (
+        postId: string
+    ) => Promise<LatePost>;
     loading: boolean;
     error: string | null;
 }
@@ -183,6 +188,46 @@ export function useLate(): UseLateReturn {
         []
     );
 
+    const getNextSlot = useCallback(
+        async () => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const data = await getNextSlotWrapper();
+                return data;
+            } catch (err) {
+                const errorMessage =
+                    err instanceof Error ? err.message : "Failed to get next slot";
+                setError(errorMessage);
+                throw err;
+            } finally {
+                setLoading(false);
+            }
+        },
+        []
+    );
+
+    const addPostToQueue = useCallback(
+        async (postId: string) => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const data = await addPostToQueueWrapper(postId);
+                return data;
+            } catch (err) {
+                const errorMessage =
+                    err instanceof Error ? err.message : "Failed to add post to queue";
+                setError(errorMessage);
+                throw err;
+            } finally {
+                setLoading(false);
+            }
+        },
+        []
+    );
+
     return {
         getPosts,
         updatePost,
@@ -191,6 +236,8 @@ export function useLate(): UseLateReturn {
         updateQueueSlots,
         getQueueSlots,
         deleteQueueSlots,
+        getNextSlot,
+        addPostToQueue,
         loading,
         error,
     };

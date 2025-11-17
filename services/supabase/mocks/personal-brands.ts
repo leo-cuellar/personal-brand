@@ -9,7 +9,7 @@ export const mockPersons: PersonalBrand[] = [
         id: MOCK_PERSON_ID as unknown as string,
         name: "Leo Cuellar",
         username: "leocuellardev",
-        niche: "Ayudo a developers mexicanos a conseguir empleo en empresas internacionales",
+        niche: "Ayudo a desarrolladores (juniors y seniors) y CEOs a construir carreras exitosas, escalar equipos técnicos y crear productos de alto impacto",
         socialAccounts: {
             linkedin: {
                 profile_url: "https://linkedin.com/in/leocuellardev",
@@ -18,43 +18,43 @@ export const mockPersons: PersonalBrand[] = [
         },
         brandNarrative: {
             immediateCredibility:
-                "He trabajado en empresas de tecnología que operan a nivel internacional, formando parte de equipos de alto rendimiento y liderando iniciativas clave. Llevo más de una década construyendo productos desde el front-end, explorando también tecnologías como IA, blockchain y herramientas financieras. Mis roles han tenido impacto directo en negocio, estrategia y crecimiento. También he generado ingresos de seis cifras anuales en tech, construyendo todo esto desde un camino no tradicional, pero deliberado.",
+                "He liderado equipos técnicos en empresas de tecnología que operan a nivel internacional, escalando productos desde cero hasta millones de usuarios. Con más de una década de experiencia, he construido equipos de alto rendimiento, establecido procesos de desarrollo que realmente funcionan, ayudado a fundadores y CEOs a transformar ideas en productos exitosos, y guiado a desarrolladores junior en sus primeros pasos hacia carreras exitosas. He visto de primera mano qué funciona y qué no cuando se trata de construir carreras, equipos y escalar tecnología.",
             professionalProblemOrChallenge:
-                "Después de cinco años en una carrera completamente distinta, tomé la decisión más difícil: dejarla atrás. No sabía qué venía después. Solo sabía que lo que estaba haciendo no me hacía sentir vivo. Me gustaba programar, ya había hecho algunos proyectos sencillos, pero no entendía cómo convertirlo en una carrera real. Lo único claro era que necesitaba construir algo propio, algo que tuviera sentido para mí.",
+                "Empecé como desarrollador junior sin saber cómo construir una carrera real. Luego, después de años como desarrollador individual, llegué a un punto donde quería más impacto. Sabía que podía construir código, pero construir equipos, procesos y cultura técnica era completamente diferente. Los fundadores y CEOs con los que trabajaba necesitaban alguien que entendiera tanto el lado técnico como el de negocio, pero la mayoría de líderes técnicos solo hablaban código. Y los desarrolladores junior necesitaban guía para no cometer los mismos errores que yo cometí. Necesitaba convertirme en ese puente para todos.",
             internalStruggles:
-                "Aunque era joven, sentía que ya había desperdiciado demasiado tiempo. Viví una etapa de confusión, frustración y aislamiento. Me invadía la duda sobre si podría construir algo valioso empezando tan tarde. El síndrome del impostor me acompañó por años: sentía que avanzaba, pero que todo era frágil, que no estaba realmente validado.",
+                "Como junior, el síndrome del impostor me acompañó por años: ¿realmente sabía lo suficiente? ¿Era lo suficientemente bueno? Luego, cuando lideré un equipo técnico por primera vez, fue abrumador. No solo tenía que escribir código, sino tomar decisiones que afectaban a otros, comunicar visión técnica a no-técnicos, y balancear velocidad con calidad. El síndrome del impostor volvió: ¿realmente sabía lo suficiente para liderar? ¿Podría escalar sin romper lo que funcionaba?",
             externalContext:
-                "Tuve que reconstruirme desde cero, en lo profesional y en lo personal. Perdí todo lo que tenía, me endeudé, me estafaron, y regresé a casa de mi madre. Al mismo tiempo, veía una industria tech que parecía cerrada, elitista, reservada para quienes tenían títulos, conexiones y caminos \"correctos\". Todo en mi entorno gritaba que yo no pertenecía. No me senti rechazado asi que no enfocarse en el elitismo sino en no seguir el molde.",
+                "Veía desarrolladores junior perdidos, sin saber cómo avanzar en sus carreras o qué tecnologías aprender. Startups fallando porque no entendían cómo construir equipos técnicos. CEOs contratando desarrolladores sin saber qué buscar. Fundadores técnicos que no sabían cómo comunicar su visión. Y desarrolladores senior que querían liderar pero no sabían cómo hacer la transición. El mercado necesitaba guía para juniors, líderes técnicos que pudieran escalar equipos y productos, y CEOs que entendieran tecnología, pero había muy pocos recursos.",
             keyMicrotransitions:
-                "Pasé de explorar la programación como curiosidad a construir soluciones reales. De estudiar por mi cuenta a conseguir trabajo. De desarrollador a líder de equipo. De empleado a emprendedor. Fallé al emprender más de una vez, pero cada intento me enseñó algo sobre enfoque, constancia y visión. Cada decisión, incluso las que no funcionaron, fue parte de convertirme en lo que soy hoy.",
+                "Pasé de ser el mejor desarrollador del equipo a ser el que ayudaba a otros a ser mejores. De escribir código todo el día a diseñar arquitecturas y procesos. De resolver problemas técnicos a resolver problemas de equipo. De trabajar solo a construir sistemas que funcionaban sin mí. Cada transición fue incómoda, pero necesaria para escalar.",
             insightOrSpark:
-                "Descubrí que podía construir. No solo una carrera, sino ideas, productos y soluciones que tenían valor. Que no necesitaba seguir el camino tradicional si estaba dispuesto a pagar el precio del trabajo, el aprendizaje y la resistencia. Que a veces, romper las reglas es el primer paso para crear algo realmente tuyo.",
+                "Descubrí que el mejor código no es el más elegante, sino el que permite al equipo moverse rápido y con confianza. Que escalar un producto no es solo agregar features, sino construir procesos, cultura y sistemas que permitan crecer sosteniblemente. Que un líder técnico efectivo no es el que más sabe, sino el que mejor comunica, empodera y elimina obstáculos.",
             process:
-                "Diseñé mi propia ruta. Aprendí por mi cuenta, construí un portafolio, mejoré cada sistema de aprendizaje que usaba. Con el tiempo, obtuve trabajos reales, entregué resultados, y empecé a liderar personas. Me equivoqué muchas veces, pero nunca dejé de iterar. Lo que empezó como supervivencia se convirtió en carrera, luego en propósito.",
+                "Aprendí liderazgo técnico haciendo. Construí procesos de desarrollo desde cero, establecí estándares de código que realmente se seguían, creé sistemas de comunicación entre equipos técnicos y de negocio. Me equivoqué muchas veces, pero cada error me enseñó algo sobre cómo escalar sin perder calidad ni velocidad.",
             resultOrTransformation:
-                "Hoy tengo una carrera sólida, con más de 10 años de experiencia. He trabajado en productos con miles de usuarios, liderado equipos técnicos y contribuido a soluciones de alto impacto para empresas globales. Sigo aprendiendo, creando y compartiendo, porque sé que el cambio no viene solo de lo técnico: viene de cómo pensamos, cómo actuamos y cómo lideramos.",
+                "Hoy he ayudado a múltiples startups a escalar sus equipos técnicos de 2 a 20+ desarrolladores. He construido productos que manejan millones de usuarios, establecido procesos que permiten entregar valor consistentemente, y formado líderes técnicos que ahora están haciendo lo mismo. El impacto ya no es solo mi código, sino los equipos y productos que ayudo a construir.",
             sharedBeliefs:
-                "Creo que hay miles de desarrolladores en LATAM con talento brutal, atrapados en un sistema que no los ve. Que siguen esperando validación externa cuando ya tienen lo necesario. Creo que no basta con saber programar: hay que pensar más allá del código, entender el juego y aprender a jugarlo con inteligencia, sin perder la esencia.",
+                "Creo que cualquier desarrollador junior puede construir una carrera exitosa si tiene la guía correcta y está dispuesto a aprender. Que los mejores equipos técnicos no son los que tienen los mejores desarrolladores, sino los que tienen los mejores procesos y cultura. Que escalar un producto requiere tanto excelencia técnica como liderazgo efectivo. Que los CEOs y fundadores necesitan líderes técnicos que hablen su idioma y entiendan sus necesidades. Y que cualquier desarrollador senior puede convertirse en ese líder, si está dispuesto a aprender.",
             currentVisionOrPersonalMission:
-                "Quiero ayudar a los desarrolladores en LATAM —sobre todo a los que trabajan en front-end y sienten que están estancados— a reconocerse como estrategas, constructores y líderes. A desbloquear su valor, construir una carrera que les represente y reclamar su lugar en la industria global.",
+                "Quiero ayudar a desarrolladores junior a construir carreras sólidas desde el principio, a desarrolladores senior a hacer la transición a liderazgo técnico efectivo, y a CEOs y fundadores a construir equipos técnicos que realmente escalen. A crear el puente entre código y negocio, entre visión y ejecución, entre equipo pequeño y equipo grande, entre junior y senior.",
             socialProofOrValidation:
-                "He formado parte de equipos técnicos de alto impacto, construido productos usados globalmente y liderado desarrolladores que hoy están en roles clave. No lo hice desde un camino tradicional. Lo hice a mi manera, con estrategia, intención y disciplina. Y hoy, comparto lo que aprendí para que otros también lo hagan.",
+                "He guiado a desarrolladores junior en sus primeros pasos hacia trabajos internacionales, liderado equipos técnicos en startups que crecieron de 5 a 50 personas, construido productos usados por millones, y ayudado a fundadores a tomar decisiones técnicas que definieron el éxito de sus empresas. No lo hice siguiendo un manual, sino aprendiendo en el camino y compartiendo lo que funcionó.",
             callToAction:
-                "Si alguna vez pensaste que ibas tarde, que no tienes lo que se necesita, o que no sabes cómo dar el siguiente paso… estoy construyendo para ti.",
+                "Si eres desarrollador junior buscando construir tu carrera, desarrollador senior buscando escalar tu impacto, o CEO buscando construir un equipo técnico que realmente funcione… estoy aquí para ayudarte a hacerlo bien.",
         },
         strongOpinions: [
-            "Remote work isn't just a trend—it's the future of how we'll work. Companies that don't adapt will lose top talent.",
-            "AI won't replace humans, but humans who use AI will replace those who don't. The question isn't if, but when you'll adapt.",
-            "The 40-hour work week is dead. Productivity isn't about hours logged—it's about results delivered. Time to rethink how we measure work.",
-            "If you're not building your personal brand online, you're invisible. Your next opportunity won't find you—you need to make yourself findable.",
-            "Networking isn't about collecting contacts—it's about building genuine relationships. Quality over quantity, always.",
+            "Escalar un equipo técnico no se trata de contratar más desarrolladores—se trata de construir sistemas y procesos que permitan al equipo moverse rápido sin romper cosas.",
+            "Los mejores líderes técnicos no son los que escriben más código, sino los que permiten a su equipo escribir mejor código y entregar más valor.",
+            "Los CEOs que no entienden los desafíos de su equipo técnico tomarán decisiones que ralentizan el crecimiento. La alfabetización técnica ya no es opcional.",
+            "Un desarrollador senior que no puede comunicar conceptos técnicos a stakeholders no técnicos no está listo para liderar. La comunicación es una habilidad fundamental, no algo opcional.",
+            "Los procesos existen para servir al equipo, no al revés. Si tu proceso te está ralentizando, es hora de cambiarlo, no de aplicarlo con más fuerza.",
         ],
         values: [
-            "Autenticidad",
-            "Excelencia técnica",
-            "Mentoría y crecimiento",
-            "Trabajo remoto y flexibilidad",
-            "Innovación constante",
+            "Excelencia técnica con impacto de negocio",
+            "Liderazgo que empodera y escala",
+            "Comunicación clara entre equipos técnicos y de negocio",
+            "Procesos que aceleran, no ralentizan",
+            "Construir equipos que funcionan sin ti",
         ],
         createdAt: new Date(),
         updatedAt: new Date(),

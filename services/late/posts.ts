@@ -137,12 +137,6 @@ export async function getPosts(
     const queryString = queryParams.toString();
     const url = `https://getlate.dev/api/v1/posts${queryString ? `?${queryString}` : ""}`;
 
-    console.log("[Late.dev] Request URL:", url);
-    console.log("[Late.dev] Request params:", JSON.stringify(params, null, 2));
-    console.log("[Late.dev] API Key configured:", !!apiKey);
-    console.log("[Late.dev] API Key length:", apiKey?.length || 0);
-    console.log("[Late.dev] API Key prefix:", apiKey?.substring(0, 10) || "N/A");
-    console.log("[Late.dev] Authorization header:", `Bearer ${apiKey?.substring(0, 10)}...`);
 
     const response = await fetch(url, {
         method: "GET",
@@ -152,21 +146,16 @@ export async function getPosts(
         },
     });
 
-    console.log("[Late.dev] Response status:", response.status);
-    console.log("[Late.dev] Response headers:", Object.fromEntries(response.headers.entries()));
-
     if (!response.ok) {
         let errorData: LateErrorResponse;
-        let errorText: string;
+        let errorText = "";
         try {
             errorText = await response.text();
-            console.log("[Late.dev] Error response text:", errorText);
             errorData = JSON.parse(errorText);
-            console.log("[Late.dev] Error response parsed:", JSON.stringify(errorData, null, 2));
-        } catch (parseError) {
-            console.log("[Late.dev] Failed to parse error response:", parseError);
+        } catch {
+            const finalErrorText = errorText || response.statusText;
             throw new Error(
-                `Failed to get posts (${response.status}): ${errorText || response.statusText}`
+                `Failed to get posts (${response.status}): ${finalErrorText}`
             );
         }
 
@@ -198,10 +187,6 @@ export async function getPosts(
     }
 
     const data = await response.json();
-    console.log("[Late.dev] Success response:", {
-        postsCount: data.posts?.length || 0,
-        pagination: data.pagination,
-    });
     return data;
 }
 
@@ -218,6 +203,7 @@ export async function updatePost(
     const apiKey = process.env.LATE_SECRET_KEY;
 
     if (!apiKey) {
+        console.error("[Late.dev] updatePost - LATE_SECRET_KEY is not configured");
         throw new Error("LATE_SECRET_KEY is not configured");
     }
 
@@ -234,14 +220,23 @@ export async function updatePost(
 
     if (!response.ok) {
         let errorData: LateErrorResponse;
+        let errorText = "";
         try {
-            errorData = await response.json();
+            errorText = await response.text();
+            errorData = JSON.parse(errorText);
         } catch {
-            const errorText = await response.text();
             throw new Error(
                 `Failed to update post (${response.status}): ${errorText || response.statusText}`
             );
         }
+
+        console.error("[Late.dev] updatePost - Error details:", {
+            status: response.status,
+            errorData,
+            url,
+            postId,
+            updates,
+        });
 
         const errorMessage =
             errorData.message || errorData.error || `Failed to update post: ${response.statusText}`;
@@ -266,24 +261,15 @@ export async function schedulePost(
     const profileId = process.env.LATE_PROFILE_ID;
 
     if (!profileId) {
+        console.error("[Late.dev] schedulePost - LATE_PROFILE_ID is not configured");
         throw new Error("LATE_PROFILE_ID is not configured");
     }
 
-    // Default to linkedin if no platforms specified
-    const platforms = scheduleData.platforms && scheduleData.platforms.length > 0
-        ? scheduleData.platforms
-        : ["linkedin"];
-
-    // Transform platforms to include accountId
-    const platformsWithAccountId = platforms.map(platform => ({
-        accountId: profileId,
-        platform,
-    }));
-
+    // Don't send platforms - the post already has platforms configured from when it was created as draft
+    // Late.dev will use the existing platforms when scheduling
     const updatePayload = {
         scheduledFor: scheduleData.scheduledFor,
         timezone: scheduleData.timezone,
-        platforms: platformsWithAccountId,
         isDraft: false, // Required to actually schedule the post
     };
 

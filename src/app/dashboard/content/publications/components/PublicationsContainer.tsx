@@ -19,6 +19,7 @@ interface PublicationsContainerProps {
     onUpdate: (postId: string, updates: { title?: string; content?: string }) => Promise<void>;
     onSchedule: (postId: string, scheduleData: { scheduledFor: string; timezone: string }) => Promise<void>;
     onDelete: (postId: string) => Promise<void>;
+    onAddToQueue: (postId: string) => Promise<void>;
     loading: boolean;
     // Calendar-specific props
     calendarDateFrom: string;
@@ -37,6 +38,7 @@ export function PublicationsContainer({
     onUpdate,
     onSchedule,
     onDelete,
+    onAddToQueue,
     loading,
     calendarDateFrom,
     calendarDateTo,
@@ -110,6 +112,7 @@ export function PublicationsContainer({
                     onUpdate={onUpdate}
                     onSchedule={onSchedule}
                     onDelete={onDelete}
+                    onAddToQueue={onAddToQueue}
                     loading={loading}
                 />
             ) : (

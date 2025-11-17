@@ -15,6 +15,7 @@ import type {
     QueueSlotsResponse,
     GetQueueSlotsResponse,
     DeleteQueueSlotsResponse,
+    NextSlotResponse,
 } from "../late/queue";
 
 /**
@@ -224,6 +225,54 @@ export async function deleteQueueSlots(
     }
 
     const data: DeleteQueueSlotsResponse = await response.json();
+    return data;
+}
+
+/**
+ * Get next available slot from queue via our API route
+ * Always uses LATE_PROFILE_ID from environment variables (ignores profileId parameter)
+ */
+export async function getNextSlot(): Promise<NextSlotResponse> {
+    const url = `/api/late/queue/next-slot`;
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to get next slot");
+    }
+
+    const data: NextSlotResponse = await response.json();
+    return data;
+}
+
+/**
+ * Add post to queue - calls API endpoint that handles getting next slot and scheduling internally
+ * Always uses LATE_PROFILE_ID from environment variables (handled server-side)
+ */
+export async function addPostToQueue(
+    postId: string
+): Promise<LatePost> {
+    const url = `/api/late/posts/${postId}/add-to-queue`;
+
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to add post to queue");
+    }
+
+    const data: LatePost = await response.json();
     return data;
 }
 
