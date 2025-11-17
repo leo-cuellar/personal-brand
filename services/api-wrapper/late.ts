@@ -10,6 +10,12 @@ import type {
     LateSchedulePostRequest,
     LatePost,
 } from "../late/posts";
+import type {
+    UpdateQueueSlotsRequest,
+    QueueSlotsResponse,
+    GetQueueSlotsResponse,
+    DeleteQueueSlotsResponse,
+} from "../late/queue";
 
 /**
  * Get posts from Late.dev via our API route
@@ -138,5 +144,86 @@ export async function deletePost(postId: string): Promise<void> {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to delete post");
     }
+}
+
+/**
+ * Update queue slots in Late.dev via our API route
+ */
+export async function updateQueueSlots(
+    requestData: UpdateQueueSlotsRequest
+): Promise<QueueSlotsResponse> {
+    const response = await fetch("/api/late/queue", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update queue slots");
+    }
+
+    const data: QueueSlotsResponse = await response.json();
+    return data;
+}
+
+/**
+ * Get queue slots configuration from Late.dev via our API route
+ */
+export async function getQueueSlots(
+    profileId?: string
+): Promise<GetQueueSlotsResponse> {
+    const queryParams = new URLSearchParams();
+    if (profileId) {
+        queryParams.append("profileId", profileId);
+    }
+
+    const url = `/api/late/queue${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to get queue slots");
+    }
+
+    const data: GetQueueSlotsResponse = await response.json();
+    return data;
+}
+
+/**
+ * Delete queue slots configuration from Late.dev via our API route
+ */
+export async function deleteQueueSlots(
+    profileId?: string
+): Promise<DeleteQueueSlotsResponse> {
+    const queryParams = new URLSearchParams();
+    if (profileId) {
+        queryParams.append("profileId", profileId);
+    }
+
+    const url = `/api/late/queue${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+
+    const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete queue slots");
+    }
+
+    const data: DeleteQueueSlotsResponse = await response.json();
+    return data;
 }
 

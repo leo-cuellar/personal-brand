@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { getPosts as getPostsWrapper, updatePost as updatePostWrapper, schedulePost as schedulePostWrapper, deletePost as deletePostWrapper } from "../../services/api-wrapper/late";
+import { getPosts as getPostsWrapper, updatePost as updatePostWrapper, schedulePost as schedulePostWrapper, deletePost as deletePostWrapper, updateQueueSlots as updateQueueSlotsWrapper, getQueueSlots as getQueueSlotsWrapper, deleteQueueSlots as deleteQueueSlotsWrapper } from "../../services/api-wrapper/late";
 import type {
     LateGetPostsParams,
     LateGetPostsResponse,
@@ -7,6 +7,12 @@ import type {
     LateSchedulePostRequest,
     LatePost,
 } from "../../services/late/posts";
+import type {
+    UpdateQueueSlotsRequest,
+    QueueSlotsResponse,
+    GetQueueSlotsResponse,
+    DeleteQueueSlotsResponse,
+} from "../../services/late/queue";
 
 interface UseLateReturn {
     getPosts: (
@@ -21,6 +27,15 @@ interface UseLateReturn {
         scheduleData: LateSchedulePostRequest
     ) => Promise<LatePost>;
     deletePost: (postId: string) => Promise<void>;
+    updateQueueSlots: (
+        requestData: UpdateQueueSlotsRequest
+    ) => Promise<QueueSlotsResponse>;
+    getQueueSlots: (
+        profileId?: string
+    ) => Promise<GetQueueSlotsResponse>;
+    deleteQueueSlots: (
+        profileId?: string
+    ) => Promise<DeleteQueueSlotsResponse>;
     loading: boolean;
     error: string | null;
 }
@@ -108,11 +123,74 @@ export function useLate(): UseLateReturn {
         []
     );
 
+    const updateQueueSlots = useCallback(
+        async (requestData: UpdateQueueSlotsRequest) => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const data = await updateQueueSlotsWrapper(requestData);
+                return data;
+            } catch (err) {
+                const errorMessage =
+                    err instanceof Error ? err.message : "Failed to update queue slots";
+                setError(errorMessage);
+                throw err;
+            } finally {
+                setLoading(false);
+            }
+        },
+        []
+    );
+
+    const getQueueSlots = useCallback(
+        async (profileId?: string) => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const data = await getQueueSlotsWrapper(profileId);
+                return data;
+            } catch (err) {
+                const errorMessage =
+                    err instanceof Error ? err.message : "Failed to get queue slots";
+                setError(errorMessage);
+                throw err;
+            } finally {
+                setLoading(false);
+            }
+        },
+        []
+    );
+
+    const deleteQueueSlots = useCallback(
+        async (profileId?: string) => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const data = await deleteQueueSlotsWrapper(profileId);
+                return data;
+            } catch (err) {
+                const errorMessage =
+                    err instanceof Error ? err.message : "Failed to delete queue slots";
+                setError(errorMessage);
+                throw err;
+            } finally {
+                setLoading(false);
+            }
+        },
+        []
+    );
+
     return {
         getPosts,
         updatePost,
         schedulePost,
         deletePost,
+        updateQueueSlots,
+        getQueueSlots,
+        deleteQueueSlots,
         loading,
         error,
     };
