@@ -23,7 +23,7 @@ const BUTTON_CLASS = "social-assistant-add-btn";
 const BUTTON_DATA_ATTR = "data-social-assistant-processed";
 
 /**
- * Extrae el texto de un post de LinkedIn
+ * Extrae el texto de un post de LinkedIn preservando saltos de línea
  */
 function extractPostText(postElement: HTMLElement): string {
   // Intentar múltiples selectores para el contenido del post
@@ -36,14 +36,47 @@ function extractPostText(postElement: HTMLElement): string {
   ];
 
   for (const selector of textSelectors) {
-    const textElement = postElement.querySelector(selector);
+    const textElement = postElement.querySelector(selector) as HTMLElement | null;
     if (textElement) {
-      return textElement.textContent?.trim() || "";
+      // Usar innerText para preservar saltos de línea naturales
+      // innerText respeta el formato visual del texto, incluyendo saltos de línea
+      let text = textElement.innerText || textElement.textContent || "";
+
+      // Procesar el HTML para preservar saltos de línea de elementos de bloque
+      const htmlContent = textElement.innerHTML || "";
+      if (htmlContent) {
+        // Convertir <br> y <br/> en saltos de línea
+        text = htmlContent
+          .replace(/<br\s*\/?>/gi, '\n')
+          // Convertir párrafos y divs en saltos de línea
+          .replace(/<\/p>/gi, '\n')
+          .replace(/<\/div>/gi, '\n')
+          // Remover todas las etiquetas HTML restantes
+          .replace(/<[^>]*>/g, '')
+          // Decodificar entidades HTML comunes
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'");
+      }
+
+      // Limpiar espacios múltiples pero preservar saltos de línea
+      text = text
+        .split('\n')
+        .map((line: string) => line.trim())
+        .filter((line: string) => line.length > 0)
+        .join('\n')
+        .trim();
+
+      return text || "";
     }
   }
 
-  // Fallback: buscar cualquier texto visible
-  return postElement.textContent?.trim() || "";
+  // Fallback: buscar cualquier texto visible preservando formato
+  const fallbackText = postElement.innerText || postElement.textContent || "";
+  return fallbackText.trim();
 }
 
 /**

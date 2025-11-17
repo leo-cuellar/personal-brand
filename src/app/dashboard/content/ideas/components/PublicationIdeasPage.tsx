@@ -4,18 +4,8 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
 import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 import { IdeasReviewFlow } from "./IdeasReviewFlow";
+import { Icon } from "@/components/Icon";
 import type { PublicationIdea } from "../../../../../../services/supabase/schemas";
-
-function formatDate(date: Date | string): string {
-    const d = typeof date === "string" ? new Date(date) : date;
-    if (isNaN(d.getTime())) {
-        return "Invalid date";
-    }
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-}
 
 export function PublicationIdeasPage() {
     const [activeTab, setActiveTab] = useState<"ready-for-review" | "accepted">("ready-for-review");
@@ -456,6 +446,11 @@ export function PublicationIdeasPage() {
                                     )}
                                 </div>
                             </div>
+                            {idea.sourceSummary && (
+                                <div className="mt-4">
+                                    <SourceSummaryCard sourceSummary={idea.sourceSummary} />
+                                </div>
+                            )}
                             {activeTab === "ready-for-review" && idea.status === "in_review" && (
                                 <div className="mb-3 flex gap-3">
                                     <button
@@ -472,14 +467,44 @@ export function PublicationIdeasPage() {
                                     </button>
                                 </div>
                             )}
-                            <div className="text-xs text-gray-500">
-                                Created: {formatDate(idea.createdAt)} •
-                                Updated: {formatDate(idea.updatedAt)}
-                            </div>
                         </div>
                     ))
                 )}
             </div>
+        </div>
+    );
+}
+
+interface SourceSummaryCardProps {
+    sourceSummary: string;
+}
+
+function SourceSummaryCard({ sourceSummary }: SourceSummaryCardProps) {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    return (
+        <div className="w-full rounded-lg border border-blue-200 bg-blue-50 overflow-hidden">
+            {/* First row: Title and Chevron */}
+            <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="flex w-full items-center justify-between py-2 px-3 text-left transition-colors hover:bg-blue-100 rounded-t-lg"
+            >
+                <div className="text-sm font-medium text-blue-900">Source summary</div>
+                <Icon
+                    name={isExpanded ? "chevronUp" : "chevronDown"}
+                    color="#1e40af"
+                    size={14}
+                />
+            </button>
+
+            {/* Collapsible content: Source summary text */}
+            {isExpanded && (
+                <div className="border-t border-blue-200 p-3 rounded-b-lg">
+                    <div className="text-xs text-blue-700 whitespace-pre-wrap leading-relaxed">
+                        {sourceSummary}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
