@@ -10,6 +10,7 @@ export const personalBrands = pgTable("personal_brands", {
     name: varchar("name", { length: 255 }).notNull(),
     username: varchar("username", { length: 100 }).notNull().unique(),
     niche: varchar("niche", { length: 500 }),
+    schedulerId: varchar("scheduler_id", { length: 100 }),
     socialAccounts: jsonb("social_accounts").notNull().default("{}"),
 
     brandNarrative: jsonb("brand_narrative").notNull(),

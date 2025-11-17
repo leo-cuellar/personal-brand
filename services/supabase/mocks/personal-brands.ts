@@ -10,6 +10,7 @@ export const mockPersons: PersonalBrand[] = [
         name: "Leo Cuellar",
         username: "leocuellardev",
         niche: "Ayudo a desarrolladores (juniors y seniors) y CEOs a construir carreras exitosas, escalar equipos técnicos y crear productos de alto impacto",
+        schedulerId: "691035450dd2c401dfe60ddb",
         socialAccounts: {
             linkedin: {
                 profile_url: "https://linkedin.com/in/leocuellardev",

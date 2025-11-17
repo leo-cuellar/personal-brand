@@ -51,6 +51,7 @@ interface SupabasePerson {
     name: string;
     username: string;
     niche?: string | null;
+    scheduler_id?: string | null;
     social_accounts?: {
         linkedin?: {
             profile_url: string;
@@ -178,6 +179,7 @@ export function transformPersonalBrand(
         name: string;
         username: string;
         niche: string | null;
+        schedulerId: string | null;
         socialAccounts: SocialAccounts;
         createdAt: Date;
         updatedAt: Date;
@@ -187,6 +189,7 @@ export function transformPersonalBrand(
         name: data.name,
         username: data.username,
         niche: data.niche ?? null,
+        schedulerId: data.scheduler_id ?? null,
         socialAccounts: socialAccounts,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
@@ -287,6 +290,7 @@ export function transformPersonalBrand(
         strongOpinions: result.strongOpinions ?? [],
         values: result.values ?? [],
         socialAccounts: result.socialAccounts ?? {},
+        schedulerId: result.schedulerId ?? null,
     } as PersonalBrand;
 }
 
