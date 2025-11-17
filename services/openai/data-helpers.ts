@@ -77,6 +77,7 @@ export async function getPersonalBrandData(personalBrandId: string): Promise<Per
         name: data.name,
         username: data.username,
         niche: data.niche || null,
+        schedulerId: data.scheduler_id || null,
         socialAccounts: socialAccounts,
         brandNarrative: brandNarrative,
         strongOpinions: strongOpinions,

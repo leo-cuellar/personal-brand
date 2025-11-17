@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getNextSlot } from "../../../../../../../services/late/queue";
 import { schedulePost, type LateSchedulePostRequest } from "../../../../../../../services/late/posts";
 
 // POST - Add post to queue (gets next slot and schedules automatically)
 export async function POST(
+    request: NextRequest,
     { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
