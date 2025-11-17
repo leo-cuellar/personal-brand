@@ -54,6 +54,7 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
     const [isDeleting, setIsDeleting] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isAddingToQueue, setIsAddingToQueue] = useState(false);
+    const [mobileTab, setMobileTab] = useState<"content" | "ai">("content");
 
     // AI Chat states
     const [aiGeneratedText, setAiGeneratedText] = useState<string | null>(null);
@@ -68,6 +69,7 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
             setEditedContent(post.content);
             setAiGeneratedText(null);
             setChatInput("");
+            setMobileTab("content");
         }
     };
 
@@ -345,11 +347,33 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
             {/* Edit Dialog */}
             <Dialog open={isEditing} onOpenChange={handleOpenChange}>
                 <DialogContent
-                    className="w-[95vw]! h-[95vh]! max-w-[95vw]! max-h-[95vh]! p-0! gap-0! flex flex-row top-[50%]! left-[50%]! translate-x-[-50%]! translate-y-[-50%]! rounded-lg border shadow-lg overflow-hidden"
+                    className="w-[95vw]! h-[95vh]! max-w-[95vw]! max-h-[95vh]! p-0! gap-0! flex flex-col sm:flex-row top-[50%]! left-[50%]! translate-x-[-50%]! translate-y-[-50%]! rounded-lg border shadow-lg overflow-hidden"
                     showCloseButton={false}
                 >
+                    {/* Mobile Tabs */}
+                    <div className="sm:hidden border-b border-gray-200 bg-white flex shrink-0">
+                        <button
+                            onClick={() => setMobileTab("content")}
+                            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${mobileTab === "content"
+                                ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                                }`}
+                        >
+                            Content
+                        </button>
+                        <button
+                            onClick={() => setMobileTab("ai")}
+                            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${mobileTab === "ai"
+                                ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                                }`}
+                        >
+                            AI Assistant
+                        </button>
+                    </div>
+
                     {/* Main Content Area */}
-                    <div className="w-2/3 overflow-hidden flex flex-col">
+                    <div className={`${mobileTab === "content" ? "flex" : "hidden"} sm:flex w-full sm:w-2/3 overflow-hidden flex-col h-full`}>
                         {/* Form Row */}
                         <div className="flex-1 flex flex-col overflow-hidden min-h-0 p-6">
                             <div className="mb-4">
@@ -377,7 +401,7 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                             </div>
                         </div>
                         {/* Buttons Row */}
-                        <div className="border-t border-gray-200 flex items-center justify-end gap-3 px-6 py-4 h-[72px]">
+                        <div className="border-t border-gray-200 flex items-center justify-end gap-3 px-6 py-4 shrink-0">
                             <button
                                 onClick={() => setIsEditing(false)}
                                 disabled={isSaving}
@@ -396,8 +420,8 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                     </div>
 
                     {/* AI Panel */}
-                    <div className="w-1/3 border-l border-gray-200 flex flex-col bg-gray-50">
-                        <div className="p-4 border-b border-gray-200 bg-white">
+                    <div className={`${mobileTab === "ai" ? "flex" : "hidden"} sm:flex w-full sm:w-1/3 sm:border-l border-gray-200 flex flex-col bg-gray-50 h-full`}>
+                        <div className="p-4 border-b border-gray-200 bg-white shrink-0">
                             <h3 className="text-lg font-semibold text-gray-900">AI Assistant</h3>
                             <p className="text-xs text-gray-500 mt-1">Improve your publication with AI</p>
                         </div>
@@ -414,7 +438,7 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                                 </div>
                             ) : aiGeneratedText ? (
                                 <>
-                                    <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+                                    <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white shrink-0">
                                         <label className="text-sm font-medium text-gray-700">Generated Text</label>
                                         <button
                                             onClick={handleAcceptAIText}
@@ -423,7 +447,7 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                                             Accept
                                         </button>
                                     </div>
-                                    <div className="flex-1 overflow-y-auto p-4">
+                                    <div className="flex-1 overflow-y-auto p-4 min-h-0">
                                         <div className="rounded-lg border border-green-200 bg-green-50 p-4">
                                             <p className="text-sm text-gray-900 whitespace-pre-wrap">{aiGeneratedText}</p>
                                         </div>
@@ -437,7 +461,7 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                         </div>
 
                         {/* Chat Input */}
-                        <div className="mt-auto border-t border-gray-200 bg-white p-4 h-[72px] flex items-center">
+                        <div className="border-t border-gray-200 bg-white p-4 shrink-0 flex items-center">
                             <div className="flex gap-2 w-full">
                                 <input
                                     type="text"

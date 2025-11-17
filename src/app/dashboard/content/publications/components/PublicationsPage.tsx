@@ -207,21 +207,21 @@ export function PublicationsPage() {
                     </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                    <label className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            checked={includeHidden}
-                            onChange={(e) => {
-                                setIncludeHidden(e.target.checked);
-                                setCurrentPage(1);
-                            }}
-                            className="h-4 w-4 rounded border-gray-300"
-                        />
-                        <span className="text-sm text-gray-700">Include Hidden</span>
-                    </label>
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                checked={includeHidden}
+                                onChange={(e) => {
+                                    setIncludeHidden(e.target.checked);
+                                    setCurrentPage(1);
+                                }}
+                                className="h-4 w-4 rounded border-gray-300"
+                            />
+                            <span className="text-sm text-gray-700">Include Hidden</span>
+                        </label>
 
-                    <div className="flex items-center gap-4">
                         <label className="flex items-center gap-2 text-sm text-gray-700">
                             <span>Limit:</span>
                             <select
@@ -238,6 +238,8 @@ export function PublicationsPage() {
                                 <option value="100">100</option>
                             </select>
                         </label>
+                    </div>
+                    <div>
                         <span className="text-sm text-gray-500">
                             {pagination.total} publication{pagination.total !== 1 ? "s" : ""}
                         </span>
