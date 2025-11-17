@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
 import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
+import { useN8nHooks } from "@/hooks/useN8nHooks";
 import { IdeasReviewFlow } from "./IdeasReviewFlow";
 import { Icon } from "@/components/Icon";
 import { IconButton } from "@/components/IconButton";
@@ -22,6 +23,7 @@ export function PublicationIdeasPage() {
     const { selectedPersonId } = usePersonalBrandContext();
     const { loading, error, update, create, remove, counts, getPublicationIdeas, getCounts } = usePublicationIdeas();
     const { publicationIdeas: reviewIdeas, getPublicationIdeas: getReviewIdeas } = usePublicationIdeas();
+    const { publicationGen, loading: n8nLoading, error: n8nError } = useN8nHooks();
 
     // State for editing
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -280,6 +282,17 @@ export function PublicationIdeasPage() {
         }
     };
 
+    const handleGeneratePublications = async () => {
+        try {
+            await publicationGen();
+            // Refresh the accepted tab to show any new publications
+            await fetchIdeasForTab("accepted");
+            await getCounts();
+        } catch {
+            // Error handled by UI
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex min-h-screen items-center justify-center">
@@ -317,6 +330,12 @@ export function PublicationIdeasPage() {
             {error && (
                 <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">
                     <strong>Error:</strong> {error}
+                </div>
+            )}
+
+            {n8nError && (
+                <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">
+                    <strong>Error generating publications:</strong> {n8nError}
                 </div>
             )}
 
@@ -392,6 +411,26 @@ export function PublicationIdeasPage() {
                         className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                     >
                         Start Review ({reviewIdeas.length})
+                    </button>
+                </div>
+            )}
+
+            {activeTab === "accepted" && (
+                <div className="mb-6 flex items-center justify-end">
+                    <button
+                        onClick={handleGeneratePublications}
+                        disabled={n8nLoading || !selectedPersonId}
+                        className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        title={!selectedPersonId ? "Please select a person first" : ""}
+                    >
+                        {n8nLoading ? (
+                            <>
+                                <div className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                                Generating...
+                            </>
+                        ) : (
+                            "Generate Publications"
+                        )}
                     </button>
                 </div>
             )}
