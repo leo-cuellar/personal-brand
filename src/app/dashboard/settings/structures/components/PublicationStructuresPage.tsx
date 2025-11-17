@@ -184,16 +184,14 @@ export function PublicationStructuresPage() {
                 </div>
             )}
 
-            <div className="mb-6 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <span className="text-sm text-gray-500">
-                        {publicationStructures.length} structure{publicationStructures.length !== 1 ? "s" : ""}
-                    </span>
-                </div>
+            <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-sm text-gray-500">
+                    {publicationStructures.length} structure{publicationStructures.length !== 1 ? "s" : ""}
+                </span>
                 <button
                     onClick={() => setIsCreating(!isCreating)}
                     disabled={!selectedPersonId}
-                    className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-full rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                     title={!selectedPersonId ? "Please select a person first" : ""}
                 >
                     {isCreating ? "Cancel" : "+ Add New Structure"}
@@ -252,19 +250,19 @@ export function PublicationStructuresPage() {
                             <div className="space-y-2">
                                 {formData.structure.map((field, index) => (
                                     <div key={index} className="space-y-2">
-                                        <div className="flex gap-2">
+                                        <div className="flex flex-col gap-2 sm:flex-row">
                                             <input
                                                 type="text"
                                                 value={field.key}
                                                 onChange={(e) => updateField(index, { key: e.target.value })}
-                                                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:flex-1"
                                                 placeholder="Field name (e.g., hook, problem, solution)"
                                                 required
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => removeField(index)}
-                                                className="rounded-lg bg-red-50 px-4 py-2 text-red-700 transition-colors hover:bg-red-100"
+                                                className="w-full rounded-lg bg-red-50 px-4 py-2 text-red-700 transition-colors hover:bg-red-100 sm:w-auto"
                                             >
                                                 Remove
                                             </button>
@@ -304,10 +302,10 @@ export function PublicationStructuresPage() {
                                 )}
                             </div>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex flex-col gap-2 sm:flex-row">
                             <button
                                 type="submit"
-                                className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                                className="w-full rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:w-auto"
                             >
                                 Create
                             </button>
@@ -317,7 +315,7 @@ export function PublicationStructuresPage() {
                                     setIsCreating(false);
                                     setFormData({ name: "", description: "", structure: [] });
                                 }}
-                                className="rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                                className="w-full rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:w-auto"
                             >
                                 Cancel
                             </button>
@@ -353,7 +351,7 @@ export function PublicationStructuresPage() {
                                     <div className="mb-3 flex flex-col space-y-4">
                                         {/* First row: Title/Description and Buttons */}
                                         <div className="flex items-start justify-between gap-4">
-                                            <div className="flex-1">
+                                            <div className="flex-1 min-w-0">
                                                 <div className="mb-2 flex items-center gap-2">
                                                     <h3 className="text-xl font-semibold text-gray-900">
                                                         {structure.name}
@@ -368,7 +366,7 @@ export function PublicationStructuresPage() {
                                                     <p className="text-gray-600">{structure.description}</p>
                                                 )}
                                             </div>
-                                            <div className="flex gap-2">
+                                            <div className="hidden gap-2 shrink-0 sm:flex">
                                                 <IconButton
                                                     icon="edit"
                                                     onClick={() => {
@@ -391,6 +389,29 @@ export function PublicationStructuresPage() {
                                                     hoverBackgroundColor="#fecaca"
                                                 />
                                             </div>
+                                        </div>
+                                        <div className="flex gap-2 sm:hidden">
+                                            <IconButton
+                                                icon="edit"
+                                                onClick={() => {
+                                                    setEditingId(structure.id);
+                                                    setFormData({
+                                                        name: structure.name,
+                                                        description: structure.description || "",
+                                                        structure: structureToFields(structure.structure),
+                                                    });
+                                                }}
+                                                iconColor="#d97706"
+                                                backgroundColor="#fef3c7"
+                                                hoverBackgroundColor="#fde68a"
+                                            />
+                                            <IconButton
+                                                icon="delete"
+                                                onClick={() => handleDelete(structure.id)}
+                                                iconColor="#ef4444"
+                                                backgroundColor="#fee2e2"
+                                                hoverBackgroundColor="#fecaca"
+                                            />
                                         </div>
 
                                         {/* Second row: Structure Fields container */}
@@ -572,19 +593,19 @@ function EditForm({
                 <div className="space-y-2">
                     {fields.map((field, index) => (
                         <div key={index} className="space-y-2">
-                            <div className="flex gap-2">
+                            <div className="flex flex-col gap-2 sm:flex-row">
                                 <input
                                     type="text"
                                     value={field.key}
                                     onChange={(e) => updateField(index, { key: e.target.value })}
-                                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:flex-1"
                                     placeholder="Field name"
                                     required
                                 />
                                 <button
                                     type="button"
                                     onClick={() => removeField(index)}
-                                    className="rounded-lg bg-red-50 px-4 py-2 text-red-700 transition-colors hover:bg-red-100"
+                                    className="w-full rounded-lg bg-red-50 px-4 py-2 text-red-700 transition-colors hover:bg-red-100 sm:w-auto"
                                 >
                                     Remove
                                 </button>
@@ -619,17 +640,17 @@ function EditForm({
                     ))}
                 </div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-2 sm:flex-row">
                 <button
                     type="submit"
-                    className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    className="w-full rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:w-auto"
                 >
                     Save Changes
                 </button>
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:w-auto"
                 >
                     Cancel
                 </button>
