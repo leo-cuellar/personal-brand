@@ -146,7 +146,201 @@ function generatePostId(postElement: HTMLElement): string {
 }
 
 /**
- * Crea el botón para agregar como inspiración
+ * Crea el botón "Save" para la barra de acciones sociales
+ */
+function createSaveActionButton(postElement: HTMLElement, postData: LinkedInPost): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.className = `artdeco-button artdeco-button--muted artdeco-button--3 artdeco-button--tertiary social-actions-button flex-wrap ${BUTTON_CLASS}`;
+  button.setAttribute("aria-label", "Save post as idea");
+  button.setAttribute("type", "button");
+
+  const buttonText = document.createElement("span");
+  buttonText.className = "artdeco-button__text";
+
+  const buttonContent = document.createElement("div");
+  buttonContent.className = "flex-wrap justify-center artdeco-button__text align-items-center";
+
+  // Ícono SVG de plus
+  const iconSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  iconSvg.setAttribute("role", "none");
+  iconSvg.setAttribute("aria-hidden", "true");
+  iconSvg.setAttribute("class", "artdeco-button__icon");
+  iconSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  iconSvg.setAttribute("width", "16");
+  iconSvg.setAttribute("height", "16");
+  iconSvg.setAttribute("viewBox", "0 0 16 16");
+
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", "M8 1a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2H9v5a1 1 0 1 1-2 0V9H2a1 1 0 1 1 0-2h5V2a1 1 0 0 1 1-1z");
+  path.setAttribute("fill", "currentColor");
+  iconSvg.appendChild(path);
+
+  // Texto "Save idea"
+  const textSpan = document.createElement("span");
+  textSpan.className = "artdeco-button__text social-action-button__text";
+  textSpan.textContent = "Save idea";
+
+  buttonContent.appendChild(iconSvg);
+  buttonContent.appendChild(textSpan);
+  buttonText.appendChild(buttonContent);
+  button.appendChild(buttonText);
+
+  // Ajustar estilos para centrar ícono y texto verticalmente
+  buttonContent.style.cssText = "display: flex; align-items: center; gap: 6px;";
+  iconSvg.style.cssText = "display: flex; align-items: center;";
+
+  button.setAttribute("data-post-link", postData.link);
+  button.setAttribute("data-post-text", postData.text);
+
+  return button;
+}
+
+/**
+ * Interfaz extendida para elementos con referencias al botón original
+ */
+interface HTMLElementWithButtonRef extends HTMLElement {
+  _originalButtonContainer?: HTMLElement;
+  _originalButton?: HTMLButtonElement;
+}
+
+/**
+ * Crea el contenedor con el formulario para guardar como idea
+ */
+function createSaveForm(postElement: HTMLElement, postData: LinkedInPost, originalContainer: HTMLElement, originalButton: HTMLButtonElement): HTMLElementWithButtonRef {
+  const container = document.createElement("div") as HTMLElementWithButtonRef;
+  container.className = `social-assistant-save-form ${BUTTON_CLASS}`;
+  container.style.cssText = `
+    padding: 8px 16px 12px 16px;
+    margin-top: 8px;
+    border-top: 1px solid #e0e0e0;
+    background-color: #f9f9f9;
+    border-radius: 0 0 8px 8px;
+  `;
+
+  // Guardar referencias al botón original
+  container._originalButtonContainer = originalContainer;
+  container._originalButton = originalButton;
+
+  // Input para descripción opcional
+  const inputContainer = document.createElement("div");
+  inputContainer.style.cssText = "margin-bottom: 12px;";
+
+  const label = document.createElement("label");
+  label.textContent = "Description (optional)";
+  label.style.cssText = `
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 6px;
+  `;
+
+  const textarea = document.createElement("textarea");
+  textarea.className = "social-assistant-description-input";
+  textarea.setAttribute("placeholder", "Add a description for this idea...");
+  textarea.setAttribute("rows", "2");
+  textarea.style.cssText = `
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    box-sizing: border-box;
+  `;
+
+  inputContainer.appendChild(label);
+  inputContainer.appendChild(textarea);
+
+  // Contenedor de botones
+  const buttonsContainer = document.createElement("div");
+  buttonsContainer.style.cssText = `
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  `;
+
+  // Botón Cancel
+  const cancelButton = document.createElement("button");
+  cancelButton.className = "artdeco-button artdeco-button--muted artdeco-button--2 artdeco-button--tertiary";
+  cancelButton.textContent = "Cancel";
+  cancelButton.setAttribute("type", "button");
+  cancelButton.addEventListener("click", () => {
+    // Restaurar el botón original
+    const originalContainer = container._originalButtonContainer;
+    if (originalContainer && container.parentNode) {
+      container.parentNode.replaceChild(originalContainer, container);
+    } else {
+      container.remove();
+    }
+  });
+
+  // Botón Save
+  const saveButton = document.createElement("button");
+  saveButton.className = "artdeco-button artdeco-button--primary artdeco-button--2";
+
+  const saveButtonText = document.createElement("span");
+  saveButtonText.className = "artdeco-button__text";
+
+  const saveButtonContent = document.createElement("div");
+  saveButtonContent.style.cssText = "display: flex; align-items: center; gap: 6px; justify-content: center;";
+
+  const saveIconSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  saveIconSvg.setAttribute("role", "none");
+  saveIconSvg.setAttribute("aria-hidden", "true");
+  saveIconSvg.setAttribute("class", "artdeco-button__icon");
+  saveIconSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  saveIconSvg.setAttribute("width", "16");
+  saveIconSvg.setAttribute("height", "16");
+  saveIconSvg.setAttribute("viewBox", "0 0 16 16");
+  saveIconSvg.style.cssText = "display: flex; align-items: center;";
+
+  const saveIconPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  saveIconPath.setAttribute("d", "M8 1a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2H9v5a1 1 0 1 1-2 0V9H2a1 1 0 1 1 0-2h5V2a1 1 0 0 1 1-1z");
+  saveIconPath.setAttribute("fill", "currentColor");
+  saveIconSvg.appendChild(saveIconPath);
+
+  const saveTextSpan = document.createElement("span");
+  saveTextSpan.textContent = "Save idea";
+
+  saveButtonContent.appendChild(saveIconSvg);
+  saveButtonContent.appendChild(saveTextSpan);
+  saveButtonText.appendChild(saveButtonContent);
+  saveButton.appendChild(saveButtonText);
+
+  saveButton.setAttribute("type", "button");
+
+  // Por ahora el botón Save solo hace console.log (como solicitaste)
+  saveButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log("Save clicked", {
+      text: postData.text,
+      description: textarea.value,
+      metadata: postData.metadata,
+    });
+
+    // Restaurar el botón original después de guardar
+    const originalContainer = container._originalButtonContainer;
+    if (originalContainer && container.parentNode) {
+      container.parentNode.replaceChild(originalContainer, container);
+    } else {
+      container.remove();
+    }
+  });
+
+  buttonsContainer.appendChild(cancelButton);
+  buttonsContainer.appendChild(saveButton);
+
+  container.appendChild(inputContainer);
+  container.appendChild(buttonsContainer);
+
+  return container;
+}
+
+/**
+ * Crea el botón para agregar como inspiración (versión antigua, mantiene compatibilidad)
  */
 function createAddButton(postElement: HTMLElement, postData: LinkedInPost): HTMLButtonElement {
   const button = document.createElement("button");
@@ -202,6 +396,16 @@ function createAddButton(postElement: HTMLElement, postData: LinkedInPost): HTML
 }
 
 /**
+ * Encuentra el contenedor de acciones sociales (update-v2-social-activity)
+ * donde se encuentran los botones Like, Comment, Repost, Send
+ */
+function findSocialActivityBar(postElement: HTMLElement): HTMLElement | null {
+  // Buscar el div con clase update-v2-social-activity
+  const socialActivityBar = postElement.querySelector(".update-v2-social-activity");
+  return socialActivityBar as HTMLElement | null;
+}
+
+/**
  * Encuentra el contenedor adecuado para insertar el botón
  * El botón se posiciona en la esquina superior derecha del contenedor principal
  */
@@ -250,7 +454,52 @@ function processPost(postElement: HTMLElement): void {
     },
   };
 
-  // Crear y agregar botón
+  // Intentar agregar el botón Save debajo del activity bar
+  const socialActivityBar = findSocialActivityBar(postElement);
+  if (socialActivityBar) {
+    // Verificar si ya tiene nuestro botón o formulario
+    const existingContainer = socialActivityBar.parentElement?.querySelector(`.${BUTTON_CLASS}`);
+    if (!existingContainer) {
+      const saveButton = createSaveActionButton(postElement, postData);
+
+      // Crear contenedor para el botón debajo del activity bar
+      const buttonContainer = document.createElement("div");
+      buttonContainer.className = `social-assistant-save-container ${BUTTON_CLASS}`;
+      buttonContainer.style.cssText = `
+        padding: 12px 16px;
+        margin-top: 8px;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: center;
+      `;
+
+      // Hacer que el botón ocupe todo el ancho
+      saveButton.style.cssText = "width: 100%; justify-content: center;";
+
+      buttonContainer.appendChild(saveButton);
+
+      // Insertar después del div update-v2-social-activity
+      socialActivityBar.parentNode?.insertBefore(buttonContainer, socialActivityBar.nextSibling);
+
+      // Cuando se hace click en el botón Save, reemplazarlo con el formulario
+      saveButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Crear el formulario (pasa las referencias al botón original)
+        const saveForm = createSaveForm(postElement, postData, buttonContainer, saveButton);
+
+        // Reemplazar el contenedor del botón con el formulario
+        buttonContainer.replaceWith(saveForm);
+      });
+
+      postElement.setAttribute(BUTTON_DATA_ATTR, "true");
+      processedPosts.add(postId);
+      return;
+    }
+  }
+
+  // Fallback: agregar botón en la esquina superior derecha (comportamiento anterior)
   const button = createAddButton(postElement, postData);
   const container = findButtonContainer(postElement);
 
