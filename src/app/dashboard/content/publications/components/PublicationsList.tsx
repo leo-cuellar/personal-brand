@@ -164,16 +164,6 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                         >
                             {post.status}
                         </span>
-                        {post.platforms && post.platforms.length > 0 && (
-                            <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-                                {post.platforms.length} platform{post.platforms.length !== 1 ? "s" : ""}
-                            </span>
-                        )}
-                        {post.visibility && (
-                            <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                                {post.visibility}
-                            </span>
-                        )}
                     </div>
                     {post.scheduledFor && (
                         <div className="space-y-1 text-xs text-gray-500">
@@ -202,7 +192,7 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
             </div>
 
             {/* Actions */}
-            {!isEditing && (
+            {!isEditing && post.status !== "published" && (
                 <div className="mt-4 space-y-4">
                     <div className="flex flex-col gap-2 sm:flex-row">
                         <button
@@ -211,22 +201,24 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                         >
                             Edit
                         </button>
-                        <button
-                            onClick={async () => {
-                                setIsAddingToQueue(true);
-                                try {
-                                    await onAddToQueue(post._id);
-                                } catch (error) {
-                                    alert(`Failed to add post to queue: ${error instanceof Error ? error.message : "Unknown error"}`);
-                                } finally {
-                                    setIsAddingToQueue(false);
-                                }
-                            }}
-                            disabled={isAddingToQueue || post.status === "published" || post.status === "scheduled"}
-                            className="rounded-lg bg-green-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            {isAddingToQueue ? "Adding..." : "Add to Queue"}
-                        </button>
+                        {post.status === "draft" && (
+                            <button
+                                onClick={async () => {
+                                    setIsAddingToQueue(true);
+                                    try {
+                                        await onAddToQueue(post._id);
+                                    } catch (error) {
+                                        alert(`Failed to add post to queue: ${error instanceof Error ? error.message : "Unknown error"}`);
+                                    } finally {
+                                        setIsAddingToQueue(false);
+                                    }
+                                }}
+                                disabled={isAddingToQueue}
+                                className="rounded-lg bg-green-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                {isAddingToQueue ? "Adding..." : "Add to Queue"}
+                            </button>
+                        )}
                         <button
                             onClick={() => setShowScheduleForm(!showScheduleForm)}
                             disabled={post.status === "published"}
