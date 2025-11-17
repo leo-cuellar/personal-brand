@@ -11,12 +11,8 @@ import type { PublicationIdea } from "../../../../../../services/supabase/schema
 export function PublicationIdeasPage() {
     const [activeTab, setActiveTab] = useState<"ready-for-review" | "accepted">("ready-for-review");
     const [isReviewMode, setIsReviewMode] = useState(false);
+    const [quickDescription, setQuickDescription] = useState("");
     const [isCreating, setIsCreating] = useState(false);
-    const [formData, setFormData] = useState({
-        title: "",
-        description: "",
-        link: "",
-    });
     // Local state for each tab to avoid refetching
     const [readyForReviewIdeas, setReadyForReviewIdeas] = useState<PublicationIdea[]>([]);
     const [acceptedIdeas, setAcceptedIdeas] = useState<PublicationIdea[]>([]);
@@ -166,27 +162,25 @@ export function PublicationIdeasPage() {
         getCounts();
     };
 
-    const handleCreate = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleQuickCreate = async () => {
         if (!selectedPersonId) {
             alert("Please select a person first from the header");
             return;
         }
-        if (!formData.title.trim()) {
-            alert("Title is required");
+        if (!quickDescription.trim()) {
             return;
         }
         try {
+            setIsCreating(true);
             const newIdea = await create({
-                title: formData.title.trim(),
-                description: formData.description.trim() || null,
-                link: formData.link.trim() || null,
+                title: "Custom idea",
+                description: quickDescription.trim() || null,
+                link: null,
                 status: "accepted",
                 isArchived: false,
                 personalBrandId: selectedPersonId!,
             });
-            setFormData({ title: "", description: "", link: "" });
-            setIsCreating(false);
+            setQuickDescription("");
             // Update local state optimistically
             setAcceptedIdeas((prev) => [newIdea, ...prev]);
             // Refresh counts
@@ -197,6 +191,15 @@ export function PublicationIdeasPage() {
             }
         } catch {
             // Error handled by UI
+        } finally {
+            setIsCreating(false);
+        }
+    };
+
+    const handleQuickCreateKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleQuickCreate();
         }
     };
 
@@ -317,88 +320,36 @@ export function PublicationIdeasPage() {
                 </div>
             )}
 
-            {/* Add New Idea button or form */}
-            {!isCreating ? (
-                <div className="mb-6">
-                    <button
-                        onClick={() => setIsCreating(true)}
-                        disabled={!selectedPersonId}
-                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        title={!selectedPersonId ? "Please select a person first" : ""}
-                    >
-                        <span className="text-xl">+</span>
-                        Add New Idea
-                    </button>
-                </div>
-            ) : (
-                <div className="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-                    <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                        Create New Idea
-                    </h2>
-                    {!selectedPersonId && (
-                        <div className="mb-4 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-yellow-800">
-                            <strong>⚠️ Warning:</strong> Please select a person from the header before creating an idea.
-                        </div>
+            {/* Quick Add Idea Input */}
+            <div className="mb-6 flex gap-2">
+                <input
+                    type="text"
+                    value={quickDescription}
+                    onChange={(e) => setQuickDescription(e.target.value)}
+                    onKeyPress={handleQuickCreateKeyPress}
+                    disabled={!selectedPersonId || isCreating}
+                    placeholder={selectedPersonId ? "Add a new idea description..." : "Please select a person first"}
+                    className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+                <button
+                    onClick={handleQuickCreate}
+                    disabled={!selectedPersonId || isCreating || !quickDescription.trim()}
+                    className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    title={!selectedPersonId ? "Please select a person first" : ""}
+                >
+                    {isCreating ? (
+                        <>
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                            <span>Adding...</span>
+                        </>
+                    ) : (
+                        <>
+                            <span className="text-xl">+</span>
+                            <span>Add New Idea</span>
+                        </>
                     )}
-                    <form onSubmit={handleCreate} className="space-y-4">
-                        <div>
-                            <label className="mb-2 block text-sm font-medium text-gray-700">
-                                Title *
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="e.g., Hablar sobre cómo la tecnología está cambiando el trabajo"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="mb-2 block text-sm font-medium text-gray-700">
-                                Description (optional)
-                            </label>
-                            <textarea
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                rows={3}
-                                placeholder="Additional context or details about this idea..."
-                            />
-                        </div>
-                        <div>
-                            <label className="mb-2 block text-sm font-medium text-gray-700">
-                                Link (optional)
-                            </label>
-                            <input
-                                type="url"
-                                value={formData.link}
-                                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="https://example.com"
-                            />
-                        </div>
-                        <div className="flex gap-3">
-                            <button
-                                type="submit"
-                                className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                            >
-                                Create Idea
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setIsCreating(false);
-                                    setFormData({ title: "", description: "", link: "" });
-                                }}
-                                className="rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            )}
+                </button>
+            </div>
 
             {/* Tabs */}
             <div className="mb-6 border-b border-gray-200">
@@ -466,57 +417,33 @@ export function PublicationIdeasPage() {
                             <div className="mb-3 flex items-start justify-between">
                                 <div className="flex-1">
                                     {editingId === idea.id ? (
-                                        <div className="space-y-4">
-                                            <div>
-                                                <label className="mb-1 block text-sm font-medium text-gray-700">
-                                                    Title
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={editedTitle}
-                                                    onChange={(e) => setEditedTitle(e.target.value)}
-                                                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    placeholder="Idea title"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="mb-1 block text-sm font-medium text-gray-700">
-                                                    Description
-                                                </label>
-                                                <textarea
-                                                    value={editedDescription}
-                                                    onChange={(e) => setEditedDescription(e.target.value)}
-                                                    rows={3}
-                                                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    placeholder="Idea description"
-                                                />
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <IconButton
-                                                    icon="check"
-                                                    onClick={() => handleSaveEdit(idea.id)}
-                                                    iconColor="#10b981"
-                                                    backgroundColor="#d1fae5"
-                                                    hoverBackgroundColor="#a7f3d0"
-                                                />
-                                                <IconButton
-                                                    icon="close"
-                                                    onClick={handleCancelEdit}
-                                                    iconColor="#ef4444"
-                                                    backgroundColor="#fee2e2"
-                                                    hoverBackgroundColor="#fecaca"
-                                                />
-                                            </div>
-                                        </div>
+                                        <>
+                                            <input
+                                                type="text"
+                                                value={editedTitle}
+                                                onChange={(e) => setEditedTitle(e.target.value)}
+                                                className="mb-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xl font-semibold text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                placeholder="Idea title"
+                                            />
+                                            <textarea
+                                                value={editedDescription}
+                                                onChange={(e) => setEditedDescription(e.target.value)}
+                                                rows={3}
+                                                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                placeholder="Idea description"
+                                            />
+                                        </>
                                     ) : (
                                         <>
                                             <div className="mb-2 flex items-center gap-2 flex-wrap">
                                                 <h3 className="text-xl font-semibold text-gray-900">
                                                     {idea.title}
                                                 </h3>
-                                                <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusBadgeColor(idea.status)}`}>
-                                                    {getStatusLabel(idea.status)}
-                                                </span>
+                                                {activeTab !== "accepted" && (
+                                                    <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusBadgeColor(idea.status)}`}>
+                                                        {getStatusLabel(idea.status)}
+                                                    </span>
+                                                )}
                                                 {idea.isArchived && (
                                                     <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700">
                                                         Archived
@@ -541,24 +468,43 @@ export function PublicationIdeasPage() {
                                         </>
                                     )}
                                 </div>
-                                {editingId !== idea.id && (
-                                    <div className="flex gap-2 ml-4">
-                                        <IconButton
-                                            icon="edit"
-                                            onClick={() => handleEdit(idea)}
-                                            iconColor="#d97706"
-                                            backgroundColor="#fef3c7"
-                                            hoverBackgroundColor="#fde68a"
-                                        />
-                                        <IconButton
-                                            icon="delete"
-                                            onClick={() => handleDelete(idea.id)}
-                                            iconColor="#ef4444"
-                                            backgroundColor="#fee2e2"
-                                            hoverBackgroundColor="#fecaca"
-                                        />
-                                    </div>
-                                )}
+                                <div className="flex gap-2 ml-4">
+                                    {editingId === idea.id ? (
+                                        <>
+                                            <IconButton
+                                                icon="check"
+                                                onClick={() => handleSaveEdit(idea.id)}
+                                                iconColor="#10b981"
+                                                backgroundColor="#d1fae5"
+                                                hoverBackgroundColor="#a7f3d0"
+                                            />
+                                            <IconButton
+                                                icon="close"
+                                                onClick={handleCancelEdit}
+                                                iconColor="#ef4444"
+                                                backgroundColor="#fee2e2"
+                                                hoverBackgroundColor="#fecaca"
+                                            />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <IconButton
+                                                icon="edit"
+                                                onClick={() => handleEdit(idea)}
+                                                iconColor="#d97706"
+                                                backgroundColor="#fef3c7"
+                                                hoverBackgroundColor="#fde68a"
+                                            />
+                                            <IconButton
+                                                icon="delete"
+                                                onClick={() => handleDelete(idea.id)}
+                                                iconColor="#ef4444"
+                                                backgroundColor="#fee2e2"
+                                                hoverBackgroundColor="#fecaca"
+                                            />
+                                        </>
+                                    )}
+                                </div>
                             </div>
                             {editingId !== idea.id && (
                                 <>
