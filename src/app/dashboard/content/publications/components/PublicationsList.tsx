@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/Dialog";
 import type { LatePost } from "../../../../../../services/late/posts";
 
 function formatDate(date: Date | string): string {
@@ -53,6 +54,15 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isAddingToQueue, setIsAddingToQueue] = useState(false);
 
+    // Update edited values when post changes or dialog opens
+    const handleOpenChange = (open: boolean) => {
+        setIsEditing(open);
+        if (open) {
+            setEditedTitle(post.title || "");
+            setEditedContent(post.content);
+        }
+    };
+
     const CONTENT_PREVIEW_LENGTH = 300;
     const shouldTruncate = post.content.length > CONTENT_PREVIEW_LENGTH;
     const displayContent = isExpanded || !shouldTruncate
@@ -72,12 +82,6 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
         } finally {
             setIsSaving(false);
         }
-    };
-
-    const handleCancel = () => {
-        setEditedTitle(post.title || "");
-        setEditedContent(post.content);
-        setIsEditing(false);
     };
 
     const handleSchedule = async () => {
@@ -180,63 +184,16 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
 
             {/* Content */}
             <div className="rounded-lg bg-gray-50 p-4">
-                {isEditing ? (
-                    <div className="space-y-4">
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-gray-700">
-                                Title
-                            </label>
-                            <input
-                                type="text"
-                                value={editedTitle}
-                                onChange={(e) => setEditedTitle(e.target.value)}
-                                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Post title (optional)"
-                            />
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-sm font-medium text-gray-700">
-                                Content
-                            </label>
-                            <textarea
-                                value={editedContent}
-                                onChange={(e) => setEditedContent(e.target.value)}
-                                rows={10}
-                                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Post content"
-                            />
-                        </div>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={handleSave}
-                                disabled={isSaving}
-                                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                {isSaving ? "Saving..." : "Save"}
-                            </button>
-                            <button
-                                onClick={handleCancel}
-                                disabled={isSaving}
-                                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                ) : (
-                    <>
-                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-900">
-                            {displayContent}
-                        </p>
-                        {shouldTruncate && (
-                            <button
-                                onClick={() => setIsExpanded(!isExpanded)}
-                                className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-800"
-                            >
-                                {isExpanded ? "View less" : "View more"}
-                            </button>
-                        )}
-                    </>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-900">
+                    {displayContent}
+                </p>
+                {shouldTruncate && (
+                    <button
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-800"
+                    >
+                        {isExpanded ? "View less" : "View more"}
+                    </button>
                 )}
             </div>
 
@@ -382,6 +339,61 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                     ))}
                 </div>
             )}
+
+            {/* Edit Dialog */}
+            <Dialog open={isEditing} onOpenChange={handleOpenChange}>
+                <DialogContent
+                    className="!w-[95vw] !h-[95vh] !max-w-[95vw] !max-h-[95vh] !p-0 flex flex-col !top-[50%] !left-[50%] !translate-x-[-50%] !translate-y-[-50%]"
+                    showCloseButton={false}
+                >
+                    <div className="flex-1 overflow-hidden flex flex-col p-6">
+                        <DialogHeader className="mb-4">
+                            <DialogTitle>Edit Publication</DialogTitle>
+                        </DialogHeader>
+                        <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+                            <div className="mb-4">
+                                <label className="mb-2 block text-sm font-medium text-gray-700">
+                                    Title
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editedTitle}
+                                    onChange={(e) => setEditedTitle(e.target.value)}
+                                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-lg font-semibold text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Post title (optional)"
+                                />
+                            </div>
+                            <div className="flex-1 flex flex-col min-h-0">
+                                <label className="mb-2 block text-sm font-medium text-gray-700">
+                                    Content
+                                </label>
+                                <textarea
+                                    value={editedContent}
+                                    onChange={(e) => setEditedContent(e.target.value)}
+                                    className="flex-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none whitespace-pre-wrap"
+                                    placeholder="Post content"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <DialogFooter className="p-6 border-t border-gray-200">
+                        <button
+                            onClick={() => setIsEditing(false)}
+                            disabled={isSaving}
+                            className="rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {isSaving ? "Saving..." : "Save"}
+                        </button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
