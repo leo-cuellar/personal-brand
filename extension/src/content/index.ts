@@ -311,22 +311,52 @@ function createSaveForm(postElement: HTMLElement, postData: LinkedInPost, origin
 
   saveButton.setAttribute("type", "button");
 
-  // Por ahora el botón Save solo hace console.log (como solicitaste)
-  saveButton.addEventListener("click", (e) => {
+  // Manejar el guardado de la idea
+  saveButton.addEventListener("click", async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("Save clicked", {
-      text: postData.text,
-      description: textarea.value,
-      metadata: postData.metadata,
-    });
 
-    // Restaurar el botón original después de guardar
-    const originalContainer = container._originalButtonContainer;
-    if (originalContainer && container.parentNode) {
-      container.parentNode.replaceChild(originalContainer, container);
-    } else {
-      container.remove();
+    // Deshabilitar el botón mientras se guarda
+    saveButton.disabled = true;
+    const originalText = saveTextSpan.textContent;
+    saveTextSpan.textContent = "Saving...";
+
+    try {
+      // Enviar mensaje al background service worker
+      const response = await chrome.runtime.sendMessage({
+        type: "ADD_IDEA",
+        data: {
+          text: postData.text, // sourceSummary
+          description: textarea.value.trim() || undefined, // description opcional
+          personalBrandId: undefined, // Se usará el default en el backend
+          metadata: {
+            author_profile_name: postData.metadata?.author_profile_name,
+            author_profile_url: postData.metadata?.author_profile_url,
+            post_date: new Date().toISOString(),
+          },
+        },
+      });
+
+      if (response.success) {
+        // Mostrar éxito brevemente
+        saveTextSpan.textContent = "Saved!";
+        setTimeout(() => {
+          // Restaurar el botón original después de guardar
+          const originalContainer = container._originalButtonContainer;
+          if (originalContainer && container.parentNode) {
+            container.parentNode.replaceChild(originalContainer, container);
+          } else {
+            container.remove();
+          }
+        }, 1000);
+      } else {
+        throw new Error(response.error || "Failed to save idea");
+      }
+    } catch (error) {
+      console.error("Error saving idea:", error);
+      saveButton.disabled = false;
+      saveTextSpan.textContent = originalText || "Save idea";
+      alert(`Error saving idea: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   });
 
@@ -443,10 +473,11 @@ function processPost(postElement: HTMLElement): void {
   }
 
   const authorInfo = extractPostAuthor(postElement);
+  const link = extractPostLink(postElement);
 
   const postData: LinkedInPost = {
     text,
-    link: "", // Not needed for LinkedIn posts, but required by type
+    link,
     author: authorInfo.name,
     metadata: {
       author_profile_name: authorInfo.name,

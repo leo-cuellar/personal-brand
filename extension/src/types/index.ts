@@ -11,9 +11,21 @@ export interface InspirationData {
   };
 }
 
+export interface IdeaData {
+  text: string;
+  description?: string;
+  personalBrandId?: string;
+  metadata?: {
+    author_profile_name?: string;
+    author_profile_url?: string;
+    post_url?: string;
+    post_date?: string;
+  };
+}
+
 export interface Message {
-  type: "ADD_INSPIRATION" | "GET_CONFIG" | "SET_CONFIG";
-  data?: InspirationData | unknown;
+  type: "ADD_IDEA" | "ADD_INSPIRATION" | "GET_CONFIG" | "SET_CONFIG";
+  data?: IdeaData | InspirationData | unknown;
 }
 
 export interface LinkedInPost {
@@ -24,6 +36,8 @@ export interface LinkedInPost {
   metadata?: {
     author_profile_name?: string;
     author_profile_url?: string;
+    post_url?: string;
+    post_date?: string;
   };
 }
 
