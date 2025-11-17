@@ -58,7 +58,9 @@ export async function POST(request: NextRequest) {
                 description: body.description || null,
                 link: body.link || null,
                 status: body.status || "in_review",
+                source: body.source || null,
                 source_summary: body.sourceSummary || null,
+                metadata: body.metadata || null,
                 is_archived: body.isArchived || false,
             })
             .select()
@@ -98,7 +100,9 @@ export async function PUT(request: NextRequest) {
             description?: string | null;
             link?: string | null;
             status?: string;
+            source?: string | null;
             source_summary?: string | null;
+            metadata?: Record<string, unknown> | null;
             is_archived?: boolean;
             updated_at: string;
         } = {
@@ -110,8 +114,12 @@ export async function PUT(request: NextRequest) {
             updateData.description = body.description || null;
         if (body.link !== undefined) updateData.link = body.link || null;
         if (body.status !== undefined) updateData.status = body.status;
+        if (body.source !== undefined) updateData.source = body.source || null;
         if (body.sourceSummary !== undefined)
             updateData.source_summary = body.sourceSummary || null;
+        if (body.metadata !== undefined) {
+            updateData.metadata = (body.metadata as Record<string, unknown>) || null;
+        }
         if (body.isArchived !== undefined)
             updateData.is_archived = body.isArchived;
 

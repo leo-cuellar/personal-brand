@@ -6,8 +6,10 @@ import {
     boolean,
     pgEnum,
     varchar,
+    jsonb,
 } from "drizzle-orm/pg-core";
 import { personalBrands } from "./personal-brand";
+import { inspirationSourceEnum } from "./inspiration";
 
 // Enum for idea status
 export const ideaStatusEnum = pgEnum("idea_status", ["in_review", "accepted", "rejected", "used", "incomplete"]);
@@ -22,7 +24,9 @@ export const publicationIdeas = pgTable("publication_ideas", {
     description: text("description"),
     link: varchar("link", { length: 500 }),
     status: ideaStatusEnum("status").notNull().default("in_review"),
+    source: inspirationSourceEnum("source"), // Optional source field
     sourceSummary: text("source_summary"),
+    metadata: jsonb("metadata"), // JSON field for source-specific metadata
     createdAt: timestamp("created_at", { withTimezone: true })
         .notNull()
         .defaultNow(),

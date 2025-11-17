@@ -39,7 +39,9 @@ interface SupabasePublicationIdea {
     description: string | null;
     link: string | null;
     status: string;
+    source: string | null;
     source_summary: string | null;
+    metadata: Record<string, unknown> | null;
     created_at: string;
     updated_at: string;
     is_archived: boolean;
@@ -142,7 +144,9 @@ export function transformPublicationIdea(
         description: data.description,
         link: data.link || null,
         status: data.status as "in_review" | "accepted" | "rejected" | "used" | "incomplete",
+        source: data.source as "trend_scanner" | "linkedin_post" | "website" | "document" | "image" | "video" | "youtube_video" | null,
         sourceSummary: data.source_summary || null,
+        metadata: data.metadata || null,
         createdAt: new Date(data.created_at) as unknown as Date,
         updatedAt: new Date(data.updated_at) as unknown as Date,
         isArchived: data.is_archived,

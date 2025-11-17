@@ -97,7 +97,7 @@ async function seedPublicationIdeas() {
         for (const publicationIdea of mockPublicationIdeas) {
             await client`
                 INSERT INTO public.publication_ideas (
-                    id, personal_brand_id, idea, description, link, status, created_at, updated_at, is_archived
+                    id, personal_brand_id, idea, description, link, status, source, source_summary, metadata, created_at, updated_at, is_archived
                 ) VALUES (
                     ${publicationIdea.id}::uuid,
                     ${publicationIdea.personalBrandId}::uuid,
@@ -105,6 +105,9 @@ async function seedPublicationIdeas() {
                     ${publicationIdea.description || null},
                     ${publicationIdea.link || null},
                     ${publicationIdea.status}::idea_status,
+                    ${publicationIdea.source || null}::inspiration_source,
+                    ${publicationIdea.sourceSummary || null},
+                    ${publicationIdea.metadata ? JSON.stringify(publicationIdea.metadata) : null}::jsonb,
                     ${new Date(publicationIdea.createdAt)},
                     ${new Date(publicationIdea.updatedAt)},
                     ${publicationIdea.isArchived}
