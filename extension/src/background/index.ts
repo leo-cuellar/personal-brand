@@ -60,7 +60,7 @@ async function handleAddIdea(data: {
   // Construir el payload para crear la idea
   const payload = {
     title: "LinkedIn Post",
-    description: data.description?.trim() || "Publication about the same topic and similar content",
+    description: data.description?.trim() || "The referenced LinkedIn post with a new voice and original phrasing while keeping the same topic and perspective.",
     status: "accepted" as const,
     source: "linkedin_post" as const,
     sourceSummary: data.text, // El texto completo del post
