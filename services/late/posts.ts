@@ -137,6 +137,13 @@ export async function getPosts(
     const queryString = queryParams.toString();
     const url = `https://getlate.dev/api/v1/posts${queryString ? `?${queryString}` : ""}`;
 
+    console.log("[Late.dev] Request URL:", url);
+    console.log("[Late.dev] Request params:", JSON.stringify(params, null, 2));
+    console.log("[Late.dev] API Key configured:", !!apiKey);
+    console.log("[Late.dev] API Key length:", apiKey?.length || 0);
+    console.log("[Late.dev] API Key prefix:", apiKey?.substring(0, 10) || "N/A");
+    console.log("[Late.dev] Authorization header:", `Bearer ${apiKey?.substring(0, 10)}...`);
+
     const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -145,16 +152,45 @@ export async function getPosts(
         },
     });
 
+    console.log("[Late.dev] Response status:", response.status);
+    console.log("[Late.dev] Response headers:", Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
         let errorData: LateErrorResponse;
+        let errorText: string;
         try {
-            errorData = await response.json();
-        } catch {
-            const errorText = await response.text();
+            errorText = await response.text();
+            console.log("[Late.dev] Error response text:", errorText);
+            errorData = JSON.parse(errorText);
+            console.log("[Late.dev] Error response parsed:", JSON.stringify(errorData, null, 2));
+        } catch (parseError) {
+            console.log("[Late.dev] Failed to parse error response:", parseError);
             throw new Error(
                 `Failed to get posts (${response.status}): ${errorText || response.statusText}`
             );
         }
+
+        // Provide more detailed error message for Forbidden errors
+        if (response.status === 403) {
+            console.error("[Late.dev] Forbidden error details:", {
+                status: response.status,
+                errorData,
+                url,
+                hasApiKey: !!apiKey,
+                profileId: params.profileId,
+                platform: params.platform,
+                suggestion: "This usually means: 1) The API key doesn't have access to this profileId, 2) The profileId doesn't belong to your account, or 3) The API key is invalid/expired",
+            });
+            throw new Error(
+                `Forbidden: ${errorData.message || errorData.error || "Authentication failed. The API key may not have access to this profileId, or the profileId may not belong to your account. Please check your LATE_SECRET_KEY and LATE_PROFILE_ID."}`
+            );
+        }
+
+        console.error("[Late.dev] Error details:", {
+            status: response.status,
+            errorData,
+            url,
+        });
 
         const errorMessage =
             errorData.message || errorData.error || `Failed to get posts: ${response.statusText}`;
@@ -162,6 +198,10 @@ export async function getPosts(
     }
 
     const data = await response.json();
+    console.log("[Late.dev] Success response:", {
+        postsCount: data.posts?.length || 0,
+        pagination: data.pagination,
+    });
     return data;
 }
 
