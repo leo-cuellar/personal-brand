@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
             .from("publication_ideas")
             .insert({
                 personal_brand_id: body.personalBrandId,
-                idea: body.idea,
+                title: body.title,
                 description: body.description || null,
                 link: body.link || null,
                 status: body.status || "in_review",
@@ -96,7 +96,7 @@ export async function PUT(request: NextRequest) {
         }
 
         const updateData: {
-            idea?: string;
+            title?: string;
             description?: string | null;
             link?: string | null;
             status?: string;
@@ -109,7 +109,7 @@ export async function PUT(request: NextRequest) {
             updated_at: new Date().toISOString(),
         };
 
-        if (body.idea !== undefined) updateData.idea = body.idea;
+        if (body.title !== undefined) updateData.title = body.title;
         if (body.description !== undefined)
             updateData.description = body.description || null;
         if (body.link !== undefined) updateData.link = body.link || null;

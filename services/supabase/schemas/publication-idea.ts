@@ -20,7 +20,7 @@ export const publicationIdeas = pgTable("publication_ideas", {
     personalBrandId: uuid("personal_brand_id")
         .references(() => personalBrands.id, { onDelete: "cascade" })
         .notNull(),
-    idea: text("idea").notNull(),
+    title: text("title").notNull(),
     description: text("description"),
     link: varchar("link", { length: 500 }),
     status: ideaStatusEnum("status").notNull().default("in_review"),

@@ -35,7 +35,7 @@ interface SupabasePublicationCategory {
 interface SupabasePublicationIdea {
     id: string;
     personal_brand_id: string;
-    idea: string;
+    title: string;
     description: string | null;
     link: string | null;
     status: string;
@@ -140,7 +140,7 @@ export function transformPublicationIdea(
     return {
         id: data.id,
         personalBrandId: data.personal_brand_id,
-        idea: data.idea,
+        title: data.title,
         description: data.description,
         link: data.link || null,
         status: data.status as "in_review" | "accepted" | "rejected" | "used" | "incomplete",

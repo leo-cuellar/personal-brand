@@ -22,7 +22,7 @@ export function PublicationIdeasPage() {
     const [isReviewMode, setIsReviewMode] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
     const [formData, setFormData] = useState({
-        idea: "",
+        title: "",
         description: "",
         link: "",
     });
@@ -176,20 +176,20 @@ export function PublicationIdeasPage() {
             alert("Please select a person first from the header");
             return;
         }
-        if (!formData.idea.trim()) {
-            alert("Idea is required");
+        if (!formData.title.trim()) {
+            alert("Title is required");
             return;
         }
         try {
             const newIdea = await create({
-                idea: formData.idea.trim(),
+                title: formData.title.trim(),
                 description: formData.description.trim() || null,
                 link: formData.link.trim() || null,
                 status: "accepted",
                 isArchived: false,
                 personalBrandId: selectedPersonId!,
             });
-            setFormData({ idea: "", description: "", link: "" });
+            setFormData({ title: "", description: "", link: "" });
             setIsCreating(false);
             // Update local state optimistically
             setAcceptedIdeas((prev) => [newIdea, ...prev]);
@@ -304,12 +304,12 @@ export function PublicationIdeasPage() {
                     <form onSubmit={handleCreate} className="space-y-4">
                         <div>
                             <label className="mb-2 block text-sm font-medium text-gray-700">
-                                Idea *
+                                Title *
                             </label>
                             <input
                                 type="text"
-                                value={formData.idea}
-                                onChange={(e) => setFormData({ ...formData, idea: e.target.value })}
+                                value={formData.title}
+                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="e.g., Hablar sobre cómo la tecnología está cambiando el trabajo"
                                 required
@@ -350,7 +350,7 @@ export function PublicationIdeasPage() {
                                 type="button"
                                 onClick={() => {
                                     setIsCreating(false);
-                                    setFormData({ idea: "", description: "", link: "" });
+                                    setFormData({ title: "", description: "", link: "" });
                                 }}
                                 className="rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                             >
@@ -428,7 +428,7 @@ export function PublicationIdeasPage() {
                                 <div className="flex-1">
                                     <div className="mb-2 flex items-center gap-2 flex-wrap">
                                         <h3 className="text-xl font-semibold text-gray-900">
-                                            {idea.idea}
+                                            {idea.title}
                                         </h3>
                                         <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusBadgeColor(idea.status)}`}>
                                             {getStatusLabel(idea.status)}

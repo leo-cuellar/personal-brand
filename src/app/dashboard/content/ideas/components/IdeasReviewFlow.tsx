@@ -142,7 +142,7 @@ export function IdeasReviewFlow({ ideas, onAccept, onReject, onExit }: IdeasRevi
                     <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-xl">
                         <div className="mb-6">
                             <h2 className="mb-4 text-3xl font-bold text-gray-900">
-                                {currentIdea.idea}
+                                {currentIdea.title}
                             </h2>
                             {currentIdea.description && (
                                 <p className="text-lg leading-relaxed text-gray-700">
