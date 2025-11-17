@@ -1,39 +1,20 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { usePublicationTypes } from "@/hooks/usePublicationTypes";
 import { PublicationType, NewPublicationType } from "../../../../../services/supabase/schemas";
 import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
-
-// Helper function to format dates consistently (avoiding hydration mismatch)
-function formatDate(date: Date | string): string {
-    const d = typeof date === "string" ? new Date(date) : date;
-    // Check if date is valid
-    if (isNaN(d.getTime())) {
-        return "Invalid date";
-    }
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-}
+import { IconButton } from "@/components/IconButton";
 
 export function PublicationTypesPage() {
     const { selectedPersonId } = usePersonalBrandContext();
-    const [showArchived, setShowArchived] = useState(false);
     const { publicationTypes, loading, error, getPublicationTypes, create, update, remove } =
         usePublicationTypes();
 
-    // Memoize params to prevent infinite loops
-    const params = useMemo(
-        () => ({ includeArchived: showArchived }),
-        [showArchived]
-    );
-
     useEffect(() => {
-        getPublicationTypes(params);
+        getPublicationTypes({ includeArchived: false });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [params]);
+    }, []);
     const [isCreating, setIsCreating] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Partial<NewPublicationType>>({
@@ -84,8 +65,6 @@ export function PublicationTypesPage() {
         }
     };
 
-    // No need to filter locally since the hook handles it via API
-    const filteredTypes = publicationTypes;
 
     if (loading) {
         return (
@@ -115,25 +94,14 @@ export function PublicationTypesPage() {
                 </div>
             )}
 
-            <div className="mb-6 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            checked={showArchived}
-                            onChange={(e) => setShowArchived(e.target.checked)}
-                            className="h-4 w-4 rounded border-gray-300"
-                        />
-                        <span className="text-sm text-gray-700">Show archived</span>
-                    </label>
-                    <span className="text-sm text-gray-500">
-                        {filteredTypes.length} type{filteredTypes.length !== 1 ? "s" : ""}
-                    </span>
-                </div>
+            <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-sm text-gray-500">
+                    {publicationTypes.length} type{publicationTypes.length !== 1 ? "s" : ""}
+                </span>
                 <button
                     onClick={() => setIsCreating(!isCreating)}
                     disabled={!selectedPersonId}
-                    className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-full rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                     title={!selectedPersonId ? "Please select a person first" : ""}
                 >
                     {isCreating ? "Cancel" : "+ Add New Type"}
@@ -204,22 +172,17 @@ export function PublicationTypesPage() {
             )}
 
             <div className="space-y-4">
-                {filteredTypes.length === 0 ? (
+                {publicationTypes.length === 0 ? (
                     <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
                         <p className="text-gray-500">
-                            {showArchived
-                                ? "No publication types found."
-                                : "No active publication types. Create one to get started!"}
+                            No active publication types. Create one to get started!
                         </p>
                     </div>
                 ) : (
-                    filteredTypes.map((type) => (
+                    publicationTypes.map((type) => (
                         <div
                             key={type.id}
-                            className={`rounded-lg border p-6 shadow-sm transition-shadow hover:shadow-md ${type.isArchived
-                                ? "border-gray-300 bg-gray-50"
-                                : "border-gray-200 bg-white"
-                                }`}
+                            className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
                         >
                             {editingId === type.id ? (
                                 <EditForm
@@ -229,48 +192,47 @@ export function PublicationTypesPage() {
                                 />
                             ) : (
                                 <>
-                                    <div className="mb-3 flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <div className="mb-1 flex items-center gap-2">
+                                    <div className="mb-3">
+                                        <div className="flex items-start justify-between gap-2 mb-2">
+                                            <div className="flex-1 min-w-0">
                                                 <h3 className="text-xl font-semibold text-gray-900">
                                                     {type.name}
                                                 </h3>
-                                                {type.isArchived && (
-                                                    <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700">
-                                                        Archived
-                                                    </span>
-                                                )}
+                                                <p className="text-gray-600 mt-1">{type.description}</p>
                                             </div>
-                                            <p className="text-gray-600">{type.description}</p>
+                                            <div className="hidden gap-2 shrink-0 sm:flex sm:ml-4">
+                                                <IconButton
+                                                    icon="edit"
+                                                    onClick={() => setEditingId(type.id)}
+                                                    iconColor="#d97706"
+                                                    backgroundColor="#fef3c7"
+                                                    hoverBackgroundColor="#fde68a"
+                                                />
+                                                <IconButton
+                                                    icon="delete"
+                                                    onClick={() => handleDelete(type.id)}
+                                                    iconColor="#ef4444"
+                                                    backgroundColor="#fee2e2"
+                                                    hoverBackgroundColor="#fecaca"
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="ml-4 flex gap-2">
-                                            <button
+                                        <div className="flex gap-2 sm:hidden mt-3">
+                                            <IconButton
+                                                icon="edit"
                                                 onClick={() => setEditingId(type.id)}
-                                                className="rounded-lg bg-yellow-50 px-4 py-2 text-sm font-medium text-yellow-700 transition-colors hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                onClick={() =>
-                                                    handleUpdate(type.id, {
-                                                        isArchived: !type.isArchived,
-                                                    })
-                                                }
-                                                className="rounded-lg bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                                            >
-                                                {type.isArchived ? "Unarchive" : "Archive"}
-                                            </button>
-                                            <button
+                                                iconColor="#d97706"
+                                                backgroundColor="#fef3c7"
+                                                hoverBackgroundColor="#fde68a"
+                                            />
+                                            <IconButton
+                                                icon="delete"
                                                 onClick={() => handleDelete(type.id)}
-                                                className="rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                            >
-                                                Delete
-                                            </button>
+                                                iconColor="#ef4444"
+                                                backgroundColor="#fee2e2"
+                                                hoverBackgroundColor="#fecaca"
+                                            />
                                         </div>
-                                    </div>
-                                    <div className="text-xs text-gray-500">
-                                        Created: {formatDate(type.createdAt)} •
-                                        Updated: {formatDate(type.updatedAt)}
                                     </div>
                                 </>
                             )}
