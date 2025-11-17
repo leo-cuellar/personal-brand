@@ -24,39 +24,54 @@ export async function searchTrendsByCategory(
         throw new Error("Category name cannot be empty");
     }
 
-    const prompt = `Eres un curador de noticias y contenido en tiempo real enfocado en desarrollos recientes y específicos.
-Busca entre 2 y 4 noticias, anuncios y conversaciones virales más relevantes de las últimas 24 horas relacionadas con el siguiente tema:
+    let prompt = `
+Eres un curador experto en tendencias tecnológicas y de negocio.
+Tu tarea es identificar SOLO noticias altamente relevantes, verificables y con impacto real.
 
-DESCRIPCIÓN:
+Busca y selecciona entre 2 y 4 desarrollos ocurridos en las últimas 24 horas
+que estén directamente relacionados de forma semántica con:
+
+TEMA:
 ${categoryName}
 ${categoryDescription}
 
-REQUISITOS CRÍTICOS:
-- Devuelve ÚNICAMENTE noticias, anuncios o desarrollos concretos.
-- Centrate en noticias relevantes de Mexico y Estados Unidos.
-- NO devuelvas artículos de opinión sobre tendencias.
-- Cada elemento debe ser un desarrollo específico y delimitado en el tiempo, no una observación general de tendencia.
-- Prioriza:
-	1.	Noticias de última hora y anuncios
-	2.	Lanzamientos de productos o funcionalidades
-	3.	Cambios en políticas o regulaciones
-	4.	Comunicados empresariales o del sector
-	5.	Investigaciones o hallazgos académicos
-	6.	Conversaciones virales o movimientos relevantes en redes sociales
-	7.	Listas de tendencias recientes
-- Excluye:
-    - Artículos genéricos de "principales tendencias"
-	- Artículos de predicciones sobre tendencias
-	- Opiniones o análisis sobre tendencias generales
-	- Recopilaciones o resúmenes genéricos ("roundups")
-	- Meta-análisis de tendencias
-    
-Formato de salida
-- Entrega la salida en un arreglo JSON llamado "trends" con exactamente estos campos:
-	- short_title: título conciso de la noticia o desarrollo específico (máx. 80 caracteres)
-	- short_summary: resumen breve del desarrollo específico (2–3 oraciones)
-	- source_url: URL directa a la fuente o noticia original
-- No generes salida en formato markdown.`;
+REGLAS DE RELEVANCIA (obligatorias):
+
+1. Filtrado semántico
+- No uses coincidencias de palabras clave.
+- Selecciona SOLO desarrollos que compartan intención, contexto o impacto con el tema.
+- Ignora por completo resultados vagos, dudosos o marginales.
+
+2. Ranking por impacto (NO por orden de búsqueda)
+
+Ordena los candidatos según:
+	1.	impacto en industria o política,
+	2.	magnitud del cambio,
+	3.	credibilidad,
+	4.	alcance internacional (MX + EE.UU. prioridad),
+	5.	novedad real.
+
+3. Validez estricta
+
+Incluye únicamente:
+- Noticias confirmadas,
+- Comunicados oficiales,
+- Investigaciones verificadas,
+- Lanzamientos reales.
+
+4. Exclusiones
+
+No incluyas:
+- Artículos de opinión,
+- Resúmenes genéricos,
+- Predicciones,
+- Blogs de baja calidad,
+- Contenido patrocinado.
+
+Devuelve un JSON estricto, sin markdown.
+    `;
+
+    prompt = prompt.trim();
 
     try {
         const completion = await perplexity.chat.completions.create({

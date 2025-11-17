@@ -7,6 +7,10 @@ import {
 } from "../../services/api-wrapper/perplexity";
 import type { TrendSearchResponse } from "../../services/perplexity/search";
 import type { TrendsByCategoryResponse } from "../../services/api-wrapper/perplexity";
+import {
+    getTrendScannerCache,
+    saveTrendScannerCache,
+} from "../utils/trend-scanner-cache";
 
 interface UsePerplexityReturn {
     searchTrends: (query: string, maxResults?: number) => Promise<TrendSearchResponse>;
@@ -42,12 +46,23 @@ export function usePerplexity(): UsePerplexityReturn {
 
     const searchTrendsByCategory = useCallback(
         async (personalBrandId: string): Promise<TrendsByCategoryResponse> => {
+            // Verificar cache primero
+            const cachedData = getTrendScannerCache(personalBrandId);
+            if (cachedData !== null) {
+                // Cache válido del día de hoy, retornar sin hacer llamada
+                // No activar loading ni error, solo retornar los datos del cache
+                return { results: cachedData };
+            }
+
+            // No hay cache válido, hacer la llamada
             setLoading(true);
             setError(null);
             try {
                 const result = await searchTrendsByCategoryWrapper({
                     personalBrandId,
                 });
+                // Guardar en cache después de una llamada exitosa
+                saveTrendScannerCache(personalBrandId, result.results);
                 return result;
             } catch (err) {
                 const errorMessage =

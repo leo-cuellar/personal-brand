@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePerplexity } from "@/hooks/usePerplexity";
 import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
 import type { CategoryTrendsResult } from "../../../../../../services/api-wrapper/perplexity";
+import { getTrendScannerCache, markTrendAsAdded } from "@/utils/trend-scanner-cache";
 import { Switch } from "@/components/Switch";
 
 export function TrendScannerPage() {
@@ -14,6 +15,42 @@ export function TrendScannerPage() {
     const [results, setResults] = useState<CategoryTrendsResult[]>([]);
     const [hasSearched, setHasSearched] = useState(false);
     const [addingIdeas, setAddingIdeas] = useState<Set<string>>(new Set());
+    const [addedUrls, setAddedUrls] = useState<Set<string>>(new Set());
+
+    // Cargar cache al montar o cuando cambie el personalBrandId
+    useEffect(() => {
+        if (!selectedPersonId) {
+            setResults([]);
+            setHasSearched(false);
+            setAddedUrls(new Set());
+            return;
+        }
+
+        const cachedData = getTrendScannerCache(selectedPersonId);
+        if (cachedData !== null) {
+            // Hay cache válido del día de hoy, cargar automáticamente
+            setResults(cachedData);
+            setHasSearched(true);
+        } else {
+            // No hay cache válido, resetear estado
+            setResults([]);
+            setHasSearched(false);
+        }
+
+        // Cargar URLs agregadas desde localStorage
+        const allUrls = new Set<string>();
+        try {
+            const key = `trend-scanner-added-ideas-${selectedPersonId}`;
+            const storedUrls = localStorage.getItem(key);
+            if (storedUrls) {
+                const urls: string[] = JSON.parse(storedUrls);
+                urls.forEach((url) => allUrls.add(url));
+            }
+        } catch (error) {
+            console.error("Error loading added URLs:", error);
+        }
+        setAddedUrls(allUrls);
+    }, [selectedPersonId]);
 
     const handleScan = async () => {
         if (!selectedPersonId) {
@@ -40,6 +77,11 @@ export function TrendScannerPage() {
             return;
         }
 
+        // Verificar si ya fue agregada
+        if (addedUrls.has(trend.source_url)) {
+            return;
+        }
+
         const trendKey = `${categoryId}-${trend.source_url}`;
         setAddingIdeas((prev) => new Set(prev).add(trendKey));
 
@@ -55,6 +97,9 @@ export function TrendScannerPage() {
                 metadata: null,
                 isArchived: false,
             });
+            // Marcar como agregada después de éxito
+            markTrendAsAdded(selectedPersonId, trend.source_url);
+            setAddedUrls((prev) => new Set(prev).add(trend.source_url));
         } catch (error) {
             alert(`Failed to add idea: ${error instanceof Error ? error.message : "Unknown error"}`);
         } finally {
@@ -100,7 +145,7 @@ export function TrendScannerPage() {
 
             <button
                 onClick={handleScan}
-                disabled={loading || !selectedPersonId}
+                disabled={loading || !selectedPersonId || hasSearched}
                 className="mb-6 w-full rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
                 {loading ? "Escaneando tendencias..." : "Escanear Tendencias"}
@@ -156,6 +201,7 @@ export function TrendScannerPage() {
                                             {categoryResult.trends.map((trend, index) => {
                                                 const trendKey = `${categoryResult.categoryId}-${trend.source_url}`;
                                                 const isAdding = addingIdeas.has(trendKey);
+                                                const isAlreadyAdded = addedUrls.has(trend.source_url);
                                                 return (
                                                     <div
                                                         key={index}
@@ -172,10 +218,13 @@ export function TrendScannerPage() {
                                                             </a>
                                                             <button
                                                                 onClick={() => handleAddIdea(trend, categoryResult.categoryId)}
-                                                                disabled={isAdding || !selectedPersonId}
-                                                                className="hidden rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:block whitespace-nowrap"
+                                                                disabled={isAdding || !selectedPersonId || isAlreadyAdded}
+                                                                className={`hidden rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:block whitespace-nowrap ${isAlreadyAdded
+                                                                    ? "bg-gray-400 hover:bg-gray-400"
+                                                                    : "bg-green-600 hover:bg-green-700"
+                                                                    }`}
                                                             >
-                                                                {isAdding ? "Adding..." : "Add Idea"}
+                                                                {isAdding ? "Adding..." : isAlreadyAdded ? "Added" : "Add Idea"}
                                                             </button>
                                                         </div>
                                                         <p className="mb-2 text-gray-700">{trend.short_summary}</p>
@@ -190,10 +239,13 @@ export function TrendScannerPage() {
                                                             </a>
                                                             <button
                                                                 onClick={() => handleAddIdea(trend, categoryResult.categoryId)}
-                                                                disabled={isAdding || !selectedPersonId}
-                                                                className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:hidden"
+                                                                disabled={isAdding || !selectedPersonId || isAlreadyAdded}
+                                                                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:hidden ${isAlreadyAdded
+                                                                    ? "bg-gray-400 hover:bg-gray-400"
+                                                                    : "bg-green-600 hover:bg-green-700"
+                                                                    }`}
                                                             >
-                                                                {isAdding ? "Adding..." : "Add Idea"}
+                                                                {isAdding ? "Adding..." : isAlreadyAdded ? "Added" : "Add Idea"}
                                                             </button>
                                                         </div>
                                                     </div>
