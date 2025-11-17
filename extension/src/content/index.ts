@@ -242,7 +242,7 @@ function processPost(postElement: HTMLElement): void {
 
   const postData: LinkedInPost = {
     text,
-    link: extractPostLink(postElement),
+    link: "", // Not needed for LinkedIn posts, but required by type
     author: authorInfo.name,
     metadata: {
       author_profile_name: authorInfo.name,

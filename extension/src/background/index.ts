@@ -44,9 +44,9 @@ async function handleAddInspiration(data: {
     },
     body: JSON.stringify({
       text: data.text,
-      link: null,
+      link: null, // LinkedIn posts don't need link
       personalBrandId: data.personalBrandId || "00000000-0000-0000-0000-000000000001",
-      source: "linkedin",
+      source: "linkedin_post",
       metadata: data.metadata || null,
     }),
   });
