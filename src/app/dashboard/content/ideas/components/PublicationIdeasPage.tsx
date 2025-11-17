@@ -5,6 +5,7 @@ import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
 import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 import { IdeasReviewFlow } from "./IdeasReviewFlow";
 import { Icon } from "@/components/Icon";
+import { IconButton } from "@/components/IconButton";
 import type { PublicationIdea } from "../../../../../../services/supabase/schemas";
 
 export function PublicationIdeasPage() {
@@ -23,8 +24,13 @@ export function PublicationIdeasPage() {
     const [hasFetchedAccepted, setHasFetchedAccepted] = useState(false);
 
     const { selectedPersonId } = usePersonalBrandContext();
-    const { loading, error, update, create, counts, getPublicationIdeas, getCounts } = usePublicationIdeas();
+    const { loading, error, update, create, remove, counts, getPublicationIdeas, getCounts } = usePublicationIdeas();
     const { publicationIdeas: reviewIdeas, getPublicationIdeas: getReviewIdeas } = usePublicationIdeas();
+
+    // State for editing
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editedTitle, setEditedTitle] = useState("");
+    const [editedDescription, setEditedDescription] = useState("");
 
     // Current ideas based on active tab
     const publicationIdeas = activeTab === "ready-for-review" ? readyForReviewIdeas : acceptedIdeas;
@@ -228,6 +234,49 @@ export function PublicationIdeasPage() {
         }
     };
 
+    const handleEdit = (idea: PublicationIdea) => {
+        setEditingId(idea.id);
+        setEditedTitle(idea.title);
+        setEditedDescription(idea.description || "");
+    };
+
+    const handleSaveEdit = async (id: string) => {
+        try {
+            await update(id, {
+                title: editedTitle.trim(),
+                description: editedDescription.trim() || null,
+            });
+            setEditingId(null);
+            setEditedTitle("");
+            setEditedDescription("");
+            // Refresh current tab
+            await fetchIdeasForTab(activeTab);
+            await getCounts();
+        } catch {
+            // Error handled by UI
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setEditingId(null);
+        setEditedTitle("");
+        setEditedDescription("");
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!confirm("Are you sure you want to delete this idea?")) {
+            return;
+        }
+        try {
+            await remove(id);
+            // Refresh current tab
+            await fetchIdeasForTab(activeTab);
+            await getCounts();
+        } catch {
+            // Error handled by UI
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex min-h-screen items-center justify-center">
@@ -416,56 +465,125 @@ export function PublicationIdeasPage() {
                         >
                             <div className="mb-3 flex items-start justify-between">
                                 <div className="flex-1">
-                                    <div className="mb-2 flex items-center gap-2 flex-wrap">
-                                        <h3 className="text-xl font-semibold text-gray-900">
-                                            {idea.title}
-                                        </h3>
-                                        <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusBadgeColor(idea.status)}`}>
-                                            {getStatusLabel(idea.status)}
-                                        </span>
-                                        {idea.isArchived && (
-                                            <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700">
-                                                Archived
-                                            </span>
-                                        )}
-                                    </div>
-                                    {idea.description && (
-                                        <p className="text-gray-600">{idea.description}</p>
+                                    {editingId === idea.id ? (
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="mb-1 block text-sm font-medium text-gray-700">
+                                                    Title
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={editedTitle}
+                                                    onChange={(e) => setEditedTitle(e.target.value)}
+                                                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    placeholder="Idea title"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="mb-1 block text-sm font-medium text-gray-700">
+                                                    Description
+                                                </label>
+                                                <textarea
+                                                    value={editedDescription}
+                                                    onChange={(e) => setEditedDescription(e.target.value)}
+                                                    rows={3}
+                                                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    placeholder="Idea description"
+                                                />
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <IconButton
+                                                    icon="check"
+                                                    onClick={() => handleSaveEdit(idea.id)}
+                                                    iconColor="#10b981"
+                                                    backgroundColor="#d1fae5"
+                                                    hoverBackgroundColor="#a7f3d0"
+                                                />
+                                                <IconButton
+                                                    icon="close"
+                                                    onClick={handleCancelEdit}
+                                                    iconColor="#ef4444"
+                                                    backgroundColor="#fee2e2"
+                                                    hoverBackgroundColor="#fecaca"
+                                                />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="mb-2 flex items-center gap-2 flex-wrap">
+                                                <h3 className="text-xl font-semibold text-gray-900">
+                                                    {idea.title}
+                                                </h3>
+                                                <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusBadgeColor(idea.status)}`}>
+                                                    {getStatusLabel(idea.status)}
+                                                </span>
+                                                {idea.isArchived && (
+                                                    <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700">
+                                                        Archived
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {idea.description && (
+                                                <p className="text-gray-600">{idea.description}</p>
+                                            )}
+                                            {idea.link && (
+                                                <div className="mt-2">
+                                                    <a
+                                                        href={idea.link}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                                    >
+                                                        {idea.link}
+                                                    </a>
+                                                </div>
+                                            )}
+                                        </>
                                     )}
-                                    {idea.link && (
-                                        <div className="mt-2">
-                                            <a
-                                                href={idea.link}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                                            >
-                                                {idea.link}
-                                            </a>
+                                </div>
+                                {editingId !== idea.id && (
+                                    <div className="flex gap-2 ml-4">
+                                        <IconButton
+                                            icon="edit"
+                                            onClick={() => handleEdit(idea)}
+                                            iconColor="#d97706"
+                                            backgroundColor="#fef3c7"
+                                            hoverBackgroundColor="#fde68a"
+                                        />
+                                        <IconButton
+                                            icon="delete"
+                                            onClick={() => handleDelete(idea.id)}
+                                            iconColor="#ef4444"
+                                            backgroundColor="#fee2e2"
+                                            hoverBackgroundColor="#fecaca"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                            {editingId !== idea.id && (
+                                <>
+                                    {idea.sourceSummary && (
+                                        <div className="mt-4">
+                                            <SourceSummaryCard sourceSummary={idea.sourceSummary} />
                                         </div>
                                     )}
-                                </div>
-                            </div>
-                            {idea.sourceSummary && (
-                                <div className="mt-4">
-                                    <SourceSummaryCard sourceSummary={idea.sourceSummary} />
-                                </div>
-                            )}
-                            {activeTab === "ready-for-review" && idea.status === "in_review" && (
-                                <div className="mb-3 flex gap-3">
-                                    <button
-                                        onClick={() => handleAccept(idea.id)}
-                                        className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                                    >
-                                        Accept
-                                    </button>
-                                    <button
-                                        onClick={() => handleReject(idea.id)}
-                                        className="rounded-lg bg-red-600 px-6 py-2 font-medium text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                    >
-                                        Reject
-                                    </button>
-                                </div>
+                                    {activeTab === "ready-for-review" && idea.status === "in_review" && (
+                                        <div className="mb-3 flex gap-3">
+                                            <button
+                                                onClick={() => handleAccept(idea.id)}
+                                                className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                                            >
+                                                Accept
+                                            </button>
+                                            <button
+                                                onClick={() => handleReject(idea.id)}
+                                                className="rounded-lg bg-red-600 px-6 py-2 font-medium text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                            >
+                                                Reject
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </div>
                     ))
