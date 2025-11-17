@@ -34,7 +34,7 @@ export function PersonalBrandSelector() {
         <select
             value={selectedPersonId || ""}
             onChange={handleChange}
-            className="appearance-none rounded-lg border border-gray-300 bg-white bg-size-[16px_16px] bg-position-[right_12px_center] bg-no-repeat pr-10 pl-4 py-2 text-sm font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full appearance-none rounded-lg border border-gray-300 bg-white bg-size-[16px_16px] bg-position-[right_12px_center] bg-no-repeat pr-10 pl-4 py-2 text-sm font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-auto"
             style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
             }}

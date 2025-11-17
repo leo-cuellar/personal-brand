@@ -138,7 +138,7 @@ export function TrendScannerPage() {
                                                         href={trend.source_url}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="text-sm text-gray-500 hover:text-blue-600 hover:underline"
+                                                        className="block break-all text-sm text-gray-500 hover:text-blue-600 hover:underline"
                                                     >
                                                         {trend.source_url}
                                                     </a>
