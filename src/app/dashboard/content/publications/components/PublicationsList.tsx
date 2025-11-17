@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/Dialog";
+import { Dialog, DialogContent } from "@/components/Dialog";
 import type { LatePost } from "../../../../../../services/late/posts";
 
 function formatDate(date: Date | string): string {
@@ -54,13 +54,47 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isAddingToQueue, setIsAddingToQueue] = useState(false);
 
+    // AI Chat states
+    const [aiGeneratedText, setAiGeneratedText] = useState<string | null>(null);
+    const [chatMessages, setChatMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([]);
+    const [chatInput, setChatInput] = useState("");
+    const [isGenerating, setIsGenerating] = useState(false);
+
     // Update edited values when post changes or dialog opens
     const handleOpenChange = (open: boolean) => {
         setIsEditing(open);
         if (open) {
             setEditedTitle(post.title || "");
             setEditedContent(post.content);
+            setAiGeneratedText(null);
+            setChatMessages([]);
+            setChatInput("");
         }
+    };
+
+    const handleAcceptAIText = () => {
+        if (aiGeneratedText) {
+            setEditedContent(aiGeneratedText);
+            setAiGeneratedText(null);
+        }
+    };
+
+    const handleSendChatMessage = () => {
+        if (!chatInput.trim() || isGenerating) return;
+
+        const userMessage = chatInput.trim();
+        setChatMessages(prev => [...prev, { role: "user", content: userMessage }]);
+        setChatInput("");
+        setIsGenerating(true);
+
+        // TODO: Aquí se llamará al servicio de OpenAI
+        // Por ahora simulamos una respuesta
+        setTimeout(() => {
+            const mockResponse = `Aquí está el texto mejorado basado en tu solicitud: "${userMessage}". El texto original ha sido refinado manteniendo el mensaje principal.`;
+            setChatMessages(prev => [...prev, { role: "assistant", content: mockResponse }]);
+            setAiGeneratedText(mockResponse);
+            setIsGenerating(false);
+        }, 1000);
     };
 
     const CONTENT_PREVIEW_LENGTH = 300;
@@ -343,14 +377,13 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
             {/* Edit Dialog */}
             <Dialog open={isEditing} onOpenChange={handleOpenChange}>
                 <DialogContent
-                    className="!w-[95vw] !h-[95vh] !max-w-[95vw] !max-h-[95vh] !p-0 flex flex-col !top-[50%] !left-[50%] !translate-x-[-50%] !translate-y-[-50%]"
+                    className="w-[95vw]! h-[95vh]! max-w-[95vw]! max-h-[95vh]! p-0! gap-0! flex flex-row top-[50%]! left-[50%]! translate-x-[-50%]! translate-y-[-50%]! rounded-lg border shadow-lg overflow-hidden"
                     showCloseButton={false}
                 >
-                    <div className="flex-1 overflow-hidden flex flex-col p-6">
-                        <DialogHeader className="mb-4">
-                            <DialogTitle>Edit Publication</DialogTitle>
-                        </DialogHeader>
-                        <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+                    {/* Main Content Area */}
+                    <div className="w-2/3 overflow-hidden flex flex-col">
+                        {/* Form Row */}
+                        <div className="flex-1 flex flex-col overflow-hidden min-h-0 p-6">
                             <div className="mb-4">
                                 <label className="mb-2 block text-sm font-medium text-gray-700">
                                     Title
@@ -375,23 +408,113 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                                 />
                             </div>
                         </div>
+                        {/* Buttons Row */}
+                        <div className="border-t border-gray-200 flex items-center justify-end gap-3 px-6 py-4 h-[72px]">
+                            <button
+                                onClick={() => setIsEditing(false)}
+                                disabled={isSaving}
+                                className="rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                {isSaving ? "Saving..." : "Save"}
+                            </button>
+                        </div>
                     </div>
-                    <DialogFooter className="p-6 border-t border-gray-200">
-                        <button
-                            onClick={() => setIsEditing(false)}
-                            disabled={isSaving}
-                            className="rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            disabled={isSaving}
-                            className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            {isSaving ? "Saving..." : "Save"}
-                        </button>
-                    </DialogFooter>
+
+                    {/* AI Panel */}
+                    <div className="w-1/3 border-l border-gray-200 flex flex-col bg-gray-50">
+                        <div className="p-4 border-b border-gray-200 bg-white">
+                            <h3 className="text-lg font-semibold text-gray-900">AI Assistant</h3>
+                            <p className="text-xs text-gray-500 mt-1">Improve your publication with AI</p>
+                        </div>
+
+                        {/* Chat Messages */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                            {chatMessages.length === 0 ? (
+                                <div className="text-center text-gray-500 text-sm py-8">
+                                    <p>Start a conversation to improve your publication</p>
+                                </div>
+                            ) : (
+                                chatMessages.map((message, index) => (
+                                    <div
+                                        key={index}
+                                        className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                                    >
+                                        <div
+                                            className={`max-w-[80%] rounded-lg px-4 py-2 ${message.role === "user"
+                                                ? "bg-blue-600 text-white"
+                                                : "bg-white text-gray-900 border border-gray-200"
+                                                }`}
+                                        >
+                                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                            {isGenerating && (
+                                <div className="flex justify-start">
+                                    <div className="bg-white border border-gray-200 rounded-lg px-4 py-2">
+                                        <div className="flex gap-1">
+                                            <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
+                                            <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
+                                            <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Generated Text Preview */}
+                        {aiGeneratedText && (
+                            <div className="border-t border-gray-200 bg-white p-4">
+                                <div className="mb-2 flex items-center justify-between">
+                                    <label className="text-sm font-medium text-gray-700">Generated Text</label>
+                                    <button
+                                        onClick={handleAcceptAIText}
+                                        className="rounded-lg bg-green-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-green-700"
+                                    >
+                                        Accept
+                                    </button>
+                                </div>
+                                <div className="rounded-lg border border-green-200 bg-green-50 p-3 max-h-[200px] overflow-y-auto">
+                                    <p className="text-sm text-gray-900 whitespace-pre-wrap">{aiGeneratedText}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Chat Input */}
+                        <div className="mt-auto border-t border-gray-200 bg-white p-4 h-[72px] flex items-center">
+                            <div className="flex gap-2 w-full">
+                                <input
+                                    type="text"
+                                    value={chatInput}
+                                    onChange={(e) => setChatInput(e.target.value)}
+                                    onKeyPress={(e) => {
+                                        if (e.key === "Enter" && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handleSendChatMessage();
+                                        }
+                                    }}
+                                    disabled={isGenerating}
+                                    placeholder="Ask AI to improve the text..."
+                                    className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                />
+                                <button
+                                    onClick={handleSendChatMessage}
+                                    disabled={!chatInput.trim() || isGenerating}
+                                    className="rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {isGenerating ? "Sending..." : "Send"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </DialogContent>
             </Dialog>
         </div>
