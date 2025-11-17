@@ -56,7 +56,6 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
 
     // AI Chat states
     const [aiGeneratedText, setAiGeneratedText] = useState<string | null>(null);
-    const [chatMessages, setChatMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([]);
     const [chatInput, setChatInput] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
 
@@ -67,7 +66,6 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
             setEditedTitle(post.title || "");
             setEditedContent(post.content);
             setAiGeneratedText(null);
-            setChatMessages([]);
             setChatInput("");
         }
     };
@@ -82,16 +80,13 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
     const handleSendChatMessage = () => {
         if (!chatInput.trim() || isGenerating) return;
 
-        const userMessage = chatInput.trim();
-        setChatMessages(prev => [...prev, { role: "user", content: userMessage }]);
         setChatInput("");
         setIsGenerating(true);
 
         // TODO: Aquí se llamará al servicio de OpenAI
         // Por ahora simulamos una respuesta
         setTimeout(() => {
-            const mockResponse = `Aquí está el texto mejorado basado en tu solicitud: "${userMessage}". El texto original ha sido refinado manteniendo el mensaje principal.`;
-            setChatMessages(prev => [...prev, { role: "assistant", content: mockResponse }]);
+            const mockResponse = `Aquí está el texto mejorado:\n\n${post.content}\n\n[Texto mejorado aparecerá aquí cuando se integre OpenAI]`;
             setAiGeneratedText(mockResponse);
             setIsGenerating(false);
         }, 1000);
@@ -434,59 +429,39 @@ function PostCard({ post, onUpdate, onSchedule, onDelete, onAddToQueue }: PostCa
                             <p className="text-xs text-gray-500 mt-1">Improve your publication with AI</p>
                         </div>
 
-                        {/* Chat Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                            {chatMessages.length === 0 ? (
-                                <div className="text-center text-gray-500 text-sm py-8">
-                                    <p>Start a conversation to improve your publication</p>
+                        {/* Generated Text */}
+                        <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+                            {isGenerating ? (
+                                <div className="flex items-center justify-center py-8">
+                                    <div className="flex gap-1">
+                                        <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
+                                        <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
+                                        <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
+                                    </div>
                                 </div>
-                            ) : (
-                                chatMessages.map((message, index) => (
-                                    <div
-                                        key={index}
-                                        className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                                    >
-                                        <div
-                                            className={`max-w-[80%] rounded-lg px-4 py-2 ${message.role === "user"
-                                                ? "bg-blue-600 text-white"
-                                                : "bg-white text-gray-900 border border-gray-200"
-                                                }`}
+                            ) : aiGeneratedText ? (
+                                <>
+                                    <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+                                        <label className="text-sm font-medium text-gray-700">Generated Text</label>
+                                        <button
+                                            onClick={handleAcceptAIText}
+                                            className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                                         >
-                                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                            Accept
+                                        </button>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto p-4">
+                                        <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+                                            <p className="text-sm text-gray-900 whitespace-pre-wrap">{aiGeneratedText}</p>
                                         </div>
                                     </div>
-                                ))
-                            )}
-                            {isGenerating && (
-                                <div className="flex justify-start">
-                                    <div className="bg-white border border-gray-200 rounded-lg px-4 py-2">
-                                        <div className="flex gap-1">
-                                            <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
-                                            <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
-                                            <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
-                                        </div>
-                                    </div>
+                                </>
+                            ) : (
+                                <div className="text-center text-gray-500 text-sm py-8">
+                                    <p>Ask AI to improve, rewrite, or enhance your publication</p>
                                 </div>
                             )}
                         </div>
-
-                        {/* Generated Text Preview */}
-                        {aiGeneratedText && (
-                            <div className="border-t border-gray-200 bg-white p-4">
-                                <div className="mb-2 flex items-center justify-between">
-                                    <label className="text-sm font-medium text-gray-700">Generated Text</label>
-                                    <button
-                                        onClick={handleAcceptAIText}
-                                        className="rounded-lg bg-green-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-green-700"
-                                    >
-                                        Accept
-                                    </button>
-                                </div>
-                                <div className="rounded-lg border border-green-200 bg-green-50 p-3 max-h-[200px] overflow-y-auto">
-                                    <p className="text-sm text-gray-900 whitespace-pre-wrap">{aiGeneratedText}</p>
-                                </div>
-                            </div>
-                        )}
 
                         {/* Chat Input */}
                         <div className="mt-auto border-t border-gray-200 bg-white p-4 h-[72px] flex items-center">
