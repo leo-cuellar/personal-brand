@@ -39,7 +39,8 @@ export function IdeasReviewFlow({ ideas, onAccept, onReject, onExit }: IdeasRevi
                 } else {
                     // Index is still valid, it now points to the next idea
                     // Clear the last processed ID so we can process the next one
-                    setLastProcessedId(null);
+                    // Use setTimeout to avoid synchronous setState in effect
+                    setTimeout(() => setLastProcessedId(null), 0);
                 }
             }
         } else if (!isProcessing && ideas.length === 0) {
@@ -47,7 +48,8 @@ export function IdeasReviewFlow({ ideas, onAccept, onReject, onExit }: IdeasRevi
             onExit();
         } else if (!isProcessing && currentIndex >= ideas.length && ideas.length > 0) {
             // Index is out of bounds but there are still ideas, reset to 0
-            setCurrentIndex(0);
+            // Use setTimeout to avoid synchronous setState in effect
+            setTimeout(() => setCurrentIndex(0), 0);
         }
     }, [ideas, isProcessing, lastProcessedId, currentIndex, onExit]);
 
@@ -93,7 +95,7 @@ export function IdeasReviewFlow({ ideas, onAccept, onReject, onExit }: IdeasRevi
                     <div className="text-center">
                         <div className="mb-4 text-6xl">✅</div>
                         <h2 className="mb-2 text-2xl font-bold text-gray-900">All Done!</h2>
-                        <p className="mb-6 text-gray-600">You've reviewed all ideas.</p>
+                        <p className="mb-6 text-gray-600">You&apos;ve reviewed all ideas.</p>
                         <button
                             onClick={onExit}
                             className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
