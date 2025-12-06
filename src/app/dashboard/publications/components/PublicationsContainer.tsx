@@ -1,7 +1,7 @@
 "use client";
 
 import { PublicationsList } from "./PublicationsList";
-import type { LatePost } from "../../../../../../services/late/posts";
+import type { LatePost } from "../../../../../services/late/posts";
 
 interface PublicationsContainerProps {
     posts: LatePost[];

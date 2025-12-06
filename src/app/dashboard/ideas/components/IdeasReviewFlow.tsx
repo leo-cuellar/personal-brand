@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { PublicationIdea } from "../../../../../../services/supabase/schemas";
+import type { PublicationIdea } from "../../../../../services/supabase/schemas";
 
 interface IdeasReviewFlowProps {
     ideas: PublicationIdea[];

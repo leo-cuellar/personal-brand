@@ -7,7 +7,7 @@ import { useN8nHooks } from "@/hooks/useN8nHooks";
 import { IdeasReviewFlow } from "./IdeasReviewFlow";
 import { Icon } from "@/components/Icon";
 import { IconButton } from "@/components/IconButton";
-import type { PublicationIdea } from "../../../../../../services/supabase/schemas";
+import type { PublicationIdea } from "../../../../../services/supabase/schemas";
 
 export function PublicationIdeasPage() {
     const [activeTab, setActiveTab] = useState<"ready-for-review" | "accepted">("ready-for-review");

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/Dialog";
 import { useOpenAI } from "@/hooks/useOpenAI";
-import type { LatePost } from "../../../../../../services/late/posts";
+import type { LatePost } from "../../../../../services/late/posts";
 
 function formatDate(date: Date | string): string {
     const d = typeof date === "string" ? new Date(date) : date;
@@ -56,18 +56,18 @@ function formatDateHeader(dateKey: string): string {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     const dateStr = date.toISOString().split("T")[0];
     const todayStr = today.toISOString().split("T")[0];
     const yesterdayStr = yesterday.toISOString().split("T")[0];
-    
+
     if (dateStr === todayStr) {
         return "Today";
     }
     if (dateStr === yesterdayStr) {
         return "Yesterday";
     }
-    
+
     // Format as "Monday, January 15, 2024"
     return date.toLocaleDateString("en-US", {
         weekday: "long",
@@ -79,7 +79,7 @@ function formatDateHeader(dateKey: string): string {
 
 function groupPostsByDate(posts: LatePost[]): Map<string, LatePost[]> {
     const grouped = new Map<string, LatePost[]>();
-    
+
     for (const post of posts) {
         const dateKey = getDateKey(post);
         if (!grouped.has(dateKey)) {
@@ -87,13 +87,13 @@ function groupPostsByDate(posts: LatePost[]): Map<string, LatePost[]> {
         }
         grouped.get(dateKey)!.push(post);
     }
-    
+
     // Sort dates in ascending order (oldest first)
     // This ensures "Today" appears before future dates
     const sortedEntries = Array.from(grouped.entries()).sort((a, b) => {
         return a[0].localeCompare(b[0]);
     });
-    
+
     return new Map(sortedEntries);
 }
 
@@ -590,7 +590,7 @@ export function PublicationsList({
     loading,
 }: PublicationsListProps) {
     const groupedPosts = groupPostsByDate(posts);
-    
+
     return (
         <>
             {/* Posts List */}

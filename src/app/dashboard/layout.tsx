@@ -44,8 +44,8 @@ export default function DashboardLayout({
                                 Dashboard
                             </Link>
                             <Link
-                                href="/dashboard/content/trend-scanner"
-                                className={`whitespace-nowrap px-3 py-3 text-sm font-medium transition-colors sm:px-4 ${isActive("/dashboard/content/trend-scanner")
+                                href="/dashboard/trend-scanner"
+                                className={`whitespace-nowrap px-3 py-3 text-sm font-medium transition-colors sm:px-4 ${isActive("/dashboard/trend-scanner")
                                     ? "text-blue-600 border-b-2 border-blue-600"
                                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                                     }`}
@@ -53,8 +53,8 @@ export default function DashboardLayout({
                                 Trend Scanner
                             </Link>
                             <Link
-                                href="/dashboard/content/ideas"
-                                className={`whitespace-nowrap px-3 py-3 text-sm font-medium transition-colors sm:px-4 ${isActive("/dashboard/content/ideas")
+                                href="/dashboard/ideas"
+                                className={`whitespace-nowrap px-3 py-3 text-sm font-medium transition-colors sm:px-4 ${isActive("/dashboard/ideas")
                                     ? "text-blue-600 border-b-2 border-blue-600"
                                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                                     }`}
@@ -62,8 +62,8 @@ export default function DashboardLayout({
                                 Ideas
                             </Link>
                             <Link
-                                href="/dashboard/content/publications"
-                                className={`whitespace-nowrap px-3 py-3 text-sm font-medium transition-colors sm:px-4 ${isActive("/dashboard/content/publications")
+                                href="/dashboard/publications"
+                                className={`whitespace-nowrap px-3 py-3 text-sm font-medium transition-colors sm:px-4 ${isActive("/dashboard/publications")
                                     ? "text-blue-600 border-b-2 border-blue-600"
                                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                                     }`}

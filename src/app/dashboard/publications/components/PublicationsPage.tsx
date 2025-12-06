@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLate } from "@/hooks/useLate";
 import { PublicationsContainer } from "./PublicationsContainer";
-import type { LatePost } from "../../../../../../services/late/posts";
+import type { LatePost } from "../../../../../services/late/posts";
 
 type TabType = "draft" | "queue" | "sent";
 

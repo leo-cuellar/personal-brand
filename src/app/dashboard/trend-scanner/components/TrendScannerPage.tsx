@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { usePerplexity } from "@/hooks/usePerplexity";
 import { usePersonalBrandContext } from "@/contexts/PersonalBrandContext";
 import { usePublicationIdeas } from "@/hooks/usePublicationIdeas";
-import type { CategoryTrendsResult } from "../../../../../../services/api-wrapper/perplexity";
+import type { CategoryTrendsResult } from "../../../../../services/api-wrapper/perplexity";
 import { getTrendScannerCache, markTrendAsAdded } from "@/utils/trend-scanner-cache";
 import { Switch } from "@/components/Switch";
 
