@@ -19,14 +19,14 @@ export default function SettingsPage() {
 
             <div className="grid gap-6 md:grid-cols-2">
                 <Link
-                    href="/dashboard/settings/categories"
+                    href="/dashboard/settings/trend-scanner"
                     className="block rounded-lg border border-gray-300 bg-white px-4 py-3 text-left transition-colors hover:bg-gray-50"
                 >
                     <div className="font-medium text-gray-900">
-                        Publication Categories
+                        Trend Scanner Settings
                     </div>
                     <div className="text-sm text-gray-500">
-                        Manage categories for your publications
+                        Configure settings for trend scanner
                     </div>
                 </Link>
                 <Link
