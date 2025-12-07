@@ -1,8 +1,11 @@
 import { BuyerPersona } from "../schemas";
 
+const HARDCODED_PERSONAL_BRAND_ID = "00000000-0000-0000-0000-000000000001";
+
 export const mockBuyerPersonas: BuyerPersona[] = [
     {
         id: "00000000-0000-0000-0000-000000000010" as unknown as string,
+        personalBrandId: HARDCODED_PERSONAL_BRAND_ID as unknown as string,
         name: "Desarrollador Frontend Junior",
         description: "Desarrollador con 1-3 años de experiencia buscando crecer en su carrera, conseguir mejores oportunidades laborales y construir una base sólida para su futuro profesional.",
         goals: [
@@ -33,6 +36,7 @@ export const mockBuyerPersonas: BuyerPersona[] = [
     },
     {
         id: "00000000-0000-0000-0000-000000000011" as unknown as string,
+        personalBrandId: HARDCODED_PERSONAL_BRAND_ID as unknown as string,
         name: "Desarrollador Frontend Senior",
         description: "Desarrollador con 5+ años de experiencia buscando transicionar a roles de liderazgo o emprendimiento.",
         goals: [
@@ -60,6 +64,7 @@ export const mockBuyerPersonas: BuyerPersona[] = [
     },
     {
         id: "00000000-0000-0000-0000-000000000013" as unknown as string,
+        personalBrandId: HARDCODED_PERSONAL_BRAND_ID as unknown as string,
         name: "Fundador/CEO/Decision Maker",
         description: "Fundador de startup, CEO o tomador de decisiones en empresas que busca escalar su negocio y construir un equipo técnico de alto rendimiento.",
         goals: [

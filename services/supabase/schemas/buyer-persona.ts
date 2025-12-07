@@ -8,6 +8,7 @@ import {
     varchar,
     jsonb,
 } from "drizzle-orm/pg-core";
+import { personalBrands } from "./personal-brand";
 
 // Enum for knowledge level
 export const knowledgeLevelEnum = pgEnum("knowledge_level", ["low", "medium", "high"]);
@@ -15,6 +16,9 @@ export const knowledgeLevelEnum = pgEnum("knowledge_level", ["low", "medium", "h
 // Buyer personas table
 export const buyerPersonas = pgTable("buyer_personas", {
     id: uuid("id").primaryKey().defaultRandom(),
+    personalBrandId: uuid("personal_brand_id")
+        .references(() => personalBrands.id, { onDelete: "cascade" })
+        .notNull(),
     name: varchar("name", { length: 255 }).notNull(),
     description: text("description"),
     goals: jsonb("goals").notNull().default("[]"),

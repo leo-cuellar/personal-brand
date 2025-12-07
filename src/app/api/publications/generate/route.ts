@@ -1,17 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { getContext } from "./modules/getContext";
 
-export async function POST(request: NextRequest) {
+const HARDCODED_PERSONAL_BRAND_ID = "00000000-0000-0000-0000-000000000001";
+
+export async function POST() {
     try {
-        const body = await request.json();
-
-        // TODO: Implement publication generation logic
-        // This endpoint will handle the complete publication generation flow
-        // including multiple modules that can be called independently
+        // Get context for publication generation
+        const contextResult = await getContext(HARDCODED_PERSONAL_BRAND_ID);
 
         return NextResponse.json({
             success: true,
-            message: "Publication generation endpoint - implementation pending",
-            receivedBody: body,
+            message: "Publication generation endpoint - implementation in progress",
+            context: contextResult,
             data: null,
         });
     } catch (error) {

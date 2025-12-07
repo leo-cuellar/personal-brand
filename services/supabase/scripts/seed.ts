@@ -187,10 +187,11 @@ async function seedBuyerPersonas() {
 
             await client`
                 INSERT INTO public.buyer_personas (
-                    id, name, description, goals, frustrations, desires, knowledge_level,
+                    id, personal_brand_id, name, description, goals, frustrations, desires, knowledge_level,
                     created_at, updated_at, is_archived
                 ) VALUES (
                     ${persona.id}::uuid,
+                    ${persona.personalBrandId}::uuid,
                     ${persona.name},
                     ${persona.description || null},
                     ${JSON.stringify(goals)}::jsonb,
