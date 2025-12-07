@@ -109,7 +109,7 @@ export function IdeasReviewFlow({ ideas, onAccept, onReject, onExit }: IdeasRevi
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="fixed inset-0 z-50 flex flex-col bg-linear-to-br from-gray-50 to-gray-100">
             {/* Header with progress and exit */}
             <div className="border-b border-gray-200 bg-white px-6 py-4">
                 <div className="mx-auto flex max-w-4xl items-center justify-between">
