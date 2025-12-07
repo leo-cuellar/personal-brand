@@ -6,7 +6,15 @@ const HARDCODED_PERSONAL_BRAND_ID = "00000000-0000-0000-0000-000000000001";
 export async function POST() {
     try {
         // Get context for publication generation
-        const contextResult = await getContext(HARDCODED_PERSONAL_BRAND_ID);
+        const {
+            personalBrand,
+            publicationIdeas,
+            publicationTypes,
+            publicationStructures,
+            readerPersonas,
+        } = await getContext(HARDCODED_PERSONAL_BRAND_ID);
+
+
 
         return NextResponse.json({
             success: true,
