@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getContext } from "./modules/getContext";
+import { getPublicationAngle } from "./modules/getPublicationAngle";
 
 const HARDCODED_PERSONAL_BRAND_ID = "00000000-0000-0000-0000-000000000001";
 
@@ -14,12 +15,26 @@ export async function POST() {
             readerPersonas,
         } = await getContext(HARDCODED_PERSONAL_BRAND_ID);
 
+        // Extract angles for each idea-persona combination
+        const angles: unknown[] = [];
 
+        // Loop through each idea
+        for (const idea of publicationIdeas) {
+            // Loop through each persona
+            for (const persona of readerPersonas) {
+                const angle = await getPublicationAngle({
+                    idea,
+                    persona,
+                    personalBrand,
+                });
+                angles.push(angle);
+            }
+        }
 
         return NextResponse.json({
             success: true,
             message: "Publication generation endpoint - implementation in progress",
-            context: contextResult,
+            angles,
             data: null,
         });
     } catch (error) {
