@@ -4,14 +4,10 @@ import {
     timestamp,
     uuid,
     boolean,
-    pgEnum,
     varchar,
     jsonb,
 } from "drizzle-orm/pg-core";
 import { personalBrands } from "./personal-brand";
-
-// Enum for knowledge level
-export const knowledgeLevelEnum = pgEnum("knowledge_level", ["low", "medium", "high"]);
 
 // Buyer personas table
 export const buyerPersonas = pgTable("buyer_personas", {
@@ -24,7 +20,6 @@ export const buyerPersonas = pgTable("buyer_personas", {
     goals: jsonb("goals").notNull().default("[]"),
     frustrations: jsonb("frustrations").notNull().default("[]"),
     desires: jsonb("desires").notNull().default("[]"),
-    knowledgeLevel: knowledgeLevelEnum("knowledge_level").notNull().default("medium"),
     createdAt: timestamp("created_at", { withTimezone: true })
         .notNull()
         .defaultNow(),
@@ -45,5 +40,4 @@ export type NewBuyerPersona = Omit<typeof buyerPersonas.$inferInsert, "goals" | 
     frustrations?: string[];
     desires?: string[];
 };
-export type KnowledgeLevel = (typeof knowledgeLevelEnum.enumValues)[number];
 

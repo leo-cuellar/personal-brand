@@ -18,7 +18,7 @@ const PUBLICATION_TYPES_FIELDS = "id, name, description";
 const PUBLICATION_STRUCTURES_FIELDS = "id, name, description, structure";
 
 // Fields to include for reader personas query
-const READER_PERSONAS_FIELDS = "id, name, description, goals, frustrations, desires, knowledge_level";
+const READER_PERSONAS_FIELDS = "id, name, description, goals, frustrations, desires";
 
 // Fields to include for publication ideas query (excluding: personal_brand_id, status, created_at, updated_at, is_archived)
 const PUBLICATION_IDEAS_FIELDS = "id, title, description, link, source, source_summary, metadata";
